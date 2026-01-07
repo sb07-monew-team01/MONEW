@@ -1,0 +1,33 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/monew   # PostgreSQL DB 접속 URL
+    username: monew_user                          # DB 사용자 이름
+    password: monew1234                           # DB 비밀번호 (운영에선 환경변수 권장)
+    driver-class-name: org.postgresql.Driver      # PostgreSQL JDBC 드라이버
+
+  jpa:
+    hibernate:
+      ddl-auto: validate    # 엔티티 변경 시 DB 스키마 자동 반영 X
+    properties:
+      hibernate:
+        show_sql: true    # 실행되는 SQL을 로그로 출력
+        format_sql: true  # SQL 로그를 보기 좋게 포맷팅
+
+logging:
+  level:
+    root: info                                   # 전체 로그 기본 레벨
+    com.sprint.mission.discodeit: debug          # 프로젝트 패키지 로그를 상세히 출력
+    org.hibernate.SQL: debug                     # Hibernate 실행 SQL 출력
+    org.hibernate.orm.jdbc.bind: trace           # SQL 바인딩 파라미터까지 출력
+    #  실제 실행된 쿼리에 ? 에 바인딩된 값까지 확인 가능 (개발용으로 매우 유용)
+
+management:
+  endpoint:
+    health:
+      show-details: always   # /actuator/health 에 상세 정보 항상 노출 (개발용)
+  info:
+    env:
+      enabled: true          # /actuator/info 에 환경변수 정보 포함
