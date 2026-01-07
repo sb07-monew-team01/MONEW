@@ -52,3 +52,4 @@ $RECYCLE.BIN/
 # 환경변수
 .env
 
+/.github/
