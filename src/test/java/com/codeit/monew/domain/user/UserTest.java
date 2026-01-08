@@ -1,17 +1,17 @@
 package com.codeit.monew.domain.user;
 
+import com.codeit.monew.domain.BaseEntity;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class UserTest {
 
     @Test
     @DisplayName("사용자는 이메일, 닉네임, 비밀번호의 정보를 가진다면 생성할 수 있다.")
-    void createUser(){
+    void createUser() {
         // given
         String email = "hyo37009@gmail.com";
         String nickname = "hyo37";
@@ -26,7 +26,7 @@ class UserTest {
 
     @Test
     @DisplayName("닉네임을 수정할 수 있다.")
-    void changeNickname(){
+    void changeNickname() {
         // given
         User user = new User("hyo37009@gmail.com", "nickname", "password");
 
