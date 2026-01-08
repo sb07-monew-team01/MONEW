@@ -7,8 +7,9 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Table(name = "articles")
-@Entity @Getter
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class Article extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
