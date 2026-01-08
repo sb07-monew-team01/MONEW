@@ -21,7 +21,7 @@ public class ArticleServiceImpl implements ArticleService{
     public List<ArticleDto> searchByKeyword(String keyword) {
         List<Article> articles = articleRepository.findByKeyword(keyword);
         return articles.stream()
-                .map(article -> articleMapper.toDto(article))
+                .map(articleMapper::toDto)
                 .collect(Collectors.toList());
     }
 }

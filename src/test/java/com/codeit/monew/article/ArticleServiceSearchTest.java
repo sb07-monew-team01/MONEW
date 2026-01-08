@@ -18,7 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ArticleServiceSearchTest {
@@ -36,7 +37,7 @@ public class ArticleServiceSearchTest {
     class Search {
 
         @Test
-        @DisplayName("검색어가 기사 제목에 포함되면 조회할 수 있다.")
+        @DisplayName("검색어가 기사 제목 또는 요약에 포함되면 조회할 수 있다.")
         void titleOrSummaryContainingKeyword() {
             // given
             Article article1 = Article.builder()
@@ -54,9 +55,11 @@ public class ArticleServiceSearchTest {
             List<ArticleDto> articles = articleService.searchByKeyword(keyword);
 
             // then
+            verify(articleRepository, times(1)).findByKeyword(any());
+            verify(articleMapper, times(2)).toDto(any(Article.class));
             assertThat(articles).hasSize(2);
-            assertThat(articles.get(0).title()).contains(keyword);
-            assertThat(articles.get(1).summary()).isEqualTo("축구재밌다");
+            assertThat(articles).extracting(ArticleDto::title).contains("축구리그");
+            assertThat(articles).extracting(ArticleDto::summary).contains("축구재밌다");
         }
     }
 }
