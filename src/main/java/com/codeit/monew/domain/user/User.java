@@ -1,12 +1,13 @@
 package com.codeit.monew.domain.user;
 
+import com.codeit.monew.domain.BaseUpdatableEntity;
 import lombok.Getter;
 
 @Getter
-public class User {
-    private String email;
+public class User extends BaseUpdatableEntity {
+    private final String email;
     private String nickname;
-    private String password;
+    private final String password;
 
     public User(String email, String nickname, String password) {
         this.email = email;
