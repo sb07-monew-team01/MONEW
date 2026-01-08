@@ -1,5 +1,8 @@
 package com.codeit.monew.domain.user;
 
+import lombok.Getter;
+
+@Getter
 public class User {
     private String email;
     private String nickname;
@@ -9,5 +12,9 @@ public class User {
         this.email = email;
         this.nickname = nickname;
         this.password = password;
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
     }
 }
