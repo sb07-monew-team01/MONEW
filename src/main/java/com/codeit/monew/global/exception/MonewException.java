@@ -2,12 +2,12 @@ package com.codeit.monew.global.exception;
 
 import com.codeit.monew.global.enums.ErrorCode;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 public class MonewException extends RuntimeException {
-    private final Instant timestamp = Instant.now();
+    private final LocalDateTime timestamp = LocalDateTime.now();
     private final ErrorCode errorCode;
     protected final Map<String, Object> details;
 
