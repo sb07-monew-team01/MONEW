@@ -1,5 +1,7 @@
 package com.codeit.monew.article;
 
+import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;
+import com.codeit.monew.domain.article.dto.response.ArticleDto;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.article.service.ArticleService;
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -21,17 +24,20 @@ import static org.mockito.Mockito.when;
 public class ArticleServiceSearchTest {
 
     @Mock
-    ArticleRepository articleRepository;
+    private ArticleRepository articleRepository;
+
+    @Spy
+    private ArticleMapper articleMapper;
 
     @InjectMocks
-    ArticleServiceImpl articleService;
+    private ArticleServiceImpl articleService;
 
     @Nested
     class Search {
 
         @Test
         @DisplayName("검색어가 기사 제목에 포함되면 조회할 수 있다.")
-        void titleContainingKeyword() {
+        void titleOrSummaryContainingKeyword() {
             // given
             Article article1 = Article.builder()
                     .title("축구리그")
@@ -41,16 +47,16 @@ public class ArticleServiceSearchTest {
                     .build();
             String keyword = "축구";
 
-            when(articleRepository.findByTitleContainingOrSummaryContaining(keyword))
+            when(articleRepository.findByKeyword(keyword))
                     .thenReturn(List.of(article1, article2));
 
             // when
-            List<Article> articles = articleService.searchByKeyword(keyword);
+            List<ArticleDto> articles = articleService.searchByKeyword(keyword);
 
             // then
             assertThat(articles).hasSize(2);
-            assertThat(articles.get(0).getTitle()).contains(keyword);
-            assertThat(articles.get(1).getSummary()).isEqualTo("축구재밌다");
+            assertThat(articles.get(0).title()).contains(keyword);
+            assertThat(articles.get(1).summary()).isEqualTo("축구재밌다");
         }
     }
 }
