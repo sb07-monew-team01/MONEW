@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class NotificationServiceImp implements NotificationService {
+public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
 
@@ -23,20 +23,18 @@ public class NotificationServiceImp implements NotificationService {
 
         Notification notification = new Notification(userId,resourceId, ResourceType.INTEREST,content);
 
-
+        Notification saved = notificationRepository.save(notification);
 
         NotificationDto notificationDto = new NotificationDto(
-                notification.getId(),
-                notification.getCreatedAt(),
-                notification.getUpdatedAt(),
-                notification.getConfirmed(),
-                notification.getUserId(),
-                notification.getContent(),
-                notification.getResourceType(),
-                notification.getResourceId()
+                saved.getId(),
+                saved.getCreatedAt(),
+                saved.getUpdatedAt(),
+                saved.getConfirmed(),
+                saved.getUserId(),
+                saved.getContent(),
+                saved.getResourceType(),
+                saved.getResourceId()
         );
-
-        notificationRepository.save(notification);
 
         return notificationDto;
     }
@@ -48,19 +46,18 @@ public class NotificationServiceImp implements NotificationService {
 
         Notification notification = new Notification(userId,resourceId, ResourceType.COMMENT,content);
 
+        Notification saved = notificationRepository.save(notification);
 
         NotificationDto notificationDto = new NotificationDto(
-                notification.getId(),
-                notification.getCreatedAt(),
-                notification.getUpdatedAt(),
-                notification.getConfirmed(),
-                notification.getUserId(),
-                notification.getContent(),
-                notification.getResourceType(),
-                notification.getResourceId()
+                saved.getId(),
+                saved.getCreatedAt(),
+                saved.getUpdatedAt(),
+                saved.getConfirmed(),
+                saved.getUserId(),
+                saved.getContent(),
+                saved.getResourceType(),
+                saved.getResourceId()
         );
-
-        notificationRepository.save(notification);
 
         return notificationDto;
     }
