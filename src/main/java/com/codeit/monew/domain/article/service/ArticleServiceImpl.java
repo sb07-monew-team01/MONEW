@@ -15,6 +15,6 @@ public class ArticleServiceImpl implements ArticleService{
 
     @Override
     public List<Article> searchByKeyword(String keyword) {
-        return articleRepository.findByTitleContaining(keyword);
+        return articleRepository.findByTitleContainingOrSummaryContaining(keyword);
     }
 }

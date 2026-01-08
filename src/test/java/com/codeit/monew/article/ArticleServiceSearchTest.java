@@ -50,7 +50,7 @@ public class ArticleServiceSearchTest {
             // then
             assertThat(articles).hasSize(2);
             assertThat(articles.get(0).getTitle()).contains(keyword);
-            assertThat(articles.get(1).getTitle()).isEqualTo("축구재밌다");
+            assertThat(articles.get(1).getSummary()).isEqualTo("축구재밌다");
         }
     }
 }
