@@ -5,6 +5,10 @@ package com.codeit.monew.notification;
 
 import com.codeit.monew.domain.notification.entity.Notification;
 import com.codeit.monew.domain.notification.dto.response.NotificationDto;
+import com.codeit.monew.domain.notification.entity.ResourceType;
+import com.codeit.monew.domain.notification.repository.NotificationRepository;
+import com.codeit.monew.domain.notification.service.NotificationService;
+import com.codeit.monew.domain.notification.service.NotificationServiceImp;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,7 +31,7 @@ public class NotificationServiceTest {
     private NotificationRepository notificationRepository;
 
     @InjectMocks
-    private NotificationtionService notificationtionService;
+    private NotificationServiceImp notificationService;
 
     private UUID userId;
     private UUID resourceId;
@@ -46,11 +50,11 @@ public class NotificationServiceTest {
        int resourceCont = 4;
        String resourceName = "축구";
        // when
-      NotificationDto result = notificationtionService.createByInterest(userId,resourceId,resourceName,resourceCont);
+      NotificationDto result = notificationService.createByInterest(userId,resourceId,resourceName,resourceCont);
 
        
        // then
-       assertThat(result.resourceType()).isEqualTo("INTEREST");
+       assertThat(result.resourceType()).isEqualTo(ResourceType.INTEREST);
        assertThat(result.content()).isEqualTo("축구와 관련된 기사가 4건 등록되었습니다.");
        verify(notificationRepository).save(any(Notification.class));
    }
@@ -61,13 +65,11 @@ public class NotificationServiceTest {
         // given
         String name = "좋아요누른사람";
         // when
-        NotificationDto result = notificationtionService.createByCommentLike(userId,resourceId,name);
+        NotificationDto result = notificationService.createByCommentLike(userId,resourceId,name);
         // then
-        assertThat(result.resourceType()).isEqualTo("COMMENT");
+        assertThat(result.resourceType()).isEqualTo(ResourceType.COMMENT);
         assertThat(result.content()).isEqualTo("좋아요누른사람님이 나의 댓글을 좋아합니다.");
         verify(notificationRepository).save(any(Notification.class));
     }
-   
-   
 
 }
