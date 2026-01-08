@@ -20,11 +20,11 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class ArticleServiceSearchTest {
 
-    @InjectMocks
-    ArticleServiceImpl articleService;
-
     @Mock
     ArticleRepository articleRepository;
+
+    @InjectMocks
+    ArticleServiceImpl articleService;
 
     @Nested
     class Search {
@@ -33,20 +33,24 @@ public class ArticleServiceSearchTest {
         @DisplayName("검색어가 기사 제목에 포함되면 조회할 수 있다.")
         void titleContainingKeyword() {
             // given
-            Article article = Article.builder()
+            Article article1 = Article.builder()
                     .title("축구리그")
+                    .build();
+            Article article2 = Article.builder()
+                    .summary("축구재밌다")
                     .build();
             String keyword = "축구";
 
-            when(articleRepository.findByTitleContaining(keyword))
-                    .thenReturn(List.of(article));
+            when(articleRepository.findByTitleContainingOrSummaryContaining(keyword))
+                    .thenReturn(List.of(article1, article2));
 
             // when
             List<Article> articles = articleService.searchByKeyword(keyword);
 
             // then
-            assertThat(articles).hasSize(1);
-            assertThat(articles.get(0).getTitle()).isEqualTo("축구리그");
+            assertThat(articles).hasSize(2);
+            assertThat(articles.get(0).getTitle()).contains(keyword);
+            assertThat(articles.get(1).getTitle()).isEqualTo("축구재밌다");
         }
     }
 }
