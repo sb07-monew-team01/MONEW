@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +55,7 @@ public class UserServiceTest {
         String email = "email@email.com";
         String password = "password";
         User user = new User(email, "nickname", password);
-        when(userRepository.findByEmail(email)).thenReturn(user);
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
         when(userMapper.from(any(User.class)))
                 .thenReturn(new UserDto(UUID.randomUUID(), email, "nickname", LocalDateTime.now()));
 
