@@ -37,5 +37,4 @@ class UserTest {
         //then
         assertThat(user.getNickname()).isEqualTo(newNickname);
     }
-
 }
