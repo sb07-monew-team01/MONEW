@@ -8,6 +8,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,6 +25,9 @@ public class User extends BaseUpdatableEntity {
     @Column(nullable = false)
     private String password;
 
+    @Column
+    private LocalDateTime deletedAt;
+
     public User(String email, String nickname, String password) {
         this.email = email;
         this.nickname = nickname;
@@ -31,5 +36,9 @@ public class User extends BaseUpdatableEntity {
 
     public void updateNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void updateDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }

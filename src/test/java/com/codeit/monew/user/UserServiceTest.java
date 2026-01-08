@@ -1,0 +1,50 @@
+package com.codeit.monew.user;
+
+import com.codeit.monew.domain.user.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+public class UserServiceTest {
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private UserMapper userMapper;
+
+    @InjectMocks
+    private UserService userService;
+
+    @Test
+    @DisplayName("이메일, 닉네임, 비밀번호로 회원 가입을 할 수 있다.")
+    void signIn() {
+        // given
+        UserSignInRequest dto = new UserSignInRequest("someemail@gmail.com", "닉네임이야", "password1");
+        when(userRepository.save(any(User.class)))
+                .thenReturn(new User(dto.email(), dto.nickname(), dto.password()));
+        when(userMapper.from(any(User.class)))
+                .thenReturn(new UserDto(UUID.randomUUID(), dto.email(), dto.nickname(), LocalDateTime.now()));
+
+        // when
+        UserDto response = userService.signIn(dto);
+
+        //then
+        verify(userRepository).save(any(User.class));
+        verify(userMapper).from(any(User.class));
+        assertThat(response).isNotNull();
+    }
+
+}
