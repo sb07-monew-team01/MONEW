@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,7 +21,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -44,13 +45,17 @@ public class NotificationServiceTest {
    @Test
    @DisplayName("관심사에 의한 알람 생성시 만들어진 dto의 필드값(resourceType,content)확인,Notification객체가 save되는지 확인")
    void create_interest_Notification() {
-
-       // given 축구 관심사가 4개 등록되었다는 가정
+       // given
        int resourceCont = 4;
        String resourceName = "축구";
 
+       // save 호출 시 null 반환 방지
+       when(notificationRepository.save(any(Notification.class)))
+               .thenAnswer(inv -> inv.getArgument(0));
+
        // when
-      NotificationDto result = notificationService.createByInterest(userId,resourceId,resourceName,resourceCont);
+       NotificationDto result =
+               notificationService.createByInterest(userId, resourceId, resourceName, resourceCont);
 
        // then
        assertThat(result.resourceType()).isEqualTo(ResourceType.INTEREST);
@@ -64,6 +69,10 @@ public class NotificationServiceTest {
 
         // given
         String name = "좋아요누른사람";
+
+        // save 호출 시 null 반환 방지
+        when(notificationRepository.save(any(Notification.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
 
         // when
         NotificationDto result = notificationService.createByCommentLike(userId,resourceId,name);
