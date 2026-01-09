@@ -16,16 +16,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment extends BaseUpdatableEntity {
 
-    @Column(name = "content", nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at", nullable = true)
     private LocalDateTime updatedAt;
 
-    @Column(name = "deleted_at", nullable = false)
+    @Column(name = "deleted_at", nullable = true)
     private LocalDateTime deletedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,6 +37,5 @@ public class Comment extends BaseUpdatableEntity {
         this.user = user;
         this.article = article;
         this.content = content;
-        this.createdAt = LocalDateTime.now();
     }
 }
