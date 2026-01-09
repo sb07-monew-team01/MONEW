@@ -17,11 +17,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
+import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,23 +45,23 @@ public class ArticleServiceSearchTest {
             Article article1 = Article.builder()
                     .title("네이버 뉴스")
                     .source(ArticleSource.NAVER)
-                    .publishDate(LocalDateTime.now())
+                    .publishDate(now())
                     .build();
             Article article2 = Article.builder()
                     .title("조선 뉴스")
                     .source(ArticleSource.CHOSUN)
-                    .publishDate(LocalDateTime.now().minusDays(1))
+                    .publishDate(now().minusDays(1))
                     .build();
             Article article3 = Article.builder()
                     .title("한경 뉴스")
                     .source(ArticleSource.HANKYUNG)
-                    .publishDate(LocalDateTime.now().minusDays(2))
+                    .publishDate(now().minusDays(2))
                     .build();
 
             String keyword = "뉴스";
             List<ArticleSource> sources = List.of(ArticleSource.NAVER, ArticleSource.HANKYUNG);
-            LocalDateTime publishDateTo = LocalDate.now().atTime(LocalTime.MIDNIGHT);
-            LocalDateTime publishDateFrom = publishDateTo.minusDays(7);
+            LocalDateTime publishDateTo = LocalDate.now().plusDays(1).atStartOfDay();
+            LocalDateTime publishDateFrom = LocalDate.now().minusDays(7).atStartOfDay();
 
             when(articleRepository.findByKeywordAndSource(keyword, sources, publishDateFrom, publishDateTo))
                     .thenReturn(List.of(article3));

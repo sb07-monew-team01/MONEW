@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,7 +25,10 @@ class ArticleRepositoryImplTest {
     private ArticleRepository articleRepository;
 
     @Test
-    @DisplayName("검색어와 출처가 비어있으면 출처가 NAVER인 기사 전체가 조회된다.")
+    @DisplayName("""
+    검색어와 출처가 비어있으면 출처가 NAVER인 기사 전체가 조회된다.
+    날짜 범위가 비어있으면 오늘~7일전 사이의 기사가 조회된다.
+    """)
     void searchAllNaverArticle_EmptyKeyword_EmptySource() {
         // given
         Article article1 = Article.builder()
@@ -39,7 +43,7 @@ class ArticleRepositoryImplTest {
                 .source(ArticleSource.NAVER)
                 .sourceUrl("b")
                 .summary("b")
-                .publishDate(LocalDateTime.now())
+                .publishDate(LocalDateTime.now().minusDays(14))
                 .build();
         Article article3 = Article.builder()
                 .title("한경 뉴스")
@@ -53,7 +57,7 @@ class ArticleRepositoryImplTest {
                 .source(ArticleSource.CHOSUN)
                 .sourceUrl("d")
                 .summary("d")
-                .publishDate(LocalDateTime.now())
+                .publishDate(LocalDateTime.now().plusDays(2))
                 .build();
 
         articleRepository.save(article1);
@@ -63,12 +67,17 @@ class ArticleRepositoryImplTest {
 
         String keyword = null;
         List<ArticleSource> sources = null;
+        LocalDateTime publishDateFrom = null;
+        LocalDateTime publishDateTo = null;
 
         // when
-        List<Article> articles = articleRepository.findByKeywordAndSource(keyword, sources);
+        List<Article> articles = articleRepository.findByKeywordAndSource(keyword, sources, publishDateFrom, publishDateTo);
 
         // then
-        assertThat(articles).hasSize(2);
+        assertThat(articles).hasSize(1);
         assertThat(articles).extracting(Article::getSource).containsOnly(ArticleSource.NAVER);
+        assertThat(articles.get(0).getPublishDate())
+                .isAfter(LocalDate.now().minusDays(7).atStartOfDay())
+                .isBefore(LocalDate.now().plusDays(1).atStartOfDay());
     }
 }

@@ -9,6 +9,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -18,12 +20,15 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Article> findByKeywordAndSource(String keyword, List<ArticleSource> sources) {
+    public List<Article> findByKeywordAndSource(String keyword, List<ArticleSource> sources,
+                                                LocalDateTime publishDateFrom, LocalDateTime publishDateTo) {
         return queryFactory
                 .selectFrom(article)
                 .where(
                         keywordContains(keyword),
-                        sourceIn(sources)
+                        sourceIn(sources),
+                        startDate(publishDateFrom),
+                        endDate(publishDateTo)
                 )
                 .fetch();
     }
@@ -38,5 +43,17 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         if (sources == null || sources.isEmpty())
             return article.source.eq(ArticleSource.NAVER);
         return article.source.in(sources);
+    }
+
+    BooleanExpression startDate(LocalDateTime from) {
+        if (from == null)
+            from = LocalDate.now().minusDays(7).atStartOfDay();
+        return article.publishDate.goe(from);
+    }
+
+    BooleanExpression endDate(LocalDateTime to) {
+        if (to == null)
+            to = LocalDate.now().plusDays(1).atStartOfDay();
+        return article.publishDate.lt(to);
     }
 }
