@@ -1,6 +1,7 @@
 package com.codeit.monew.domain.interest.entity;
 
 import com.codeit.monew.domain.BaseUpdatableEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
@@ -17,6 +18,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Interest extends BaseUpdatableEntity {
 
+    @Column(nullable = false)
     private String name;
 
     @Transient
