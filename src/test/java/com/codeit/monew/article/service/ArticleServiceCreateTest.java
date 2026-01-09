@@ -52,9 +52,9 @@ public class ArticleServiceCreateTest {
                     .summary(request.summary())
                     .build();
 
-            UUID instantId =  UUID.randomUUID();
+            UUID interestId =  UUID.randomUUID();
             // when
-            articleService.createArticle(request, instantId);
+            articleService.createArticle(request, interestId);
 
             //then
             then(articleRepository).should(times(1)).save(any(Article.class));

@@ -28,7 +28,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public void createArticle(ArticleCreateRequest request, UUID instantId) {
+    public void createArticle(ArticleCreateRequest request, UUID interestId) {
         Article article = Article.builder()
                 .source(request.source())
                 .sourceUrl(request.sourceUrl())
