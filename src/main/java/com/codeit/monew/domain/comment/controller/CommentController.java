@@ -3,8 +3,10 @@ package com.codeit.monew.domain.comment.controller;
 import com.codeit.monew.domain.comment.dto.request.CommentRegisterRequest;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
 import com.codeit.monew.domain.comment.service.CommentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,8 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommentController {
     private final CommentService commentService;
 
-    public ResponseEntity<CommentDto> create(@RequestBody CommentRegisterRequest request) {
+    @PostMapping
+    public ResponseEntity<CommentDto> create(@Valid @RequestBody CommentRegisterRequest request) {
         CommentDto created = commentService.createComment(request);
-        return ResponseEntity.ok(created);
+        return ResponseEntity.status(201).body(created);
     }
 }
