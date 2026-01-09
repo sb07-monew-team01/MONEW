@@ -2,6 +2,7 @@ package com.codeit.monew.interest.unit.service;
 
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.*;
+import com.codeit.monew.domain.interest.policy.InterestNamePolicy;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interest.service.InterestServiceImpl;
 import com.codeit.monew.global.enums.ErrorCode;
@@ -24,6 +25,9 @@ import static org.mockito.BDDMockito.given;
 public class InterestServiceImplTest {
     @Mock
     InterestRepository interestRepository;
+
+    @Mock
+    InterestNamePolicy interestNamePolicy;
 
     @InjectMocks
     InterestServiceImpl interestService;
