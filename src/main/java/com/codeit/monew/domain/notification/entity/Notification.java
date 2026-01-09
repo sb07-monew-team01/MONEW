@@ -1,9 +1,7 @@
 package com.codeit.monew.domain.notification.entity;
 
 import com.codeit.monew.domain.BaseUpdatableEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,6 +22,7 @@ public class Notification extends BaseUpdatableEntity {
     @Column(nullable = false)
     private UUID resourceId;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false,length = 30)
     private ResourceType resourceType;
 
