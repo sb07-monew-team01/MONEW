@@ -1,10 +1,7 @@
 package com.codeit.monew.interest.unit.service;
 
 import com.codeit.monew.domain.interest.entity.Interest;
-import com.codeit.monew.domain.interest.exception.InterestDuplicateKeywordException;
-import com.codeit.monew.domain.interest.exception.InterestEmptyKeywordException;
-import com.codeit.monew.domain.interest.exception.InterestNameTooSimilarException;
-import com.codeit.monew.domain.interest.exception.InterestNullKeywordException;
+import com.codeit.monew.domain.interest.exception.*;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interest.service.InterestServiceImpl;
 import com.codeit.monew.global.enums.ErrorCode;
@@ -79,9 +76,9 @@ public class InterestServiceImplTest {
             List<String> keywords = List.of("java", "spring", "java");
 
             // when & then
-            InterestDuplicateKeywordException exception = catchThrowableOfType(
+            KeywordValidException exception = catchThrowableOfType(
                     () -> interestService.create(name, keywords),
-                    InterestDuplicateKeywordException.class
+                    KeywordValidException.class
             );
 
             assertThat(exception.getErrorCode())
@@ -96,9 +93,9 @@ public class InterestServiceImplTest {
             List<String> keywords = List.of();
 
             // when & then
-            InterestEmptyKeywordException exception = catchThrowableOfType(
+            KeywordValidException exception = catchThrowableOfType(
                     () -> interestService.create(name, keywords),
-                    InterestEmptyKeywordException.class
+                    KeywordValidException.class
             );
 
             assertThat(exception.getErrorCode())
@@ -113,9 +110,9 @@ public class InterestServiceImplTest {
             List<String> keywords = null;
 
             // when & then
-            InterestNullKeywordException exception = catchThrowableOfType(
+            KeywordValidException exception = catchThrowableOfType(
                     () -> interestService.create(name, keywords),
-                    InterestNullKeywordException.class
+                    KeywordValidException.class
             );
 
             assertThat(exception.getErrorCode())
