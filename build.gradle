@@ -35,6 +35,9 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    //문자열 처리 전용 유틸
+    implementation "org.apache.commons:commons-text:1.11.0"
 }
 
 tasks.named('test') {

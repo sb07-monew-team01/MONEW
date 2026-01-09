@@ -1,4 +1,6 @@
-package com.codeit.monew.domain.interest;
+package com.codeit.monew.domain.interest.service;
+
+import com.codeit.monew.domain.interest.entity.Interest;
 
 import java.util.List;
 
