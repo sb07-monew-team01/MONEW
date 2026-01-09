@@ -1,5 +1,6 @@
-package com.codeit.monew.domain.interest;
+package com.codeit.monew.domain.interest.exception;
 
+import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.global.enums.ErrorCode;
 import com.codeit.monew.global.exception.MonewException;
 

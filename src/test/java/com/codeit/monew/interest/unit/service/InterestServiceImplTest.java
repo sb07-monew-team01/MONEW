@@ -1,9 +1,9 @@
 package com.codeit.monew.interest.unit.service;
 
-import com.codeit.monew.domain.interest.Interest;
-import com.codeit.monew.domain.interest.InterestNameTooSimilarException;
-import com.codeit.monew.domain.interest.InterestRepository;
-import com.codeit.monew.domain.interest.InterestServiceImpl;
+import com.codeit.monew.domain.interest.entity.Interest;
+import com.codeit.monew.domain.interest.exception.InterestNameTooSimilarException;
+import com.codeit.monew.domain.interest.repository.InterestRepository;
+import com.codeit.monew.domain.interest.service.InterestServiceImpl;
 import com.codeit.monew.global.enums.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
