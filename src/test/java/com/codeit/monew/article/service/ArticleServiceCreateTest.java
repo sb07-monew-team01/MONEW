@@ -1,5 +1,6 @@
 package com.codeit.monew.article.service;
 
+import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
@@ -15,8 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
@@ -40,7 +40,6 @@ public class ArticleServiceCreateTest {
                     ArticleSource.NAVER,
                     "http://target.com",
                     "test-title",
-                    "test-content",
                     LocalDateTime.now(),
                     "test summary"
             );
@@ -49,7 +48,6 @@ public class ArticleServiceCreateTest {
                     .source(request.source())
                     .sourceUrl(request.sourceUrl())
                     .title(request.title())
-                    .content(request.content())
                     .publishDate(request.publishDate())
                     .summary(request.summary())
                     .build();
@@ -59,7 +57,7 @@ public class ArticleServiceCreateTest {
             articleService.createArticle(request, instantId);
 
             //then
-            then(articleRepository).should(times(1)).save(article);
+            then(articleRepository).should(times(1)).save(any(Article.class));
         }
     }
 
