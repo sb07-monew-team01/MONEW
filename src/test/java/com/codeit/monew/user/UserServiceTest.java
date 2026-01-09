@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,4 +48,24 @@ public class UserServiceTest {
         assertThat(response).isNotNull();
     }
 
+    @Test
+    @DisplayName("이메일과 비밀번호로 로그인할 수 있다.")
+    void Login(){
+        // given
+        String email = "email@email.com";
+        String password = "password";
+        User user = new User(email, "nickname", password);
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+        when(userMapper.from(any(User.class)))
+                .thenReturn(new UserDto(UUID.randomUUID(), email, "nickname", LocalDateTime.now()));
+
+        // when
+        UserDto userDto = userService.login(email, password);
+
+        //then
+        verify(userRepository).findByEmail(email);
+        verify(userMapper).from(any(User.class));
+        assertThat(userDto).isNotNull();
+
+    }
 }

@@ -1,5 +1,7 @@
 package com.codeit.monew.article;
 
+import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;
+import com.codeit.monew.domain.article.dto.response.ArticleDto;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.article.service.ArticleService;
@@ -10,43 +12,54 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ArticleServiceSearchTest {
 
-    @InjectMocks
-    ArticleServiceImpl articleService;
-
     @Mock
-    ArticleRepository articleRepository;
+    private ArticleRepository articleRepository;
+
+    @Spy
+    private ArticleMapper articleMapper;
+
+    @InjectMocks
+    private ArticleServiceImpl articleService;
 
     @Nested
     class Search {
 
         @Test
-        @DisplayName("검색어가 기사 제목에 포함되면 조회할 수 있다.")
-        void titleContainingKeyword() {
+        @DisplayName("검색어가 기사 제목 또는 요약에 포함되면 조회할 수 있다.")
+        void titleOrSummaryContainingKeyword() {
             // given
-            Article article = Article.builder()
+            Article article1 = Article.builder()
                     .title("축구리그")
+                    .build();
+            Article article2 = Article.builder()
+                    .summary("축구재밌다")
                     .build();
             String keyword = "축구";
 
-            when(articleRepository.findByTitleContaining(keyword))
-                    .thenReturn(List.of(article));
+            when(articleRepository.findByKeyword(keyword))
+                    .thenReturn(List.of(article1, article2));
 
             // when
-            List<Article> articles = articleService.searchByKeyword(keyword);
+            List<ArticleDto> articles = articleService.searchByKeyword(keyword);
 
             // then
-            assertThat(articles).hasSize(1);
-            assertThat(articles.get(0).getTitle()).isEqualTo("축구리그");
+            verify(articleRepository, times(1)).findByKeyword(any());
+            verify(articleMapper, times(2)).toDto(any(Article.class));
+            assertThat(articles).hasSize(2);
+            assertThat(articles).extracting(ArticleDto::title).contains("축구리그");
+            assertThat(articles).extracting(ArticleDto::summary).contains("축구재밌다");
         }
     }
 }
