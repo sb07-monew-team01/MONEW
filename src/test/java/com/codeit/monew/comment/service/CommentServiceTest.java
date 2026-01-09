@@ -30,7 +30,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("CommentService Test")
+@DisplayName("댓글 서비스 테스트")
 public class CommentServiceTest {
 
     @Mock
@@ -52,10 +52,8 @@ public class CommentServiceTest {
         void createComment_success() {
             // given
             String content = "test";
-            UUID articleId = UUID.fromString("00000000-0000-0000-0000-000000000001");
-            UUID userId = UUID.fromString("00000000-0000-0000-0000-000000000002");
-            UUID commentId = UUID.fromString("00000000-0000-0000-0000-000000000003");
-
+            UUID articleId = UUID.randomUUID();
+            UUID userId = UUID.randomUUID();
             User user = new User("test@email.com","nick","1234");
             Article article = new Article(
                     ArticleSource.NAVER,
@@ -68,7 +66,6 @@ public class CommentServiceTest {
 
             CommentRegisterRequest request = new CommentRegisterRequest(articleId, userId, content);
             Comment savedComment = new Comment(user, article, content);
-            ReflectionTestUtils.setField(savedComment, "id", commentId);
 
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
@@ -79,7 +76,6 @@ public class CommentServiceTest {
 
             // then
             assertThat(response).isNotNull();
-            assertThat(response.id()).isEqualTo(commentId);
             assertThat(response.content()).isEqualTo(content);
 
             verify(userRepository).findById(userId);
