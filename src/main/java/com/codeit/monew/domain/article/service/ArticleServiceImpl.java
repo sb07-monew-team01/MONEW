@@ -8,6 +8,7 @@ import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,6 +21,7 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticleRepository articleRepository;
     private ArticleMapper articleMapper;
 
+    @Transactional
     @Override
     public List<ArticleDto> searchByKeyword(String keyword, List<ArticleSource> sources) {
         List<Article> articles = articleRepository.findByKeywordAndSource(keyword, sources);
@@ -28,8 +30,12 @@ public class ArticleServiceImpl implements ArticleService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public void createArticle(ArticleCreateRequest request, UUID interestId) {
+        if(articleRepository.existsBySourceUrl(request.sourceUrl()))
+            return;
+
         Article article = Article.builder()
                 .source(request.source())
                 .sourceUrl(request.sourceUrl())
