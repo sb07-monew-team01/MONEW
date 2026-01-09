@@ -35,4 +35,11 @@ public class Comment extends BaseUpdatableEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "article_id", nullable = false)
     private Article article;
+
+    public Comment(User user, Article article, String content) {
+        this.user = user;
+        this.article = article;
+        this.content = content;
+        this.createdAt = LocalDateTime.now();
+    }
 }
