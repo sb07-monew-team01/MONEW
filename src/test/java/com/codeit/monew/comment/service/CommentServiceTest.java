@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -42,30 +43,32 @@ public class CommentServiceTest {
     @InjectMocks
     private CommentServiceImpl commentService;
 
-    private UUID userId;
-    private UUID articleId;
-
     @Nested
-    @DisplayName("createComment()")
+    @DisplayName("댓글을 등록할 수 있다.")
     class CreateComment {
 
         @Test
-        @DisplayName("should create comment when user and article exist")
+        @DisplayName("유저와 기사가 있으면 댓글이 정상적으로 등록된다")
         void createComment_success() {
             // given
             String content = "test";
+            UUID articleId = UUID.fromString("00000000-0000-0000-0000-000000000001");
+            UUID userId = UUID.fromString("00000000-0000-0000-0000-000000000002");
+            UUID commentId = UUID.fromString("00000000-0000-0000-0000-000000000003");
 
             User user = new User("test@email.com","nick","1234");
             Article article = new Article(
                     ArticleSource.NAVER,
-                    "www.naver.com/123",
-                    "제목입니다.", LocalDateTime.now(),
+                    "www.naver.com/article/123",
+                    "제목입니다.",
+                    LocalDateTime.now(),
                     "요약입니다.",
                     null
             );
 
-            CommentRegisterRequest request = new CommentRegisterRequest(userId, articleId, content);
+            CommentRegisterRequest request = new CommentRegisterRequest(articleId, userId, content);
             Comment savedComment = new Comment(user, article, content);
+            ReflectionTestUtils.setField(savedComment, "id", commentId);
 
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
@@ -76,7 +79,9 @@ public class CommentServiceTest {
 
             // then
             assertThat(response).isNotNull();
+            assertThat(response.id()).isEqualTo(commentId);
             assertThat(response.content()).isEqualTo(content);
+
             verify(userRepository).findById(userId);
             verify(articleRepository).findById(articleId);
             verify(commentRepository).save(any(Comment.class));
