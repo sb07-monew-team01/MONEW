@@ -34,7 +34,7 @@ public class Notification extends BaseUpdatableEntity {
     @ColumnDefault("false")
     private Boolean confirmed;
 
-    protected Notification(UUID userId, UUID resourceId, ResourceType resourceType,String content) {
+    private Notification(UUID userId, UUID resourceId, ResourceType resourceType, String content) {
         this.userId = userId;
         this.resourceId = resourceId;
         this.resourceType = resourceType;
