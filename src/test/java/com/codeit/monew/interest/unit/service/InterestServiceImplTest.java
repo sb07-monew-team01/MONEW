@@ -2,6 +2,7 @@ package com.codeit.monew.interest.unit.service;
 
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.InterestDuplicateKeywordException;
+import com.codeit.monew.domain.interest.exception.InterestEmptyKeywordException;
 import com.codeit.monew.domain.interest.exception.InterestNameTooSimilarException;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interest.service.InterestServiceImpl;
@@ -84,6 +85,23 @@ public class InterestServiceImplTest {
 
             assertThat(exception.getErrorCode())
                     .isEqualTo(ErrorCode.INTEREST_KEYWORD_DUPLICATE);
+        }
+
+        @Test
+        @DisplayName("실패: 관심사의 키워드가 없으면 예외가 발생한다")
+        void fail_create_interest_empty_keyword(){
+            // given
+            String name = "프로그래밍";
+            List<String> keywords = List.of();
+
+            // when & then
+            InterestEmptyKeywordException exception = catchThrowableOfType(
+                    () -> interestService.create(name, keywords),
+                    InterestEmptyKeywordException.class
+            );
+
+            assertThat(exception.getErrorCode())
+                    .isEqualTo(ErrorCode.INTEREST_EMPTY_KEYWORD);
         }
     }
 }
