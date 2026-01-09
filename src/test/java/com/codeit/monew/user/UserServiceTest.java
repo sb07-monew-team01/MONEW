@@ -1,6 +1,7 @@
 package com.codeit.monew.user;
 
 import com.codeit.monew.domain.user.*;
+import com.codeit.monew.domain.user.exception.UserLoginFailedException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -67,5 +69,19 @@ public class UserServiceTest {
         verify(userMapper).from(any(User.class));
         assertThat(userDto).isNotNull();
 
+    }
+
+    @Test
+    @DisplayName("이메일과 비밀번호가 일치하지 않으면 로그인할 수 없다.")
+    void login_failed(){
+        // given
+        String email = "me@email.com";
+        User user = new User(email, "nickname", "password");
+        String wrongPassword = "wrongPassword";
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+
+        // when & then
+        assertThrows(UserLoginFailedException.class, () -> userService.login(email, wrongPassword));
     }
 }
