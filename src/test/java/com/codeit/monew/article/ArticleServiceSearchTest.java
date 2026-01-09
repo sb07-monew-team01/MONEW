@@ -38,30 +38,35 @@ public class ArticleServiceSearchTest {
     class Search {
 
         @Test
-        @DisplayName("검색어와 출처가 일치하는 기사를 조회한다.")
+        @DisplayName("검색어와 선택한 여러 출처가 일치하는 기사를 조회한다.")
         void titleOrSummaryContainingKeyword() {
             // given
             Article article1 = Article.builder()
-                    .title("축구 리그")
+                    .title("네이버 뉴스")
                     .source(ArticleSource.NAVER)
                     .build();
             Article article2 = Article.builder()
-                    .summary("축구는 재밌다")
+                    .title("조선 뉴스")
                     .source(ArticleSource.CHOSUN)
                     .build();
-            String keyword = "축구";
-            ArticleSource source = ArticleSource.NAVER;
+            Article article3 = Article.builder()
+                    .title("한경 뉴스")
+                    .source(ArticleSource.HANKYUNG)
+                    .build();
 
-            when(articleRepository.findByKeywordAndSource(keyword, source))
-                    .thenReturn(List.of(article1));
+            String keyword = "뉴스";
+            List<ArticleSource> sources = List.of(ArticleSource.NAVER, ArticleSource.HANKYUNG);
+
+            when(articleRepository.findByKeywordAndSource(keyword, sources))
+                    .thenReturn(List.of(article1, article3));
 
             // when
-            List<ArticleDto> articles = articleService.searchByKeyword(keyword, source);
+            List<ArticleDto> articles = articleService.searchByKeyword(keyword, sources);
 
             // then
-            verify(articleRepository, times(1)).findByKeyword(any());
-            assertThat(articles).hasSize(1);
-            assertThat(articles).extracting(ArticleDto::title).contains("축구 리그");
+            verify(articleRepository, times(1)).findByKeywordAndSource(any(), any());
+            assertThat(articles).hasSize(2);
+            assertThat(articles).extracting(ArticleDto::source).containsExactly("NAVER", "HANKYUNG");
         }
     }
 }

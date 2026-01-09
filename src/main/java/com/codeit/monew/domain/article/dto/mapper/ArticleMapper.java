@@ -9,7 +9,8 @@ public class ArticleMapper {
     public ArticleDto toDto(Article article) {
         return new ArticleDto(
                 article.getTitle(),
-                article.getSummary()
+                article.getSummary(),
+                article.getSource().toString()
         );
     }
 }
