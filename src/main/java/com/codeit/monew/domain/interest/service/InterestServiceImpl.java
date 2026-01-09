@@ -1,8 +1,7 @@
 package com.codeit.monew.domain.interest.service;
 
 import com.codeit.monew.domain.interest.entity.Interest;
-import com.codeit.monew.domain.interest.exception.InterestDuplicateKeywordException;
-import com.codeit.monew.domain.interest.exception.InterestNameTooSimilarException;
+import com.codeit.monew.domain.interest.exception.*;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +19,12 @@ public class InterestServiceImpl implements InterestService{
 
     @Override
     public Interest create(String name, List<String> keywords) {
+        if(keywords == null){
+            throw new KeywordValidException(ErrorCode.INTEREST_NULL_KEYWORD);
+        }
+        if(keywords.isEmpty()){
+            throw new KeywordValidException(ErrorCode.INTEREST_EMPTY_KEYWORD);
+        }
         checkSimilarity(name);
         checkDuplicateKeyword(keywords);
         return new Interest(name, keywords);
@@ -41,7 +46,7 @@ public class InterestServiceImpl implements InterestService{
     //같은 관심사 내에 중복 키워드가 있는지 체크하고, 있으면 예외를 발생시키는 메소드
     private void checkDuplicateKeyword(List<String> keywords) {
         if(keywords.size() != keywords.stream().distinct().count()){
-            throw new InterestDuplicateKeywordException(
+            throw new KeywordValidException(
                     ErrorCode.INTEREST_KEYWORD_DUPLICATE
             );
         }
