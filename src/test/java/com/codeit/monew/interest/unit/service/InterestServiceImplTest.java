@@ -103,5 +103,22 @@ public class InterestServiceImplTest {
             assertThat(exception.getErrorCode())
                     .isEqualTo(ErrorCode.INTEREST_EMPTY_KEYWORD);
         }
+
+        @Test
+        @DisplayName("실패 : 관심사의 키워드가 null이면 예외가 발생한다")
+        void fail_create_interest_null_keyword(){
+            // given
+            String name = "프로그래밍";
+            List<String> keywords = null;
+
+            // when & then
+            InterestNullKeywordException exception = catchThrowableOfType(
+                    () -> interestService.create(name, keywords),
+                    InterestNullKeywordException.class
+            );
+
+            assertThat(exception.getErrorCode())
+                    .isEqualTo(ErrorCode.INTEREST_NULL_KEYWORD);
+        }
     }
 }
