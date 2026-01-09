@@ -1,5 +1,9 @@
 package com.codeit.monew.article.repository;
 
+import com.codeit.monew.article.fixture.ArticleCreateRequestFixture;
+import com.codeit.monew.article.fixture.ArticleFixture;
+import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
+import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
@@ -31,47 +35,20 @@ class ArticleRepositoryImplTest {
     """)
     void searchAllNaverArticle_EmptyKeyword_EmptySource() {
         // given
-        Article article1 = Article.builder()
-                .title("네이버 뉴스1")
-                .source(ArticleSource.NAVER)
-                .sourceUrl("a")
-                .summary("a")
-                .publishDate(LocalDateTime.now())
-                .build();
-        Article article2 = Article.builder()
-                .title("네이버 뉴스2")
-                .source(ArticleSource.NAVER)
-                .sourceUrl("b")
-                .summary("b")
-                .publishDate(LocalDateTime.now().minusDays(14))
-                .build();
-        Article article3 = Article.builder()
-                .title("한경 뉴스")
-                .source(ArticleSource.HANKYUNG)
-                .sourceUrl("c")
-                .summary("c")
-                .publishDate(LocalDateTime.now())
-                .build();
-        Article article4 = Article.builder()
-                .title("조선 뉴스")
-                .source(ArticleSource.CHOSUN)
-                .sourceUrl("d")
-                .summary("d")
-                .publishDate(LocalDateTime.now().plusDays(2))
-                .build();
+        ArticleCreateRequest request1 = ArticleCreateRequestFixture.createDummy(0, 0);
+        ArticleCreateRequest request2 = ArticleCreateRequestFixture.createDummy(0, -14);
+        ArticleCreateRequest request3 = ArticleCreateRequestFixture.createDummy(1, 0);
+        ArticleCreateRequest request4 = ArticleCreateRequestFixture.createDummy(2, 2);
+        articleRepository.save(ArticleFixture.createEntity(request1));
+        articleRepository.save(ArticleFixture.createEntity(request2));
+        articleRepository.save(ArticleFixture.createEntity(request3));
+        articleRepository.save(ArticleFixture.createEntity(request4));
 
-        articleRepository.save(article1);
-        articleRepository.save(article2);
-        articleRepository.save(article3);
-        articleRepository.save(article4);
-
-        String keyword = null;
-        List<ArticleSource> sources = null;
-        LocalDateTime publishDateFrom = null;
-        LocalDateTime publishDateTo = null;
+        ArticleSearchRequest searchRequest
+                = new ArticleSearchRequest(null, null, null, null);
 
         // when
-        List<Article> articles = articleRepository.findByKeywordAndSource(keyword, sources, publishDateFrom, publishDateTo);
+        List<Article> articles = articleRepository.findByKeywordAndSource(searchRequest);
 
         // then
         assertThat(articles).hasSize(1);
