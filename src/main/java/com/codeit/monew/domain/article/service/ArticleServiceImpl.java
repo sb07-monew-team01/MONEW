@@ -29,6 +29,9 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public void createArticle(ArticleCreateRequest request, UUID interestId) {
+        if(articleRepository.existsBySourceUrl(request.sourceUrl()))
+            return;
+
         Article article = Article.builder()
                 .source(request.source())
                 .sourceUrl(request.sourceUrl())
