@@ -1,7 +1,10 @@
 package com.codeit.monew.interest.unit.service;
 
 import com.codeit.monew.domain.interest.Interest;
+import com.codeit.monew.domain.interest.InterestNameTooSimilarException;
+import com.codeit.monew.domain.interest.InterestRepository;
 import com.codeit.monew.domain.interest.InterestServiceImpl;
+import com.codeit.monew.global.enums.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,12 +60,12 @@ public class InterestServiceImplTest {
 
             // when & then
             InterestNameTooSimilarException exception = catchThrowableOfType(
-                    () -> interestService.create(newName, keywords),
-                    InterestNameTooSimilarException.class
+                () -> interestService.create(newName, keywords),
+                InterestNameTooSimilarException.class
             );
 
             assertThat(exception.getErrorCode())
-                    .isEqualTo(ErrorCode.INTEREST_NAME_TOO_SIMILAR);
+                .isEqualTo(ErrorCode.INTEREST_NAME_TOO_SIMILAR);
         }
     }
 }

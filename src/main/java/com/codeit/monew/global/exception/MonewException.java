@@ -1,11 +1,13 @@
 package com.codeit.monew.global.exception;
 
 import com.codeit.monew.global.enums.ErrorCode;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Getter
 public class MonewException extends RuntimeException {
     private final LocalDateTime timestamp = LocalDateTime.now();
     private final ErrorCode errorCode;
