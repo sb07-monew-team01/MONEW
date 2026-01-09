@@ -1,6 +1,7 @@
 package com.codeit.monew.interest.unit.service;
 
 import com.codeit.monew.domain.interest.entity.Interest;
+import com.codeit.monew.domain.interest.exception.InterestDuplicateKeywordException;
 import com.codeit.monew.domain.interest.exception.InterestNameTooSimilarException;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interest.service.InterestServiceImpl;
