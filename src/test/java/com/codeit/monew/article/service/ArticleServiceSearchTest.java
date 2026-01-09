@@ -1,11 +1,10 @@
-package com.codeit.monew.article;
+package com.codeit.monew.article.service;
 
 import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;
 import com.codeit.monew.domain.article.dto.response.ArticleDto;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
-import com.codeit.monew.domain.article.service.ArticleService;
 import com.codeit.monew.domain.article.service.ArticleServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
