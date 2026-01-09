@@ -12,11 +12,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface ArticleRepository extends JpaRepository<Article, UUID> {
+public interface ArticleRepository extends JpaRepository<Article, UUID>, ArticleRepositoryCustom {
 
-    @Query("SELECT a FROM Article a " +
-            "WHERE a.title LIKE %:keyword% OR a.summary Like %:keyword%" +
-            "AND a.source IN :sources")
-    List<Article> findByKeywordAndSource(@Param("keyword") String keyword,
-                                         @Param("sources") List<ArticleSource> source);
 }
