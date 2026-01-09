@@ -51,8 +51,25 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("중복된 이메일로는 가입할 수 없다.")
+    void emailAlreadyExists() {
+        // given
+        String email = "ensad@skfj.com";
+        String newEmail = "ensad@skfj.com";
+        User user = new User(email, "nickname", "12dfsa3");
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(newEmail)).thenReturn(Optional.of(user));
+
+        // when & then
+
+
+        userService.signIn(new UserSignInRequest(newEmail, "nickname", "123456"));
+
+    }
+
+    @Test
     @DisplayName("이메일과 비밀번호로 로그인할 수 있다.")
-    void Login(){
+    void Login() {
         // given
         String email = "email@email.com";
         String password = "password";
@@ -73,7 +90,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("이메일과 비밀번호가 일치하지 않으면 로그인할 수 없다.")
-    void login_failed(){
+    void login_failed() {
         // given
         String email = "me@email.com";
         User user = new User(email, "nickname", "password");
@@ -84,4 +101,5 @@ public class UserServiceTest {
         // when & then
         assertThrows(UserLoginFailedException.class, () -> userService.login(email, wrongPassword));
     }
+
 }
