@@ -1,9 +1,7 @@
 package com.codeit.monew.interest.unit.service;
 
 import com.codeit.monew.domain.interest.entity.Interest;
-import com.codeit.monew.domain.interest.exception.InterestDuplicateKeywordException;
-import com.codeit.monew.domain.interest.exception.InterestEmptyKeywordException;
-import com.codeit.monew.domain.interest.exception.InterestNameTooSimilarException;
+import com.codeit.monew.domain.interest.exception.*;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interest.service.InterestServiceImpl;
 import com.codeit.monew.global.enums.ErrorCode;
@@ -78,9 +76,9 @@ public class InterestServiceImplTest {
             List<String> keywords = List.of("java", "spring", "java");
 
             // when & then
-            InterestDuplicateKeywordException exception = catchThrowableOfType(
+            KeywordValidException exception = catchThrowableOfType(
                     () -> interestService.create(name, keywords),
-                    InterestDuplicateKeywordException.class
+                    KeywordValidException.class
             );
 
             assertThat(exception.getErrorCode())
@@ -95,13 +93,30 @@ public class InterestServiceImplTest {
             List<String> keywords = List.of();
 
             // when & then
-            InterestEmptyKeywordException exception = catchThrowableOfType(
+            KeywordValidException exception = catchThrowableOfType(
                     () -> interestService.create(name, keywords),
-                    InterestEmptyKeywordException.class
+                    KeywordValidException.class
             );
 
             assertThat(exception.getErrorCode())
                     .isEqualTo(ErrorCode.INTEREST_EMPTY_KEYWORD);
+        }
+
+        @Test
+        @DisplayName("실패 : 관심사의 키워드가 null이면 예외가 발생한다")
+        void fail_create_interest_null_keyword(){
+            // given
+            String name = "프로그래밍";
+            List<String> keywords = null;
+
+            // when & then
+            KeywordValidException exception = catchThrowableOfType(
+                    () -> interestService.create(name, keywords),
+                    KeywordValidException.class
+            );
+
+            assertThat(exception.getErrorCode())
+                    .isEqualTo(ErrorCode.INTEREST_NULL_KEYWORD);
         }
     }
 }
