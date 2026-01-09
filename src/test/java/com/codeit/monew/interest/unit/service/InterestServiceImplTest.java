@@ -4,6 +4,7 @@ import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.InterestDuplicateKeywordException;
 import com.codeit.monew.domain.interest.exception.InterestEmptyKeywordException;
 import com.codeit.monew.domain.interest.exception.InterestNameTooSimilarException;
+import com.codeit.monew.domain.interest.exception.InterestNullKeywordException;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interest.service.InterestServiceImpl;
 import com.codeit.monew.global.enums.ErrorCode;

@@ -4,6 +4,7 @@ import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.InterestDuplicateKeywordException;
 import com.codeit.monew.domain.interest.exception.InterestEmptyKeywordException;
 import com.codeit.monew.domain.interest.exception.InterestNameTooSimilarException;
+import com.codeit.monew.domain.interest.exception.InterestNullKeywordException;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,9 @@ public class InterestServiceImpl implements InterestService{
 
     @Override
     public Interest create(String name, List<String> keywords) {
+        if(keywords == null){
+            throw new InterestNullKeywordException(ErrorCode.INTEREST_NULL_KEYWORD);
+        }
         if(keywords.isEmpty()){
             throw new InterestEmptyKeywordException(ErrorCode.INTEREST_EMPTY_KEYWORD);
         }
