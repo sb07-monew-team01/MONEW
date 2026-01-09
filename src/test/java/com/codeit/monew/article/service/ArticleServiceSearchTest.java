@@ -1,10 +1,10 @@
-package com.codeit.monew.article;
+package com.codeit.monew.article.service;
 
 import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;
 import com.codeit.monew.domain.article.dto.response.ArticleDto;
 import com.codeit.monew.domain.article.entity.Article;
+import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
-import com.codeit.monew.domain.article.service.ArticleService;
 import com.codeit.monew.domain.article.service.ArticleServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -37,29 +37,35 @@ public class ArticleServiceSearchTest {
     class Search {
 
         @Test
-        @DisplayName("검색어가 기사 제목 또는 요약에 포함되면 조회할 수 있다.")
+        @DisplayName("검색어와 선택한 여러 출처가 일치하는 기사를 조회한다.")
         void titleOrSummaryContainingKeyword() {
             // given
             Article article1 = Article.builder()
-                    .title("축구리그")
+                    .title("네이버 뉴스")
+                    .source(ArticleSource.NAVER)
                     .build();
             Article article2 = Article.builder()
-                    .summary("축구재밌다")
+                    .title("조선 뉴스")
+                    .source(ArticleSource.CHOSUN)
                     .build();
-            String keyword = "축구";
+            Article article3 = Article.builder()
+                    .title("한경 뉴스")
+                    .source(ArticleSource.HANKYUNG)
+                    .build();
 
-            when(articleRepository.findByKeyword(keyword))
-                    .thenReturn(List.of(article1, article2));
+            String keyword = "뉴스";
+            List<ArticleSource> sources = List.of(ArticleSource.NAVER, ArticleSource.HANKYUNG);
+
+            when(articleRepository.findByKeywordAndSource(keyword, sources))
+                    .thenReturn(List.of(article1, article3));
 
             // when
-            List<ArticleDto> articles = articleService.searchByKeyword(keyword);
+            List<ArticleDto> articles = articleService.searchByKeyword(keyword, sources);
 
             // then
-            verify(articleRepository, times(1)).findByKeyword(any());
-            verify(articleMapper, times(2)).toDto(any(Article.class));
+            verify(articleRepository, times(1)).findByKeywordAndSource(any(), any());
             assertThat(articles).hasSize(2);
-            assertThat(articles).extracting(ArticleDto::title).contains("축구리그");
-            assertThat(articles).extracting(ArticleDto::summary).contains("축구재밌다");
+            assertThat(articles).extracting(ArticleDto::source).containsExactly("NAVER", "HANKYUNG");
         }
     }
 }

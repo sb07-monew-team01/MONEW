@@ -4,6 +4,7 @@ import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;
 import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
 import com.codeit.monew.domain.article.dto.response.ArticleDto;
 import com.codeit.monew.domain.article.entity.Article;
+import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,8 +23,8 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Transactional
     @Override
-    public List<ArticleDto> searchByKeyword(String keyword) {
-        List<Article> articles = articleRepository.findByKeyword(keyword);
+    public List<ArticleDto> searchByKeyword(String keyword, List<ArticleSource> sources) {
+        List<Article> articles = articleRepository.findByKeywordAndSource(keyword, sources);
         return articles.stream()
                 .map(articleMapper::toDto)
                 .collect(Collectors.toList());
