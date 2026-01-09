@@ -9,5 +9,5 @@ import java.util.UUID;
 public interface ArticleService {
     List<ArticleDto> searchByKeyword(String keyword);
 
-    void createArticle(ArticleCreateRequest request, UUID instantId);
+    void createArticle(ArticleCreateRequest request, UUID interestId);
 }
