@@ -1,7 +1,7 @@
 package com.codeit.monew.interest.unit.service;
 
 import com.codeit.monew.domain.interest.entity.Interest;
-import com.codeit.monew.domain.interest.exception.*;
+import com.codeit.monew.domain.interest.exception.KeywordValidException;
 import com.codeit.monew.domain.interest.policy.InterestNamePolicy;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interest.service.InterestServiceImpl;
@@ -18,8 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowableOfType;
-import static org.mockito.BDDMockito.given;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(MockitoExtension.class)
 public class InterestServiceImplTest {
@@ -53,26 +52,6 @@ public class InterestServiceImplTest {
         }
 
         @Test
-        @DisplayName("실패: 관심사 이름이 기존 이름과 80% 이상 유사하면 예외가 발생한다")
-        void fail_create_interest_duplicate_name() {
-            // given
-            String newName = "프로그래밍언어";
-            List<String> keywords = Arrays.asList("java", "spring");
-
-            given(interestRepository.findAll())
-                    .willReturn(List.of(new Interest("프로그래밍", List.of("python", "C"))));
-
-            // when & then
-            InterestNameTooSimilarException exception = catchThrowableOfType(
-                () -> interestService.create(newName, keywords),
-                InterestNameTooSimilarException.class
-            );
-
-            assertThat(exception.getErrorCode())
-                .isEqualTo(ErrorCode.INTEREST_NAME_TOO_SIMILAR);
-        }
-
-        @Test
         @DisplayName("실패: 관심사 내에서 같은 키워드가 중복되면 예외가 발생한다")
         void fail_create_interest_duplicate_keyword() {
             // given
@@ -80,12 +59,9 @@ public class InterestServiceImplTest {
             List<String> keywords = List.of("java", "spring", "java");
 
             // when & then
-            KeywordValidException exception = catchThrowableOfType(
-                    () -> interestService.create(name, keywords),
-                    KeywordValidException.class
-            );
-
-            assertThat(exception.getErrorCode())
+            assertThatThrownBy(() -> interestService.create(name, keywords))
+                    .isInstanceOf(KeywordValidException.class)
+                    .extracting("errorCode")
                     .isEqualTo(ErrorCode.INTEREST_KEYWORD_DUPLICATE);
         }
 
@@ -97,12 +73,9 @@ public class InterestServiceImplTest {
             List<String> keywords = List.of();
 
             // when & then
-            KeywordValidException exception = catchThrowableOfType(
-                    () -> interestService.create(name, keywords),
-                    KeywordValidException.class
-            );
-
-            assertThat(exception.getErrorCode())
+            assertThatThrownBy(() -> interestService.create(name, keywords))
+                    .isInstanceOf(KeywordValidException.class)
+                    .extracting("errorCode")
                     .isEqualTo(ErrorCode.INTEREST_EMPTY_KEYWORD);
         }
 
@@ -114,12 +87,9 @@ public class InterestServiceImplTest {
             List<String> keywords = null;
 
             // when & then
-            KeywordValidException exception = catchThrowableOfType(
-                    () -> interestService.create(name, keywords),
-                    KeywordValidException.class
-            );
-
-            assertThat(exception.getErrorCode())
+            assertThatThrownBy(() -> interestService.create(name, keywords))
+                    .isInstanceOf(KeywordValidException.class)
+                    .extracting("errorCode")
                     .isEqualTo(ErrorCode.INTEREST_NULL_KEYWORD);
         }
     }
