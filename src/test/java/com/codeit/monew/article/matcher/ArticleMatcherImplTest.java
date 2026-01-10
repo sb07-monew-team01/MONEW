@@ -21,9 +21,10 @@ class ArticleMatcherImplTest {
     @DisplayName("Article 관심사 포함 검사")
     class ArticleMatcher{
         @Test
-        @DisplayName("기사 제목에 관심사 키워드가 포함되면 true를 반환한다.")
+        @DisplayName("기사 제목에 관심사들의 키워드가 포함되면 true를 반환한다.")
         void match_articleContainsKeyword_thenTrue() throws  Exception{
-            ArticleCreateRequest articleCreateRequest = ArticleCreateRequestFixture.createWithTitleAndSummary("경제", "요약은 아무거나");
+            ArticleCreateRequest articleCreateRequest
+                    = ArticleCreateRequestFixture.createWithTitleAndSummary("경제", "요약은 아무거나");
 
             // 관심사 리스트
             List<Interest> interests = InterestFixture.createDefault();
