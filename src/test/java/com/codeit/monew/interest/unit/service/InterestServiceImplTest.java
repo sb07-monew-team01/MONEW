@@ -32,8 +32,8 @@ public class InterestServiceImplTest {
     InterestServiceImpl interestService;
 
     @Nested
-    @DisplayName("관심사 생성")
-    class CreateInterest {
+    @DisplayName("관심사 생성 - 상태 검증")
+    class CreateInterestState {
 
         @Test
         @DisplayName("성공: 유효한 이름과 키워드가 주어지면 관심사가 생성된다")
@@ -92,5 +92,11 @@ public class InterestServiceImplTest {
                     .extracting("errorCode")
                     .isEqualTo(ErrorCode.INTEREST_NULL_KEYWORD);
         }
+    }
+
+    @Nested
+    @DisplayName("관심사 생성 - 행위 검증")
+    class CreateInterestBehavior {
+
     }
 }
