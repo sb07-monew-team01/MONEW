@@ -8,13 +8,13 @@ import com.codeit.monew.domain.article.dto.response.ArticleDto;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
+import com.codeit.monew.domain.interest.entity.Interest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,7 +44,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Transactional
     @Override
-    public void createArticle(ArticleCreateRequest request, UUID interestId) {
+    public void createArticle(ArticleCreateRequest request, List<Interest> interests) {
         if(articleRepository.existsBySourceUrl(request.sourceUrl()))
             return;
 
