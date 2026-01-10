@@ -18,13 +18,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -43,12 +43,23 @@ public class CommentServiceTest {
     @InjectMocks
     private CommentServiceImpl commentService;
 
+    UUID articleId;
+    UUID userId;
+    String content;
+
+    @BeforeEach
+    void setUp() {
+        articleId = UUID.randomUUID();
+        userId = UUID.randomUUID();
+        content = "좋은 기사네요.";
+    }
+
     @Nested
-    @DisplayName("댓글을 등록할 수 있다.")
+    @DisplayName("댓글 등록")
     class CreateComment {
 
         @Test
-        @DisplayName("유저와 기사가 있으면 댓글이 정상적으로 등록된다")
+        @DisplayName("성공: 유저와 기사가 있으면 댓글이 정상적으로 등록된다.")
         void createComment_success() {
             // given
             String content = "test";
@@ -82,6 +93,56 @@ public class CommentServiceTest {
             verify(articleRepository).findById(articleId);
             verify(commentRepository).save(any(Comment.class));
         }
+
+        @Test
+        @DisplayName("실패: 댓글 내용이 없을 경우 예외가 발생한다.")
+        void failToCreateComment_null() {
+            // given
+            CommentRegisterRequest request = new CommentRegisterRequest(articleId, userId, null);
+
+            // when & then
+            assertThatThrownBy(
+                    () -> commentService.createComment(request))
+                    .isInstanceOf(CommentContentEmptyException.class);
+        }
+
+        @Test
+        @DisplayName("실패: 기사가 존재하지 않을 경우 예외가 발생한다.")
+        void failToCreateComment_nullArticle() {
+            // given
+            CommentRegisterRequest request = new CommentRegisterRequest(null, userId, content);
+
+            // when & then
+            assertThatThrownBy(
+                    () -> commentService.createComment(request))
+                    .isInstanceOf(ArticleNotFoundException.class);
+        }
+
+        @Test
+        @DisplayName("실패: 사용자가 존재하지 않을 경우 예외가 발생한다.")
+        void failToCreateComment_nullUser() {
+            // given
+            CommentRegisterRequest request = new CommentRegisterRequest(articleId, null, content);
+
+            // when & then
+            assertThatThrownBy(
+                    () -> commentService.createComment(request))
+                    .isInstanceOf(UserNotFoundException.class);
+        }
+
+        @Test
+        @DisplayName("댓글 내용이 500자를 초과할 경우 댓글 등록에 실패한다.")
+        void failToCreateComment_exceedContent() {
+            // given
+            String longContent = "a".repeat(501);
+            CommentRegisterRequest request = new CommentRegisterRequest(articleId, userId, longContent);
+
+            // when & then
+            assertThatThrownBy(
+                    () -> commentService.createComment(request))
+                    .isInstanceOf(CommentContentTooLongException.class);
+        }
     }
 
 }
+
