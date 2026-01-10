@@ -13,17 +13,15 @@ public class ArticleMatcherImpl implements ArticleMatcher {
     @Override
     public boolean match(ArticleCreateRequest articleCreateRequest, List<Interest> interests) {
         String title = articleCreateRequest.title().toLowerCase();
-        String summary =  articleCreateRequest.summary().toLowerCase();
+        String summary = articleCreateRequest.summary().toLowerCase();
+        String target = title + " " + summary;
 
         return interests.stream()
-                .anyMatch(interest -> matchInterest(interest, title)) ||
-                interests.stream()
-                        .anyMatch(interest -> matchInterest(interest, summary));
-
+                .anyMatch(interest -> matchInterest(interest, target));
 
     }
 
-    private boolean matchInterest(Interest interest, String title) {
+    private boolean matchInterest(Interest interest, String target) {
 
         List<String> searchItems = new ArrayList<>();
         searchItems.add(interest.getName().toLowerCase().trim());
@@ -32,17 +30,6 @@ public class ArticleMatcherImpl implements ArticleMatcher {
                 .forEach(keyword -> searchItems.add(keyword.trim().toLowerCase()));
 
         return searchItems.stream()
-                .anyMatch(keyword -> keyword.trim().toLowerCase().contains(title));
-    }
-
-    private boolean matchInterestWithContent(Interest interest, String summary) {
-        List<String> searchItems = new ArrayList<>();
-        searchItems.add(interest.getName().toLowerCase().trim());
-
-        interest.getKeywords()
-                .forEach(keyword -> searchItems.add(keyword.trim().toLowerCase()));
-
-        return searchItems.stream()
-                .anyMatch(keyword -> keyword.trim().toLowerCase().contains(summary));
+                .anyMatch(target::contains);
     }
 }
