@@ -22,7 +22,7 @@ class ArticleMatcherImplTest {
     class ArticleMatcher{
         @Test
         @DisplayName("기사 제목에 관심사들의 키워드가 포함되면 true를 반환한다.")
-        void match_articleContainsKeyword_thenTrue() throws  Exception{
+        void match_articleTitleContainsKeyword_thenTrue() throws  Exception{
             ArticleCreateRequest articleCreateRequest
                     = ArticleCreateRequestFixture.createWithTitleAndSummary("경제", "요약은 아무거나");
 
@@ -33,6 +33,24 @@ class ArticleMatcherImplTest {
 
             assertThat(result).isTrue();
         }
+
+        @Test
+        @DisplayName("기사 내용에 관심사들의 키워드가 포함되면 true를 반환한다.")
+        void match_articleTitleAndSummary_ContainsKeyword_() {
+            // given
+            ArticleCreateRequest articleCreateRequest
+                    = ArticleCreateRequestFixture.createWithTitleAndSummary("제목은 아무거나", "환율");
+
+            // 관심사 리스트
+            List<Interest> interests = InterestFixture.createDefault();
+
+            boolean result = articleMatcher.match(articleCreateRequest, interests);
+
+            assertThat(result).isTrue();
+
+        }
     }
+
+
 
 }
