@@ -32,7 +32,7 @@ public class ArticleMatcherImpl implements ArticleMatcher {
                 .forEach(keyword -> searchItems.add(keyword.trim().toLowerCase()));
 
         return searchItems.stream()
-                .anyMatch(keyword -> keyword.trim().toLowerCase().equals(title));
+                .anyMatch(keyword -> keyword.trim().toLowerCase().contains(title));
     }
 
     private boolean matchInterestWithContent(Interest interest, String summary) {
