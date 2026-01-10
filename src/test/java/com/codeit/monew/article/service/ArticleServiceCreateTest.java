@@ -30,6 +30,9 @@ public class ArticleServiceCreateTest {
     @Mock
     private ArticleRepository articleRepository;
 
+    @Mock
+    private ArticleMatcher articleMatcher;
+
     @InjectMocks
     private ArticleServiceImpl articleService;
 
@@ -60,11 +63,10 @@ public class ArticleServiceCreateTest {
         void createArticle_duplicatedSourceUrl_thenFail() {
             // given
             ArticleCreateRequest request = ArticleCreateRequestFixture.createDefault();
-            List<Interest> interests = InterestFixture.createDefault(); // 매칭되도록 준비
+            List<Interest> interests = InterestFixture.createDefault();
 
             // 기존에 존재하는 sourceURl을 가진 Article
             given(articleRepository.existsBySourceUrl(request.sourceUrl())).willReturn(true);
-            UUID interestId =  UUID.randomUUID();
 
             // when
             articleService.createArticle(request, interests);
@@ -72,16 +74,18 @@ public class ArticleServiceCreateTest {
             then(articleRepository).should(never()).save(any(Article.class));
         }
 
-//        @Test
-//        @DisplayName("관심사 키워드를 포함하는 기사가 아니면 저장하지 않는다.")
-//        void createArticle_withoutInterestKeyword_thenNotSaved() {
-//            ArticleCreateRequest request = ArticleCreateRequestFixture.createDefault();
-//            UUID interestId =  UUID.randomUUID();
-//            given(articleRepository.existsBySourceUrl(request.sourceUrl())).willReturn(false);
-//            given(articleMatchers.match(article, interests)).willReturn(false);
-//            articleService.createArticle(request, interestId);
-//            //then
-//            then(articleRepository).should(never()).save(any(Article.class));
-//        }
+        @Test
+        @DisplayName("관심사 키워드를 포함하는 기사가 아니면 저장하지 않는다.")
+        void createArticle_withoutInterestKeyword_thenNotSaved() {
+            ArticleCreateRequest request = ArticleCreateRequestFixture.createDefault();
+            List<Interest> interests = InterestFixture.createDefault();
+            given(articleRepository.existsBySourceUrl(request.sourceUrl())).willReturn(false);
+            given(articleMatcher.match(request, interests)).willReturn(false);
+
+            articleService.createArticle(request, interests);
+            //then
+            then(articleMatcher).should().match(request, interests);
+            then(articleRepository).should(never()).save(any(Article.class));
+        }
     }
 }
