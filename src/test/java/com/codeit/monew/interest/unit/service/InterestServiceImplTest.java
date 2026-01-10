@@ -19,6 +19,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 public class InterestServiceImplTest {
@@ -97,6 +100,19 @@ public class InterestServiceImplTest {
     @Nested
     @DisplayName("관심사 생성 - 행위 검증")
     class CreateInterestBehavior {
+        @Test
+        @DisplayName("성공: 관심사 생성 시 저장소의 save가 호출된다")
+        void success_create_interest_save(){
+            //given
+            given(interestRepository.save(any(Interest.class)))
+                    .willAnswer(invocation -> invocation.getArgument(0));
+            given(interestRepository.findAll()).willReturn(List.of());
 
+            //when
+            interestService.create("백엔드", List.of("java", "spring"));
+
+            //then
+            then(interestRepository).should().save(any(Interest.class));
+        }
     }
 }
