@@ -8,13 +8,23 @@ import java.util.Random;
 
 public class ArticleCreateRequestFixture {
     public static ArticleCreateRequest createDefault() {
-        return  new ArticleCreateRequest(
+        return new ArticleCreateRequest(
                 ArticleSource.NAVER,
                 "http://target.com",
                 "test-title",
                 LocalDateTime.now(),
                 "test summary"
         );
+    }
+
+    public static ArticleCreateRequest createWithTitleAndSummary(String title, String summary) {
+        return new ArticleCreateRequest(
+                ArticleSource.NAVER,
+                "http//target.com",
+                title,
+                LocalDateTime.now(),
+                summary
+                );
     }
 
     public static ArticleCreateRequest createDummy(int s, int d) {
@@ -28,9 +38,9 @@ public class ArticleCreateRequestFixture {
 
         Random random = new Random();
 
-        return  new ArticleCreateRequest(
+        return new ArticleCreateRequest(
                 source,
-                "http://" + random.nextInt(100) + source +".com",
+                "http://" + random.nextInt(100) + source + ".com",
                 source.name() + " 뉴스_" + random.nextInt(100),
                 LocalDateTime.now().plusDays(d),
                 "test summary"
