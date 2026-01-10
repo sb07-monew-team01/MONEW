@@ -84,16 +84,16 @@ class ArticleMatcherImplTest {
                 "경경경제제제, bbbbbbbbbbbbb"
         })
         @DisplayName("기사 요약과 제목에 관심사들의 키워드가 포함되지 않으면 false를 반환한다.")
-        void match_articleTitleAndSummary_notContainsKeyword_success(String summary) {
+        void match_articleTitleAndSummary_notContainsKeyword_fail(String title, String summary) {
             // given
             ArticleCreateRequest articleCreateRequest
-                    = ArticleCreateRequestFixture.createWithTitleAndSummary("제목은 아무거나", summary);
+                    = ArticleCreateRequestFixture.createWithTitleAndSummary(title, summary);
 
             // 관심사 리스트
             List<Interest> interests = InterestFixture.createMultiple(
                     InterestFixture.create("xxx", List.of("111", "222")),
                     InterestFixture.create("Coin코인보다 긴 키워드 네임", List.of("JavaPrograming 요약보다 긴 키워드")),
-                    InterestFixture.create("제b", List.of("bbbb", "g 요"))
+                    InterestFixture.create("제b", List.of("bbbbbbbbbbbbbbbbbbbbbbbb", "g요"))
             );
 
             // when
