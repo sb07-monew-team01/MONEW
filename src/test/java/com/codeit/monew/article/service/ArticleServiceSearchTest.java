@@ -1,6 +1,11 @@
 package com.codeit.monew.article.service;
 
+import com.codeit.monew.article.fixture.ArticleCreateRequestFixture;
+import com.codeit.monew.article.fixture.ArticleFixture;
 import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;
+import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
+import com.codeit.monew.domain.article.dto.request.ArticleSearchCondition;
+import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
 import com.codeit.monew.domain.article.dto.response.ArticleDto;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.entity.ArticleSource;
@@ -15,10 +20,12 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
+import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,7 +34,7 @@ public class ArticleServiceSearchTest {
     @Mock
     private ArticleRepository articleRepository;
 
-    @Spy
+    @Mock
     private ArticleMapper articleMapper;
 
     @InjectMocks
@@ -37,35 +44,43 @@ public class ArticleServiceSearchTest {
     class Search {
 
         @Test
-        @DisplayName("검색어와 선택한 여러 출처가 일치하는 기사를 조회한다.")
+        @DisplayName("검색어와 선택한 여러 출처가 일치하는 기사를 지정한 날짜 범위 내에서 조회한다.")
         void titleOrSummaryContainingKeyword() {
             // given
-            Article article1 = Article.builder()
-                    .title("네이버 뉴스")
-                    .source(ArticleSource.NAVER)
-                    .build();
-            Article article2 = Article.builder()
-                    .title("조선 뉴스")
-                    .source(ArticleSource.CHOSUN)
-                    .build();
-            Article article3 = Article.builder()
-                    .title("한경 뉴스")
-                    .source(ArticleSource.HANKYUNG)
-                    .build();
+            ArticleCreateRequest request1 = ArticleCreateRequestFixture.createDummy(0, 0);
+            ArticleCreateRequest request2 = ArticleCreateRequestFixture.createDummy(1, 2);
+
+            Article article1 =  ArticleFixture.createEntity(request1);
+            Article article2 =  ArticleFixture.createEntity(request2);
+
 
             String keyword = "뉴스";
             List<ArticleSource> sources = List.of(ArticleSource.NAVER, ArticleSource.HANKYUNG);
+            LocalDateTime publishDateTo = LocalDate.now().plusDays(1).atStartOfDay();
+            LocalDateTime publishDateFrom = LocalDate.now().minusDays(7).atStartOfDay();
 
-            when(articleRepository.findByKeywordAndSource(keyword, sources))
-                    .thenReturn(List.of(article1, article3));
+            ArticleSearchRequest searchRequest
+                    = new ArticleSearchRequest(keyword, sources, publishDateFrom, publishDateTo);
+
+            ArticleSearchCondition searchCondition
+                    = new ArticleSearchCondition(keyword, sources, publishDateFrom, publishDateTo);
+
+
+            ArticleDto dto1 = new ArticleDto("네이버 뉴스", "a", "NAVER", now());
+            ArticleDto dto2 = new ArticleDto("한경 뉴스", "a", "HANKYUNG", now());
+
+            when(articleRepository.findByKeywordAndSource(searchCondition)).thenReturn(List.of(article1));
+
+            when(articleMapper.toDto(article1)).thenReturn(dto1);
 
             // when
-            List<ArticleDto> articles = articleService.searchByKeyword(keyword, sources);
+            List<ArticleDto> articles = articleService.searchByKeyword(searchRequest);
 
             // then
-            verify(articleRepository, times(1)).findByKeywordAndSource(any(), any());
-            assertThat(articles).hasSize(2);
-            assertThat(articles).extracting(ArticleDto::source).containsExactly("NAVER", "HANKYUNG");
+            assertThat(articles).hasSize(1);
+            assertThat(articles).extracting(ArticleDto::source).containsExactly("NAVER");
+            assertThat(articles.get(0).publishDate())
+                    .isAfterOrEqualTo(publishDateFrom).isBeforeOrEqualTo(publishDateTo);
         }
     }
 }

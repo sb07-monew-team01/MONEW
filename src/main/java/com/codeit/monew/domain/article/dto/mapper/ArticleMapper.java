@@ -10,7 +10,8 @@ public class ArticleMapper {
         return new ArticleDto(
                 article.getTitle(),
                 article.getSummary(),
-                article.getSource().toString()
+                article.getSource().toString(),
+                article.getPublishDate()
         );
     }
 }
