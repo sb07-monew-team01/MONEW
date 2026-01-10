@@ -4,6 +4,7 @@ import com.codeit.monew.article.fixture.ArticleCreateRequestFixture;
 import com.codeit.monew.article.fixture.ArticleFixture;
 import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;
 import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
+import com.codeit.monew.domain.article.dto.request.ArticleSearchCondition;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
 import com.codeit.monew.domain.article.dto.response.ArticleDto;
 import com.codeit.monew.domain.article.entity.Article;
@@ -33,7 +34,7 @@ public class ArticleServiceSearchTest {
     @Mock
     private ArticleRepository articleRepository;
 
-    @Spy
+    @Mock
     private ArticleMapper articleMapper;
 
     @InjectMocks
@@ -61,7 +62,16 @@ public class ArticleServiceSearchTest {
             ArticleSearchRequest searchRequest
                     = new ArticleSearchRequest(keyword, sources, publishDateFrom, publishDateTo);
 
-            when(articleRepository.findByKeywordAndSource(searchRequest)).thenReturn(List.of(article1));
+            ArticleSearchCondition searchCondition
+                    = new ArticleSearchCondition(keyword, sources, publishDateFrom, publishDateTo);
+
+
+            ArticleDto dto1 = new ArticleDto("네이버 뉴스", "a", "NAVER", now());
+            ArticleDto dto2 = new ArticleDto("한경 뉴스", "a", "HANKYUNG", now());
+
+            when(articleRepository.findByKeywordAndSource(searchCondition)).thenReturn(List.of(article1));
+
+            when(articleMapper.toDto(article1)).thenReturn(dto1);
 
             // when
             List<ArticleDto> articles = articleService.searchByKeyword(searchRequest);

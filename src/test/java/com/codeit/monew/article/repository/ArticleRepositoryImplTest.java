@@ -3,6 +3,7 @@ package com.codeit.monew.article.repository;
 import com.codeit.monew.article.fixture.ArticleCreateRequestFixture;
 import com.codeit.monew.article.fixture.ArticleFixture;
 import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
+import com.codeit.monew.domain.article.dto.request.ArticleSearchCondition;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.entity.ArticleSource;
@@ -39,16 +40,18 @@ class ArticleRepositoryImplTest {
         ArticleCreateRequest request2 = ArticleCreateRequestFixture.createDummy(0, -14);
         ArticleCreateRequest request3 = ArticleCreateRequestFixture.createDummy(1, 0);
         ArticleCreateRequest request4 = ArticleCreateRequestFixture.createDummy(2, 2);
-        articleRepository.save(ArticleFixture.createEntity(request1));
-        articleRepository.save(ArticleFixture.createEntity(request2));
-        articleRepository.save(ArticleFixture.createEntity(request3));
-        articleRepository.save(ArticleFixture.createEntity(request4));
+        articleRepository.saveAll(List.of(
+                ArticleFixture.createEntity(request1),
+                ArticleFixture.createEntity(request2),
+                ArticleFixture.createEntity(request3),
+                ArticleFixture.createEntity(request4))
+        );
 
-        ArticleSearchRequest searchRequest
-                = new ArticleSearchRequest(null, null, null, null);
+        ArticleSearchCondition searchCondition
+                = new ArticleSearchCondition(null, null, null, null);
 
         // when
-        List<Article> articles = articleRepository.findByKeywordAndSource(searchRequest);
+        List<Article> articles = articleRepository.findByKeywordAndSource(searchCondition);
 
         // then
         assertThat(articles).hasSize(1);

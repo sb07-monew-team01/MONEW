@@ -2,6 +2,7 @@ package com.codeit.monew.domain.article.repository;
 
 import static com.codeit.monew.domain.article.entity.QArticle.article;
 
+import com.codeit.monew.domain.article.dto.request.ArticleSearchCondition;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.entity.ArticleSource;
@@ -21,15 +22,15 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Article> findByKeywordAndSource(ArticleSearchRequest searchRequest) {
+    public List<Article> findByKeywordAndSource(ArticleSearchCondition searchCondition) {
 
         return queryFactory
                 .selectFrom(article)
                 .where(
-                        keywordContains(searchRequest.keyword()),
-                        sourceIn(searchRequest.sources()),
-                        startDate(searchRequest.publishDateFrom()),
-                        endDate(searchRequest.publishDateTo())
+                        keywordContains(searchCondition.keyword()),
+                        sourceIn(searchCondition.sourceIn()),
+                        startDate(searchCondition.publishDateFrom()),
+                        endDate(searchCondition.publishDateTo())
                 )
                 .fetch();
     }

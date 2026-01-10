@@ -2,6 +2,7 @@ package com.codeit.monew.domain.article.service;
 
 import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;
 import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
+import com.codeit.monew.domain.article.dto.request.ArticleSearchCondition;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
 import com.codeit.monew.domain.article.dto.response.ArticleDto;
 import com.codeit.monew.domain.article.entity.Article;
@@ -26,7 +27,16 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional(readOnly = true)
     @Override
     public List<ArticleDto> searchByKeyword(ArticleSearchRequest searchRequest) {
-        List<Article> articles = articleRepository.findByKeywordAndSource(searchRequest);
+
+        ArticleSearchCondition condition = new ArticleSearchCondition(
+                searchRequest.keyword(),
+                searchRequest.sourceIn(),
+                searchRequest.publishDateFrom(),
+                searchRequest.publishDateTo()
+        );
+
+        List<Article> articles = articleRepository.findByKeywordAndSource(condition);
+
         return articles.stream()
                 .map(articleMapper::toDto)
                 .collect(Collectors.toList());
