@@ -24,7 +24,7 @@ public class InterestServiceImpl implements InterestService{
         }
         checkDuplicateKeyword(keywords);
         interestNamePolicy.apply(name, interestRepository.findAll());
-        return new Interest(name, keywords);
+        return interestRepository.save(new Interest(name, keywords));
     }
 
     //같은 관심사 내에 중복 키워드가 있는지 체크하고, 있으면 예외를 발생시키는 메소드

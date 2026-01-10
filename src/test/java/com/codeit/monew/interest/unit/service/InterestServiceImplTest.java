@@ -44,6 +44,8 @@ public class InterestServiceImplTest {
             //given
             String name = "백엔드";
             List<String> keywords = Arrays.asList("java", "spring");
+            given(interestRepository.save(any(Interest.class)))
+                    .willAnswer(invocation -> invocation.getArgument(0));
 
             // when
             Interest result = interestService.create(name, keywords);
@@ -104,9 +106,9 @@ public class InterestServiceImplTest {
         @DisplayName("성공: 관심사 생성 시 저장소의 save가 호출된다")
         void success_create_interest_save(){
             //given
+            given(interestRepository.findAll()).willReturn(List.of());
             given(interestRepository.save(any(Interest.class)))
                     .willAnswer(invocation -> invocation.getArgument(0));
-            given(interestRepository.findAll()).willReturn(List.of());
 
             //when
             interestService.create("백엔드", List.of("java", "spring"));
