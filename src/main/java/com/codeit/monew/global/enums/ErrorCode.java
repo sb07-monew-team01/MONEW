@@ -9,7 +9,9 @@ public enum ErrorCode {
     INTEREST_NAME_TOO_SIMILAR("이미 유사한 이름의 관심사가 존재합니다.", HttpStatus.CONFLICT),
     INTEREST_KEYWORD_DUPLICATE("같은 관심사 내에 중복 키워드가 존재합니다.", HttpStatus.CONFLICT),
     INTEREST_EMPTY_KEYWORD("관심사에 등록된 키워드가 없습니다.", HttpStatus.BAD_REQUEST),
-    INTEREST_NULL_KEYWORD("키워드가 null일 수 없습니다.", HttpStatus.BAD_REQUEST);
+    INTEREST_NULL_KEYWORD("키워드가 null일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    COMMENT_EMPTY_CONTENT("댓글 내용이 null일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    COMMENT_TOO_LONG("댓글 내용은 500자 이하여야 합니다.", HttpStatus.BAD_REQUEST);
 
     public final String description;
     public final HttpStatus httpStatus;
