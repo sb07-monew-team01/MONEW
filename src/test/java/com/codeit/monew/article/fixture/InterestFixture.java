@@ -2,6 +2,7 @@ package com.codeit.monew.article.fixture;
 
 import com.codeit.monew.domain.interest.entity.Interest;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class InterestFixture {
@@ -12,4 +13,13 @@ public class InterestFixture {
                 new Interest("IT", List.of("AI", "클라우드"))
         );
     }
+
+    public static Interest create(String name, List<String> keywords) {
+        return new Interest(name, keywords);
+    }
+
+    public static List<Interest> createMultiple(Interest... interests) {
+        return Arrays.asList(interests);
+    }
+
 }
