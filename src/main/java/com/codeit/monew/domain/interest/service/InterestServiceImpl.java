@@ -16,6 +16,14 @@ public class InterestServiceImpl implements InterestService{
 
     @Override
     public Interest create(String name, List<String> keywords) {
+        interestNamePolicy.apply(name, interestRepository.findAll());
+        checkKeyword(keywords);
+
+        return interestRepository.save(new Interest(name, keywords));
+    }
+
+    //키워드 검증 메소드 분리
+    private void checkKeyword(List<String> keywords) {
         if(keywords == null){
             throw new KeywordValidException(ErrorCode.INTEREST_NULL_KEYWORD);
         }
@@ -23,8 +31,6 @@ public class InterestServiceImpl implements InterestService{
             throw new KeywordValidException(ErrorCode.INTEREST_EMPTY_KEYWORD);
         }
         checkDuplicateKeyword(keywords);
-        interestNamePolicy.apply(name, interestRepository.findAll());
-        return new Interest(name, keywords);
     }
 
     //같은 관심사 내에 중복 키워드가 있는지 체크하고, 있으면 예외를 발생시키는 메소드

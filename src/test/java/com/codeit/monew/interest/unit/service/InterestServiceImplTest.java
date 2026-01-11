@@ -19,6 +19,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 public class InterestServiceImplTest {
@@ -32,8 +35,8 @@ public class InterestServiceImplTest {
     InterestServiceImpl interestService;
 
     @Nested
-    @DisplayName("관심사 생성")
-    class CreateInterest {
+    @DisplayName("관심사 생성 - 상태 검증")
+    class CreateInterestState {
 
         @Test
         @DisplayName("성공: 유효한 이름과 키워드가 주어지면 관심사가 생성된다")
@@ -41,6 +44,8 @@ public class InterestServiceImplTest {
             //given
             String name = "백엔드";
             List<String> keywords = Arrays.asList("java", "spring");
+            given(interestRepository.save(any(Interest.class)))
+                    .willAnswer(invocation -> invocation.getArgument(0));
 
             // when
             Interest result = interestService.create(name, keywords);
@@ -91,6 +96,25 @@ public class InterestServiceImplTest {
                     .isInstanceOf(KeywordValidException.class)
                     .extracting("errorCode")
                     .isEqualTo(ErrorCode.INTEREST_NULL_KEYWORD);
+        }
+    }
+
+    @Nested
+    @DisplayName("관심사 생성 - 행위 검증")
+    class CreateInterestBehavior {
+        @Test
+        @DisplayName("성공: 관심사 생성 시 저장소의 save가 호출된다")
+        void success_create_interest_save(){
+            //given
+            given(interestRepository.findAll()).willReturn(List.of());
+            given(interestRepository.save(any(Interest.class)))
+                    .willAnswer(invocation -> invocation.getArgument(0));
+
+            //when
+            interestService.create("백엔드", List.of("java", "spring"));
+
+            //then
+            then(interestRepository).should().save(any(Interest.class));
         }
     }
 }
