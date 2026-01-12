@@ -24,6 +24,14 @@ public class InterestServiceImpl implements InterestService{
         return interestRepository.save(new Interest(name, keywords));
     }
 
+    @Override
+    public Interest editKeywords(UUID id, List<String> keywords) {
+        Interest interest = interestRepository.findById(id).orElseThrow(
+                () -> new InterestNotFoundException(ErrorCode.INTEREST_NOT_FOUND));
+        checkKeyword(keywords);
+        return interest.update(keywords);
+    }
+
     //키워드 검증 메소드 분리
     private void checkKeyword(List<String> keywords) {
         if(keywords == null){
@@ -45,13 +53,6 @@ public class InterestServiceImpl implements InterestService{
                     ErrorCode.INTEREST_KEYWORD_DUPLICATE
             );
         }
-    }
-
-    @Override
-    public Interest editKeywords(UUID id, List<String> keywords) {
-        Interest interest = interestRepository.findById(id).orElseThrow(
-                () -> new InterestNotFoundException(ErrorCode.INTEREST_NOT_FOUND));
-        return interest.update(keywords);
     }
 }
 
