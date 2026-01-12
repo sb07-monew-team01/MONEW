@@ -2,6 +2,8 @@ package com.codeit.monew.domain.notification.service;
 
 import com.codeit.monew.domain.notification.dto.request.NotificationCreateRequest;
 import com.codeit.monew.domain.notification.dto.request.NotificationCreateRequestList;
+import com.codeit.monew.domain.notification.dto.request.NotificationUpdateAllRequest;
+import com.codeit.monew.domain.notification.dto.request.NotificationUpdateRequest;
 import com.codeit.monew.domain.notification.dto.response.NotificationDto;
 import com.codeit.monew.domain.notification.entity.Notification;
 import com.codeit.monew.domain.notification.exception.NotificationNotFoundException;
@@ -69,10 +71,10 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Transactional
     @Override
-    public NotificationDto update(UUID userId, UUID notificationId) {
+    public NotificationDto update(NotificationUpdateRequest request) {
 
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new NotificationNotFoundException(notificationId));
+        Notification notification = notificationRepository.findById(request.notificationId())
+                .orElseThrow(() -> new NotificationNotFoundException(request.notificationId()));
 
         notification.confirm();
 
@@ -84,20 +86,18 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Transactional
     @Override
-    public NotificationDto updateAll(UUID userId, UUID notificationId) {
+    public List<NotificationDto> updateAll(NotificationUpdateAllRequest request) {
 
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new NotificationNotFoundException(notificationId));
+        List<Notification> notifications = notificationRepository.findAllByUserId(request.userId());
 
-        notification.confirm();
+        notifications.forEach(Notification::confirm);
 
-        //영속화라 알아서 저장하지만 명시적으로 일단 넣었으
-        notificationRepository.save(notification);
+        notificationRepository.saveAll(notifications);
 
-        return NotificationMapper.toDto(notification);
+        return notifications.stream()
+                .map(NotificationMapper::toDto)
+                .toList();
     }
-
-
 
     //물리삭제
     @Transactional

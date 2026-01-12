@@ -4,6 +4,7 @@ package com.codeit.monew.notification;
 
 
 import com.codeit.monew.domain.notification.dto.request.NotificationCreateRequest;
+import com.codeit.monew.domain.notification.dto.request.NotificationUpdateRequest;
 import com.codeit.monew.domain.notification.entity.Notification;
 import com.codeit.monew.domain.notification.dto.response.NotificationDto;
 import com.codeit.monew.domain.notification.entity.ResourceType;
@@ -114,10 +115,10 @@ public class NotificationServiceTest {
 
             // given
             when(notificationRepository.findById(any()))
-                    .thenReturn(Optional.empty());
-
+                     .thenReturn(Optional.empty());
+            NotificationUpdateRequest request = new NotificationUpdateRequest(userId, notificationId);
             // when & then
-            assertThatThrownBy(() -> notificationService.update(userId, notificationId))
+            assertThatThrownBy(() -> notificationService.update(request))
                     .isInstanceOf(NotificationNotFoundException.class);
 
         }
@@ -129,12 +130,13 @@ public class NotificationServiceTest {
             // given
             Notification notification =
                     Notification.forInterest(userId, resourceId, "축구", 5);
+            NotificationUpdateRequest request = new NotificationUpdateRequest(userId, notificationId);
             //알림 업데이트로직 안에  알림 찾으면  notification 뱉어버리게
             when(notificationRepository.findById(any()))
                     .thenReturn(Optional.of(notification));
 
             // when
-            NotificationDto update = notificationService.update(userId, notificationId);
+            NotificationDto update = notificationService.update(request);
 
             //then
             assertThat(update.confirmed()).isTrue();
