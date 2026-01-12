@@ -2,6 +2,7 @@ package com.codeit.monew.user;
 
 import com.codeit.monew.domain.user.*;
 import com.codeit.monew.domain.user.exception.EmailRecentlyDeletedException;
+import com.codeit.monew.domain.user.exception.UserAlreadyDeletedException;
 import com.codeit.monew.domain.user.exception.UserLoginFailedException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -89,7 +90,9 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("유저 삭제 요청을 통해 논리 삭제가 가능하다. 논리삭제가 된 경우 조회가 불가능하다.")
+    @DisplayName("유저 삭제 요청을 통해 논리 삭제가 가능하다. \n" +
+            "논리삭제가 된 경우 조회가 불가능하다.\n" +
+            "이미 삭제된 유저를 다시 삭제할 수 없다.")
     void userDelete() {
         // given
         String userEmail = "test@asdf.com";
@@ -106,6 +109,8 @@ public class UserServiceTest {
         // when & then
         verify(userRepository.findById(userId));
         assertThat(user.getDeletedAt()).isNotNull();
+        assertThatThrownBy(() -> userService.delete(userId))
+                .isInstanceOf(UserAlreadyDeletedException.class);
         assertThatThrownBy(() -> userService.signIn(new UserSignInRequest(userEmail, "newNickname", "password2")))
                 .isInstanceOf(EmailRecentlyDeletedException.class);
 
