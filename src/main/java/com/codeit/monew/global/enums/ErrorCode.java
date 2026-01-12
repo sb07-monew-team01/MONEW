@@ -4,8 +4,13 @@ import org.springframework.http.HttpStatus;
 
 public enum ErrorCode {
     // 400 Bad Request
+    // User
     ALREADY_EXISTS("이미 존재하는 값입니다.", HttpStatus.BAD_REQUEST),
     USER_LOGIN_FAILED("아이디와 비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED),
+    EMAIL_RECENTLY_DELETED("해당 이메일은 최근 삭제된 계정으로 재가입이 제한됩니다.", HttpStatus.CONFLICT),
+    EMAIL_ALREADY_EXISTS("이미 가입된 이메일입니다.", HttpStatus.BAD_REQUEST),
+    USER_NOT_FOUND("존재하지 않는 유저입니다.", HttpStatus.NOT_FOUND),
+    USER_ALREADY_DELETED("이미 삭제된 유저입니다.", HttpStatus.BAD_REQUEST),
     INTEREST_NAME_TOO_SIMILAR("이미 유사한 이름의 관심사가 존재합니다.", HttpStatus.CONFLICT),
     INTEREST_KEYWORD_DUPLICATE("같은 관심사 내에 중복 키워드가 존재합니다.", HttpStatus.CONFLICT),
     INTEREST_EMPTY_KEYWORD("관심사에 등록된 키워드가 없습니다.", HttpStatus.BAD_REQUEST),

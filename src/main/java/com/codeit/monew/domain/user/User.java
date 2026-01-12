@@ -41,4 +41,9 @@ public class User extends BaseUpdatableEntity {
     public void updateDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
+
+    public boolean isDeleted() {
+        return deletedAt != null;
+    }
+
 }
