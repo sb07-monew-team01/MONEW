@@ -1,7 +1,6 @@
 package com.codeit.monew.user;
 
 import com.codeit.monew.domain.user.*;
-import com.codeit.monew.domain.user.exception.EmailRecentlyDeletedException;
 import com.codeit.monew.domain.user.exception.UserAlreadyDeletedException;
 import com.codeit.monew.domain.user.exception.UserLoginFailedException;
 import org.junit.jupiter.api.DisplayName;
@@ -10,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -99,20 +99,22 @@ public class UserServiceTest {
         String userNickname = "delete";
         String userPassword = "password";
         User user = new User(userEmail, userNickname, userPassword);
+
         UUID userId = UUID.randomUUID();
-        when(user.getId()).thenReturn(userId);
+        ReflectionTestUtils.setField(user,"id", userId);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
 
         // when
         userService.delete(userId);
 
         // when & then
-        verify(userRepository.findById(userId));
+        verify(userRepository).findById(userId);
         assertThat(user.getDeletedAt()).isNotNull();
         assertThatThrownBy(() -> userService.delete(userId))
                 .isInstanceOf(UserAlreadyDeletedException.class);
         assertThatThrownBy(() -> userService.signIn(new UserSignInRequest(userEmail, "newNickname", "password2")))
-                .isInstanceOf(EmailRecentlyDeletedException.class);
+                .isInstanceOf(UserAlreadyDeletedException.class);
 
 
     }
