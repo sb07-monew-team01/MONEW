@@ -8,6 +8,7 @@ import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 public class InterestServiceImpl implements InterestService{
@@ -43,6 +44,12 @@ public class InterestServiceImpl implements InterestService{
                     ErrorCode.INTEREST_KEYWORD_DUPLICATE
             );
         }
+    }
+
+    @Override
+    public Interest editKeywords(UUID id, List<String> keywords) {
+        Interest interest = interestRepository.findById(id).get();
+        return interest.update(keywords);
     }
 }
 
