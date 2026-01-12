@@ -1,5 +1,6 @@
 package com.codeit.monew.domain.user;
 
+import com.codeit.monew.domain.user.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

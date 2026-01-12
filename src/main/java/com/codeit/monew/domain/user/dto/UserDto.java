@@ -1,4 +1,4 @@
-package com.codeit.monew.domain.user;
+package com.codeit.monew.domain.user.dto;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

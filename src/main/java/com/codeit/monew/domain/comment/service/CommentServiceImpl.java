@@ -6,8 +6,8 @@ import com.codeit.monew.domain.comment.dto.request.CommentRegisterRequest;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
 import com.codeit.monew.domain.comment.entity.Comment;
 import com.codeit.monew.domain.comment.repository.CommentRepository;
-import com.codeit.monew.domain.user.User;
-import com.codeit.monew.domain.user.UserRepository;
+import com.codeit.monew.domain.user.entity.User;
+import com.codeit.monew.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

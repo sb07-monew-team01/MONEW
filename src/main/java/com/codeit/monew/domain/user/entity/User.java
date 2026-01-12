@@ -1,4 +1,4 @@
-package com.codeit.monew.domain.user;
+package com.codeit.monew.domain.user.entity;
 
 import com.codeit.monew.domain.BaseUpdatableEntity;
 import jakarta.persistence.Column;
