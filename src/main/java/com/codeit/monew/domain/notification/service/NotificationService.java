@@ -10,4 +10,8 @@ public interface NotificationService {
 
     NotificationDto createByCommentLike(UUID userId,UUID resourceId,String name);
 
+    NotificationDto update(UUID userId, UUID notificationId);
+
+    void deleteAll();
+
 }
