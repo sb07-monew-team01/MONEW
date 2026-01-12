@@ -31,3 +31,8 @@ management:
   info:
     env:
       enabled: true          # /actuator/info 에 환경변수 정보 포함
+
+naver:
+  api:
+    client-id:
+    client-secret:
