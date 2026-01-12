@@ -104,6 +104,8 @@ public class UserServiceTest {
         userService.delete(userId);
 
         // when & then
+        verify(userRepository.findById(userId));
+        assertThat(user.getDeletedAt()).isNotNull();
         assertThatThrownBy(() -> userService.signIn(new UserSignInRequest(userEmail, "newNickname", "password2")))
                 .isInstanceOf(EmailRecentlyDeletedException.class);
 
