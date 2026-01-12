@@ -4,6 +4,6 @@ import com.codeit.monew.domain.comment.dto.request.CommentRegisterRequest;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
 
 public interface CommentService {
-    CommentDto createComment(CommentRegisterRequest request);
+    CommentDto create(CommentRegisterRequest request);
 
 }

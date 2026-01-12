@@ -30,6 +30,9 @@ public class InterestServiceImpl implements InterestService{
         if(keywords.isEmpty()){
             throw new KeywordValidException(ErrorCode.INTEREST_EMPTY_KEYWORD);
         }
+        if(keywords.size() > 10){
+            throw new KeywordValidException(ErrorCode.TOO_MANY_KEYWORD);
+        }
         checkDuplicateKeyword(keywords);
     }
 
