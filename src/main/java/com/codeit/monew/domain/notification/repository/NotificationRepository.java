@@ -2,13 +2,24 @@ package com.codeit.monew.domain.notification.repository;
 
 import com.codeit.monew.domain.notification.entity.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 public interface NotificationRepository extends JpaRepository<Notification, UUID> {
-    void deleteByUpdatedAtBefore(LocalDateTime oneWeek);
+
+    //영속성 확인 후 -> delete 하고 -> 영속성컨텍스트 비워
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+        delete from Notification n
+        where n.confirmed = true
+          and n.updatedAt < :date
+    """)
+    void deleteConfirmedBefore(@Param("date") LocalDateTime date);
 
     List<Notification> findAllByUserId(UUID uuid);
 }
