@@ -1,6 +1,8 @@
 package com.codeit.monew.user;
 
 import com.codeit.monew.domain.user.*;
+import com.codeit.monew.domain.user.exception.EmailRecentlyDeletedException;
+import com.codeit.monew.domain.user.exception.UserLoginFailedException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +15,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -66,6 +70,43 @@ public class UserServiceTest {
         verify(userRepository).findByEmail(email);
         verify(userMapper).from(any(User.class));
         assertThat(userDto).isNotNull();
+
+    }
+
+    @Test
+    @DisplayName("이메일과 비밀번호가 일치하지 않으면 로그인할 수 없다.")
+    void login_failed() {
+        // given
+        String email = "me@email.com";
+        User user = new User(email, "nickname", "password");
+        String wrongPassword = "wrongPassword";
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+
+        // when & then
+        assertThatThrownBy(() -> userService.login(email, wrongPassword))
+                .isInstanceOf(UserLoginFailedException.class);
+    }
+
+    @Test
+    @DisplayName("유저 삭제 요청을 통해 논리 삭제가 가능하다. 논리삭제가 된 경우 조회가 불가능하다.")
+    void userDelete() {
+        // given
+        String userEmail = "test@asdf.com";
+        String userNickname = "delete";
+        String userPassword = "password";
+        User user = new User(userEmail, userNickname, userPassword);
+        UUID userId = UUID.randomUUID();
+        when(user.getId()).thenReturn(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // when
+        userService.delete(userId);
+
+        // when & then
+        assertThatThrownBy(() -> userService.signIn(new UserSignInRequest(userEmail, "newNickname", "password2")))
+                .isInstanceOf(EmailRecentlyDeletedException.class);
+
 
     }
 }
