@@ -95,11 +95,12 @@ public class UserServiceTest {
             String nickname = "나야";
             String password = "비밀번호야";
             User user = new User(email, nickname, password);
-            when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
             ReflectionTestUtils.setField(user,"id", UUID.randomUUID());
 
             // when
             userService.signUp(new UserSignInRequest(email, nickname, password));
+            when(userRepository.findByEmail(email))
+                    .thenReturn(Optional.of(user));
 
             //then
             assertThatThrownBy(() -> userService.signUp(new UserSignInRequest(email, "다른닉네임이야", "다른비밀번호야")))
