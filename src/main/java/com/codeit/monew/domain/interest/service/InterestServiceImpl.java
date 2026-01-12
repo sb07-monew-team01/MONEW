@@ -1,6 +1,7 @@
 package com.codeit.monew.domain.interest.service;
 
 import com.codeit.monew.domain.interest.entity.Interest;
+import com.codeit.monew.domain.interest.exception.InterestNotFoundException;
 import com.codeit.monew.domain.interest.exception.KeywordValidException;
 import com.codeit.monew.domain.interest.policy.InterestNamePolicy;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
@@ -48,7 +49,8 @@ public class InterestServiceImpl implements InterestService{
 
     @Override
     public Interest editKeywords(UUID id, List<String> keywords) {
-        Interest interest = interestRepository.findById(id).get();
+        Interest interest = interestRepository.findById(id).orElseThrow(
+                () -> new InterestNotFoundException(ErrorCode.INTEREST_NOT_FOUND));
         return interest.update(keywords);
     }
 }

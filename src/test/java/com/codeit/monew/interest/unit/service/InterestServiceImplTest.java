@@ -1,6 +1,7 @@
 package com.codeit.monew.interest.unit.service;
 
 import com.codeit.monew.domain.interest.entity.Interest;
+import com.codeit.monew.domain.interest.exception.InterestNotFoundException;
 import com.codeit.monew.domain.interest.exception.KeywordValidException;
 import com.codeit.monew.domain.interest.policy.InterestNamePolicy;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
