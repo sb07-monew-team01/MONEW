@@ -14,7 +14,7 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class NaverApiMapperTest {
+public class NaverArticleMapperTest {
     private final NaverArticleMapper mapper = new NaverArticleMapper();
     
     @Test
