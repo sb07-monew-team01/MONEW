@@ -153,5 +153,19 @@ public class InterestServiceImplTest {
             // then
             assertThat(interest.getKeywords()).containsExactly("DB", "Spring boot");
         }
+
+        @Test
+        @DisplayName("실패: 관심사를 id로 찾을 수 없을 때 예외가 발생한다")
+        void fail_update_interest_not_found(){
+            // given
+            UUID interestId = UUID.randomUUID();
+            given(interestRepository.findById(interestId)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> interestService.editKeywords(interestId, List.of("DB", "Spring boot")))
+                    .isInstanceOf(InterestNotFoundException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.INTEREST_NOT_FOUND);
+        }
     }
 }
