@@ -4,6 +4,7 @@ import com.codeit.monew.domain.user.dto.UserDto;
 import com.codeit.monew.domain.user.dto.request.UserSignInRequest;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserAlreadyDeletedException;
+import com.codeit.monew.domain.user.exception.UserAlreadyExistsException;
 import com.codeit.monew.domain.user.exception.UserLoginFailedException;
 import com.codeit.monew.domain.user.repository.UserRepository;
 import com.codeit.monew.domain.user.service.UserService;
@@ -84,6 +85,27 @@ public class UserServiceTest {
             assertThatThrownBy(() -> userService.signUp(new UserSignInRequest(userEmail, "newNickname", "password2")))
                     .isInstanceOf(UserAlreadyDeletedException.class);
         }
+
+
+        @Test
+        @DisplayName("중복 이메일로는 가입할 수 없다")
+        void fail_duplicatedEmail() {
+            // given
+            String email = "dsfm@email.com";
+            String nickname = "나야";
+            String password = "비밀번호야";
+            User user = new User(email, nickname, password);
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+            ReflectionTestUtils.setField(user,"id", UUID.randomUUID());
+
+            // when
+            userService.signUp(new UserSignInRequest(email, nickname, password));
+
+            //then
+            assertThatThrownBy(() -> userService.signUp(new UserSignInRequest(email, "다른닉네임이야", "다른비밀번호야")))
+                    .isInstanceOf(UserAlreadyExistsException.class);
+
+        }
     }
 
     @Nested
@@ -107,7 +129,6 @@ public class UserServiceTest {
             verify(userRepository).findByEmail(email);
             verify(userMapper).toDto(any(User.class));
             assertThat(userDto).isNotNull();
-
         }
 
         @Test
