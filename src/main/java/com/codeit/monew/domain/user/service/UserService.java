@@ -29,7 +29,7 @@ public class UserService {
         if(byEmail.isEmpty()){
             User user = new User(dto.email(), dto.nickname(), dto.password());
             User saved = userRepository.save(user);
-            return userMapper.from(saved);
+            return userMapper.toDto(saved);
         }
         User user = byEmail.get();
         if (user.getDeletedAt() != null)
@@ -41,7 +41,7 @@ public class UserService {
         User byEmail = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(email));
         if (byEmail.getPassword().equals(password))
-            return userMapper.from(byEmail);
+            return userMapper.toDto(byEmail);
         throw new UserLoginFailedException(email);
     }
 

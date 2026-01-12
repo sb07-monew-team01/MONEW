@@ -22,7 +22,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,7 +45,7 @@ public class UserServiceTest {
         UserSignInRequest dto = new UserSignInRequest("someemail@gmail.com", "닉네임이야", "password1");
         when(userRepository.save(any(User.class)))
                 .thenReturn(new User(dto.email(), dto.nickname(), dto.password()));
-        when(userMapper.from(any(User.class)))
+        when(userMapper.toDto(any(User.class)))
                 .thenReturn(new UserDto(UUID.randomUUID(), dto.email(), dto.nickname(), LocalDateTime.now()));
 
         // when
@@ -54,7 +53,7 @@ public class UserServiceTest {
 
         //then
         verify(userRepository).save(any(User.class));
-        verify(userMapper).from(any(User.class));
+        verify(userMapper).toDto(any(User.class));
         assertThat(response).isNotNull();
     }
 
@@ -66,7 +65,7 @@ public class UserServiceTest {
         String password = "password";
         User user = new User(email, "nickname", password);
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-        when(userMapper.from(any(User.class)))
+        when(userMapper.toDto(any(User.class)))
                 .thenReturn(new UserDto(UUID.randomUUID(), email, "nickname", LocalDateTime.now()));
 
         // when
@@ -74,7 +73,7 @@ public class UserServiceTest {
 
         //then
         verify(userRepository).findByEmail(email);
-        verify(userMapper).from(any(User.class));
+        verify(userMapper).toDto(any(User.class));
         assertThat(userDto).isNotNull();
 
     }
@@ -95,9 +94,11 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("유저 삭제 요청을 통해 논리 삭제가 가능하다. \n" +
-            "논리삭제가 된 경우 조회가 불가능하다.\n" +
-            "이미 삭제된 유저를 다시 삭제할 수 없다.")
+    @DisplayName("""
+            유저 삭제 요청을 통해 논리 삭제가 가능하다.
+            논리삭제가 된 경우 조회가 불가능하다.
+            물리삭제 이전 같은 이메일로 가입이 불가능하다.
+            이미 삭제된 유저를 다시 삭제할 수 없다.""")
     void userDelete() {
         // given
         String userEmail = "test@asdf.com";
