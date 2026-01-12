@@ -148,7 +148,7 @@ public class NotificationServiceTest {
     class CreateNotification3 {
 
         @Test
-        @DisplayName("delete하면 deleteConfirmedBefore 메서드부르냐 ")
+        @DisplayName("delete하면 deleteConfirmedBefore 메서드부른다 ")
         void delete_confirmed_notification_older_than_7d() {
 
             // when
