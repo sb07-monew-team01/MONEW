@@ -6,6 +6,7 @@ package com.codeit.monew.notification;
 import com.codeit.monew.domain.notification.entity.Notification;
 import com.codeit.monew.domain.notification.dto.response.NotificationDto;
 import com.codeit.monew.domain.notification.entity.ResourceType;
+import com.codeit.monew.domain.notification.exception.NotificationNotFoundException;
 import com.codeit.monew.domain.notification.repository.NotificationRepository;
 import com.codeit.monew.domain.notification.service.NotificationServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,9 +19,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -36,7 +39,7 @@ public class NotificationServiceTest {
 
     private UUID userId;
     private UUID resourceId;
-
+    private UUID notificationId;
 
 
     @Nested
