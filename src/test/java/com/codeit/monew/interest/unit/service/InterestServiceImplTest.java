@@ -85,6 +85,21 @@ public class InterestServiceImplTest {
         }
 
         @Test
+        @DisplayName("실패: 관심사의 키워드가 10개를 초과하면 예외가 발생한다")
+        void fail_create_interest_over_keyword_limit() {
+            // given
+            String name = "프로그래밍";
+            List<String> keywords = List.of("java", "spring", "python", "C", "C++", "javascript", "typescript", "html", "css",
+                    "sql", "mongoDB");
+
+            // when & then
+            assertThatThrownBy(() -> interestService.create(name, keywords))
+                    .isInstanceOf(KeywordValidException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.TOO_MANY_KEYWORD);
+        }
+
+        @Test
         @DisplayName("실패 : 관심사의 키워드가 null이면 예외가 발생한다")
         void fail_create_interest_null_keyword(){
             // given
