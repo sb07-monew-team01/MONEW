@@ -24,7 +24,7 @@ public class UserService {
 
     private final UserMapper userMapper;
 
-    public UserDto signIn(UserSignInRequest dto) {
+    public UserDto signUp(UserSignInRequest dto) {
         Optional<User> byEmail = userRepository.findByEmail(dto.email());
         if(byEmail.isEmpty()){
             User user = new User(dto.email(), dto.nickname(), dto.password());
@@ -40,6 +40,8 @@ public class UserService {
     public UserDto login(String email, String password) {
         User byEmail = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(email));
+        if(byEmail.isDeleted())
+            throw new UserAlreadyDeletedException(byEmail);
         if (byEmail.getPassword().equals(password))
             return userMapper.toDto(byEmail);
         throw new UserLoginFailedException(email);
