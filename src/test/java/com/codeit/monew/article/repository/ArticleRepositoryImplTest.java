@@ -48,7 +48,7 @@ class ArticleRepositoryImplTest {
         // paging
         Object cursor = null;
         LocalDateTime after = null;
-        int size = 5;
+        Integer size = 5;
 
         ArticleSearchCondition searchCondition
                 = new ArticleSearchCondition(null, null, null, null);
@@ -75,7 +75,7 @@ class ArticleRepositoryImplTest {
         List<Article> articles2 = pages2.getContent();
 
         // then
-        assertThat(articles2).hasSize(2);
+        assertThat(articles2).hasSize(3);
         assertThat(articles2.get(1).getPublishDate())
                 .isBefore(articles2.get(0).getPublishDate());
         assertThat(pages2.hasNext()).isFalse();
