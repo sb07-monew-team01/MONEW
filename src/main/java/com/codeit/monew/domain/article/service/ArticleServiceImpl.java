@@ -30,12 +30,10 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public PageResponse<ArticleDto> searchByKeyword(ArticleSearchRequest request) {
 
-        int size = request.limit() != null ? request.limit() : 10;
-
         ArticleSearchCondition condition = new ArticleSearchCondition(
                 request.keyword(), request.sourceIn(), request.publishDateFrom(),
                 request.publishDateTo(), request.orderBy(), request.direction(),
-                request.cursor(), request.after(), size
+                request.cursor(), request.after(), request.limit()
         );
 
         Page<Article> articlePage = articleRepository.findByKeywordAndSource(condition);
@@ -49,9 +47,7 @@ public class ArticleServiceImpl implements ArticleService {
             List<Article> content = articlePage.getContent();
             Article lastArticle = content.get(content.size() - 1);
 
-            String orderBy = condition.orderBy() != null ? condition.orderBy() : "publishDate";
-
-            nextCursor = switch (orderBy) {
+            nextCursor = switch (request.orderBy()) {
 //                case "viewCount" -> lastArticle.getViewCount();
 //                case "commentCount" -> lastArticle.getCommentCount();
                 default -> lastArticle.getPublishDate();
@@ -63,7 +59,7 @@ public class ArticleServiceImpl implements ArticleService {
                 .map(articleMapper::toDto)
                 .toList();
 
-        return new PageResponse<>(content, nextCursor, nextAfter, size, total, articlePage.hasNext());
+        return new PageResponse<>(content, nextCursor, nextAfter, request.limit(), total, articlePage.hasNext());
     }
 
     @Transactional

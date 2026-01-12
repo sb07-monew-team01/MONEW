@@ -16,4 +16,9 @@ public record ArticleSearchRequest(
         LocalDateTime after,
         Integer limit
 ) {
+    public ArticleSearchRequest {
+        if (orderBy == null) orderBy = "publishDate";
+        if (direction == null) direction = "DESC";
+        if (limit == null) limit = 10;
+    }
 }

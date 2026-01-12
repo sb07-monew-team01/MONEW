@@ -30,7 +30,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     @Override
     public Page<Article> findByKeywordAndSource(ArticleSearchCondition searchCondition) {
 
-        int pageSize = searchCondition.limit() != null ? searchCondition.limit() : 10;
+        int pageSize = searchCondition.limit();
         Pageable pageable = PageRequest.of(0, pageSize);
 
         BooleanExpression cursorCondition = cursorCondition(
@@ -99,20 +99,15 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
         if (cursor == null || after == null) return null;
 
-        // 기본값
-        boolean isDesc = !"ASC".equalsIgnoreCase(direction);
-        String sortField = orderBy != null ? orderBy : "publishDate";
+        boolean isDesc = "DESC".equalsIgnoreCase(direction);
 
-        if ("publishDate".equalsIgnoreCase(sortField)) {
+        if ("publishDate".equalsIgnoreCase(orderBy)) {
             LocalDateTime date = (LocalDateTime) cursor;
-            if (isDesc) {
-                return article.publishDate.lt(date)
-                        .or(article.publishDate.eq(date).and(article.createdAt.lt(after)));
-            }
-            else {
-                return article.publishDate.gt(date)
+            return isDesc
+                ? article.publishDate.lt(date)
+                        .or(article.publishDate.eq(date).and(article.createdAt.lt(after)))
+                : article.publishDate.gt(date)
                         .or(article.publishDate.eq(date).and(article.createdAt.gt(after)));
-            }
         }
         // 다른 orderBy 추가예정
         else return null;
@@ -120,8 +115,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
     private OrderSpecifier<?>[] articleSorts(String orderBy, String direction) {
 
-        // 기본값
-        Order order = "ASC".equalsIgnoreCase(direction) ? Order.ASC : Order.DESC;
+        Order order = "DESC".equalsIgnoreCase(direction) ? Order.DESC : Order.ASC;
 
         OrderSpecifier<?> mainSort = switch (orderBy != null ? orderBy : "") {
 //            case "viewCount" ->

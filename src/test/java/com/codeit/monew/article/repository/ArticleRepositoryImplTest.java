@@ -32,7 +32,7 @@ class ArticleRepositoryImplTest {
             날짜 범위가 비어있으면 오늘~7일전 사이의 기사가 조회된다.
             게시일자를 기준으로 내림차순 정렬을 한다.
             """)
-    void searchAllNaverArticle_EmptyKeyword_EmptySource() {
+    void searchArticleWithCursorPaging() {
         // given
         for (int i = 0; i < 10; i++) {
             articleRepository.save(
@@ -44,6 +44,8 @@ class ArticleRepositoryImplTest {
 
         ArticleSearchCondition searchCondition
                 = ArticleSearchCondition.builder()
+                .orderBy("publishDate")
+                .direction("DESC")
                 .limit(5)
                 .build();
 
@@ -66,6 +68,8 @@ class ArticleRepositoryImplTest {
                 = ArticleSearchCondition.builder()
                 .cursor(nextCursor)
                 .after(nextAfter)
+                .orderBy("publishDate")
+                .direction("DESC")
                 .limit(5)
                 .build();
 

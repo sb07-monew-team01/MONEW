@@ -2,6 +2,7 @@ package com.codeit.monew.domain.article.dto.request;
 
 import com.codeit.monew.domain.article.entity.ArticleSource;
 import lombok.Builder;
+import lombok.Value;
 
 import java.time.LocalDateTime;
 import java.util.List;
