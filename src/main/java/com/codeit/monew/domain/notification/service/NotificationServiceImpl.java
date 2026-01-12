@@ -3,6 +3,7 @@ package com.codeit.monew.domain.notification.service;
 import com.codeit.monew.domain.notification.dto.response.NotificationDto;
 import com.codeit.monew.domain.notification.entity.Notification;
 import com.codeit.monew.domain.notification.entity.ResourceType;
+import com.codeit.monew.domain.notification.exception.NotificationNotFoundException;
 import com.codeit.monew.domain.notification.mapper.NotificationMapper;
 import com.codeit.monew.domain.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
