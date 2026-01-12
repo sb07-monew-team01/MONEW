@@ -10,11 +10,5 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ArticleRepositoryCustom {
-    Page<Article> findByKeywordAndSource(ArticleSearchCondition searchCondition,
-                                         String orderBy,
-                                         String direction,
-                                         Object cursor,
-                                         LocalDateTime after,
-                                         Integer limit
-    );
+    Page<Article> findByKeywordAndSource(ArticleSearchCondition searchCondition);
 }

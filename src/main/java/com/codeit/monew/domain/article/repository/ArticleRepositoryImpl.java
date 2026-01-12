@@ -28,15 +28,18 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Article> findByKeywordAndSource(ArticleSearchCondition searchCondition,
-                                                String orderBy,
-                                                String direction,
-                                                Object cursor,
-                                                LocalDateTime after,
-                                                Integer limit) {
+    public Page<Article> findByKeywordAndSource(ArticleSearchCondition searchCondition) {
 
-        int pageSize = limit != null ? limit : 10;
+        int pageSize = searchCondition.limit() != null ? searchCondition.limit() : 10;
         Pageable pageable = PageRequest.of(0, pageSize);
+
+        BooleanExpression cursorCondition = cursorCondition(
+                searchCondition.orderBy(),
+                searchCondition.direction(),
+                searchCondition.cursor(),
+                searchCondition.after()
+        );
+
 
         List<Article> contents = queryFactory
                 .selectFrom(article)
@@ -45,10 +48,10 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                         sourceIn(searchCondition.sourceIn()),
                         startDate(searchCondition.publishDateFrom()),
                         endDate(searchCondition.publishDateTo()),
-                        cursorCondition(orderBy, direction, cursor, after)
+                        cursorCondition
                 )
                 .orderBy(
-                        articleSort(orderBy, direction)
+                        articleSorts(searchCondition.orderBy(), searchCondition.direction())
                 )
                 .limit(pageSize +  1)
                 .fetch();
@@ -88,15 +91,19 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         return article.publishDate.lt(to);
     }
 
+    // 커서 페이징 (기본: 게시일, 내림차순)
     BooleanExpression cursorCondition(String orderBy,
                                       String direction,
                                       Object cursor,
                                       LocalDateTime after) {
 
         if (cursor == null || after == null) return null;
-        boolean isDesc = "DESC".equalsIgnoreCase(direction);
 
-        if ("publishDate".equalsIgnoreCase(orderBy)) {
+        // 기본값
+        boolean isDesc = !"ASC".equalsIgnoreCase(direction);
+        String sortField = orderBy != null ? orderBy : "publishDate";
+
+        if ("publishDate".equalsIgnoreCase(sortField)) {
             LocalDateTime date = (LocalDateTime) cursor;
             if (isDesc) {
                 return article.publishDate.lt(date)
@@ -111,10 +118,12 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         else return null;
     }
 
-    private OrderSpecifier<?>[] articleSort(String orderBy, String direction) {
-        Order order = "DESC".equalsIgnoreCase(direction) ? Order.DESC : Order.ASC;
+    private OrderSpecifier<?>[] articleSorts(String orderBy, String direction) {
 
-        OrderSpecifier<?> mainSort = switch (orderBy) {
+        // 기본값
+        Order order = "ASC".equalsIgnoreCase(direction) ? Order.ASC : Order.DESC;
+
+        OrderSpecifier<?> mainSort = switch (orderBy != null ? orderBy : "") {
 //            case "viewCount" ->
 //            case "commentCount" ->
             default -> new OrderSpecifier<>(order, article.publishDate);

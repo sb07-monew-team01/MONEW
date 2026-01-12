@@ -41,20 +41,14 @@ class ArticleRepositoryImplTest {
                     )
             );
         }
-        // cond
-        String orderBy = "publishDate";
-        String direction = "DESC";
-
-        // paging
-        Object cursor = null;
-        LocalDateTime after = null;
-        Integer size = 5;
 
         ArticleSearchCondition searchCondition
-                = new ArticleSearchCondition(null, null, null, null);
+                = ArticleSearchCondition.builder()
+                .limit(5)
+                .build();
 
         // when
-        Page<Article> pages1 = articleRepository.findByKeywordAndSource(searchCondition, orderBy, direction, cursor, after, size);
+        Page<Article> pages1 = articleRepository.findByKeywordAndSource(searchCondition);
         List<Article> articles1 = pages1.getContent();
 
         // then
@@ -64,17 +58,21 @@ class ArticleRepositoryImplTest {
                 .isBefore(articles1.get(1).getPublishDate());
         assertThat(pages1.hasNext()).isTrue();
 
-        // when
+        // when 2
         Object nextCursor = articles1.get(4).getPublishDate();
         LocalDateTime nextAfter = articles1.get(4).getCreatedAt();
-        cursor = nextCursor;
-        after = nextAfter;
 
+        ArticleSearchCondition searchCondition2
+                = ArticleSearchCondition.builder()
+                .cursor(nextCursor)
+                .after(nextAfter)
+                .limit(5)
+                .build();
 
-        Page<Article> pages2 = articleRepository.findByKeywordAndSource(searchCondition, orderBy, direction, cursor, after, size);
+        Page<Article> pages2 = articleRepository.findByKeywordAndSource(searchCondition2);
         List<Article> articles2 = pages2.getContent();
 
-        // then
+        // then 2
         assertThat(articles2).hasSize(3);
         assertThat(articles2.get(1).getPublishDate())
                 .isBefore(articles2.get(0).getPublishDate());
