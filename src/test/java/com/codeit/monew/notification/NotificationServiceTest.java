@@ -3,6 +3,7 @@ package com.codeit.monew.notification;
 
 
 
+import com.codeit.monew.domain.notification.dto.request.NotificationCreateRequest;
 import com.codeit.monew.domain.notification.entity.Notification;
 import com.codeit.monew.domain.notification.dto.response.NotificationDto;
 import com.codeit.monew.domain.notification.entity.ResourceType;
@@ -62,10 +63,10 @@ public class NotificationServiceTest {
             // save 호출 시 null 반환 방지
             when(notificationRepository.save(any(Notification.class)))
                     .thenAnswer(inv -> inv.getArgument(0));
-
+            NotificationCreateRequest request = NotificationCreateRequest.of(userId, resourceId, resourceName, resourceCont);
             // when
             NotificationDto result =
-                    notificationService.createByInterest(userId, resourceId, resourceName, resourceCont);
+                    notificationService.createByInterest(request);
 
             // then
             assertThat(result.resourceType()).isEqualTo(ResourceType.INTEREST);

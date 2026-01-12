@@ -1,8 +1,9 @@
 package com.codeit.monew.domain.notification.service;
 
+import com.codeit.monew.domain.notification.dto.request.NotificationCreateRequest;
+import com.codeit.monew.domain.notification.dto.request.NotificationCreateRequestList;
 import com.codeit.monew.domain.notification.dto.response.NotificationDto;
 import com.codeit.monew.domain.notification.entity.Notification;
-import com.codeit.monew.domain.notification.entity.ResourceType;
 import com.codeit.monew.domain.notification.exception.NotificationNotFoundException;
 import com.codeit.monew.domain.notification.mapper.NotificationMapper;
 import com.codeit.monew.domain.notification.repository.NotificationRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -19,16 +21,39 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
 
-
     @Transactional
     @Override
-    public NotificationDto createByInterest(UUID userId, UUID resourceId, String resourceName, int resourceCont) {
+    public NotificationDto createByInterest(NotificationCreateRequest request) {
 
         Notification saved = notificationRepository.save(
-                Notification.forInterest(userId, resourceId, resourceName,resourceCont)
+                Notification.forInterest(
+                        request.userId(),
+                        request.resourceId(),
+                        request.resourceName(),
+                        request.resourceCount())
         );
 
         return NotificationMapper.toDto(saved);
+    }
+
+    @Transactional
+    @Override
+    public List<NotificationDto> createAllByInterest(NotificationCreateRequestList requestList) {
+
+        List<Notification> entities = requestList.notificationCreateRequests().stream()
+                .map(request -> Notification.forInterest(
+                        request.userId(),
+                        request.resourceId(),
+                        request.resourceName(),
+                        request.resourceCount()
+                ))
+                .toList();
+
+        List<Notification> saved = notificationRepository.saveAll(entities);
+
+        return saved.stream()
+                .map(NotificationMapper::toDto)
+                .toList();
     }
 
     @Transactional
@@ -57,6 +82,23 @@ public class NotificationServiceImpl implements NotificationService {
         return NotificationMapper.toDto(notification);
     }
 
+    @Transactional
+    @Override
+    public NotificationDto updateAll(UUID userId, UUID notificationId) {
+
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new NotificationNotFoundException(notificationId));
+
+        notification.confirm();
+
+        //영속화라 알아서 저장하지만 명시적으로 일단 넣었으
+        notificationRepository.save(notification);
+
+        return NotificationMapper.toDto(notification);
+    }
+
+
+
     //물리삭제
     @Transactional
     @Override
@@ -66,7 +108,4 @@ public class NotificationServiceImpl implements NotificationService {
 
         notificationRepository.deleteByUpdatedAtBefore(oneWeek);
     }
-
-
-
 }
