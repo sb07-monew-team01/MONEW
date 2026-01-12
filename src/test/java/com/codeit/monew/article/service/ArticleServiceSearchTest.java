@@ -2,6 +2,7 @@ package com.codeit.monew.article.service;
 
 import com.codeit.monew.article.fixture.ArticleCreateRequestFixture;
 import com.codeit.monew.article.fixture.ArticleFixture;
+import com.codeit.monew.common.dto.PageResponse;
 import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;
 import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchCondition;
@@ -25,7 +26,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -67,12 +67,12 @@ public class ArticleServiceSearchTest {
             LocalDateTime publishDateFrom = LocalDate.now().minusDays(7).atStartOfDay();
 
             ArticleSearchRequest searchRequest
-                    = new ArticleSearchRequest(keyword, sources, publishDateFrom, publishDateTo);
+                    = new ArticleSearchRequest(keyword, sources, publishDateFrom, publishDateTo,
+                    null, null, null, null, null);
 
-            int size = 5;
             ArticleSearchCondition searchCondition
                     = new ArticleSearchCondition(keyword, sources, publishDateFrom, publishDateTo,
-                    null, null, null, null, size);
+                    null, null, null, null, null);
 
 
             ArticleDto dto1 = new ArticleDto(article1.getTitle(), article1.getSummary(), article1.getSource().toString(), article1.getPublishDate());
@@ -88,13 +88,14 @@ public class ArticleServiceSearchTest {
             when(articleMapper.toDto(article3)).thenReturn(dto3);
 
             // when
-            List<ArticleDto> articles = articleService.searchByKeyword(searchRequest);
+            PageResponse<ArticleDto> articlePages = articleService.searchByKeyword(searchRequest);
+            List<ArticleDto> articles = articlePages.content();
 
             // then
             assertThat(articles).hasSize(3);
-            assertThat(articles).extracting(ArticleDto::source).containsExactly("NAVER");
+            assertThat(articles).extracting(ArticleDto::source).containsOnly("NAVER");
             assertThat(articles.get(0).title()).isEqualTo(article3.getTitle());
-            assertThat(articles.get(1).publishDate()).isEqualTo(article2.getPublishDate());
+            assertThat(articles.get(1).publishDate()).isEqualTo(article1.getPublishDate());
         }
     }
 }

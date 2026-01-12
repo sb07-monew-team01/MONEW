@@ -11,4 +11,6 @@ import java.util.List;
 
 public interface ArticleRepositoryCustom {
     Page<Article> findByKeywordAndSource(ArticleSearchCondition searchCondition);
+
+    long countTotalElements(ArticleSearchCondition searchCondition);
 }

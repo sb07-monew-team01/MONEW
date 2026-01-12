@@ -9,6 +9,11 @@ public record ArticleSearchRequest(
         String keyword,
         List<ArticleSource> sourceIn,
         LocalDateTime publishDateFrom,
-        LocalDateTime publishDateTo
+        LocalDateTime publishDateTo,
+        String orderBy,
+        String direction,
+        Object cursor,
+        LocalDateTime after,
+        Integer limit
 ) {
 }

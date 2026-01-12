@@ -133,4 +133,21 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
         return new OrderSpecifier[] { mainSort, subSort};
     }
+
+    @Override
+    public long countTotalElements(ArticleSearchCondition searchCondition) {
+
+        Long total =  queryFactory
+                .select(article.count())
+                .from(article)
+                .where(
+                        keywordContains(searchCondition.keyword()),
+                        sourceIn(searchCondition.sourceIn()),
+                        startDate(searchCondition.publishDateFrom()),
+                        endDate(searchCondition.publishDateTo())
+                )
+                .fetchOne();
+
+        return total != null ? total : 0L;
+    }
 }
