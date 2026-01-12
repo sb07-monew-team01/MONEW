@@ -16,6 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -130,6 +132,26 @@ public class InterestServiceImplTest {
 
             //then
             then(interestRepository).should().save(any(Interest.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("관심사 수정 - 상태 검증")
+    class UpdateInterestState {
+        @Test
+        @DisplayName("성공: 관심사 수정 시 키워드가 변경된다")
+        void success_update_interest_keywords(){
+            // given
+            Interest interest = new Interest("백엔드", List.of("java", "spring"));
+            UUID interestId = UUID.randomUUID();
+            given(interestRepository.findById(interestId))
+                    .willReturn(Optional.of(interest));
+
+            // when
+            interestService.editKeywords(interestId, List.of("DB", "Spring boot"));
+
+            // then
+            assertThat(interest.getKeywords()).containsExactly("DB", "Spring boot");
         }
     }
 }
