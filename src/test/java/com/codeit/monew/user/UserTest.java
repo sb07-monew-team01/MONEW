@@ -1,4 +1,4 @@
-package com.codeit.monew.domain.user;
+package com.codeit.monew.user;
 
 import com.codeit.monew.domain.user.entity.User;
 import org.junit.jupiter.api.DisplayName;
