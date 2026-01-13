@@ -25,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class InterestServiceImplTest {
@@ -229,6 +230,20 @@ public class InterestServiceImplTest {
                     .isInstanceOf(KeywordValidException.class)
                     .extracting("errorCode")
                     .isEqualTo(ErrorCode.INTEREST_NULL_KEYWORD);
+        }
+    }
+
+    @Nested
+    @DisplayName("관심사 삭제 - 행위 검증")
+    class DeleteInterestState {
+        @Test
+        @DisplayName("성공: 관심사 삭제 시 저장소의 delete가 호출된다")
+        void success_delete_interest(){
+            // when
+            interestService.delete(interestId);
+
+            // then
+            then(interestRepository).should().deleteById(any(UUID.class));
         }
     }
 }
