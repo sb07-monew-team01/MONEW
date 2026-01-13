@@ -145,5 +145,37 @@ public class CommentServiceTest {
         }
     }
 
+    @Nested
+    @DisplayName("댓글 삭제")
+    class DeleteComment {
+
+        @Test
+        @DisplayName("성공: 댓글이 정상적으로 논리 삭제된다.")
+        void softDeleteComment_success() {
+            // given
+            UUID articleId = UUID.randomUUID();
+            UUID userId = UUID.randomUUID();
+            User user = new User("test@email.com","nick","1234");
+            Article article = new Article(
+                    ArticleSource.NAVER,
+                    "www.naver.com/article/123",
+                    "제목입니다.",
+                    LocalDateTime.now(),
+                    "요약입니다.",
+                    null
+            );
+            Comment comment = new Comment(user, article, "삭제 테스트용 댓글");
+            commentRepository.save(comment);
+
+            // when
+            commentService.delete(comment.getId());
+
+            // then
+            Comment found = commentRepository.findById(comment.getId()).orElseThrow();
+            assertThat(found.getDeletedAt()).isNotNull();
+
+        }
+    }
+
 }
 
