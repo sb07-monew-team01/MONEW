@@ -4,10 +4,13 @@ import com.codeit.monew.article.fixture.ArticleCreateRequestFixture;
 import com.codeit.monew.article.fixture.InterestFixture;
 import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
 import com.codeit.monew.domain.article.infrastructure.NaverArticleCollector;
-import com.codeit.monew.domain.article.infrastructure.naver.mapper.NaverArticleMapper;
+import com.codeit.monew.domain.article.infrastructure.exception.naver.NaverApiAuthenticationException;
+import com.codeit.monew.domain.article.infrastructure.exception.naver.NaverApiRateLimitException;
+import com.codeit.monew.domain.article.infrastructure.exception.naver.NaverApiServerException;
 import com.codeit.monew.domain.article.infrastructure.naver.client.NaverArticleClient;
 import com.codeit.monew.domain.article.infrastructure.naver.dto.NaverApiResponse;
 import com.codeit.monew.domain.article.infrastructure.naver.dto.NaverItem;
+import com.codeit.monew.domain.article.infrastructure.naver.mapper.NaverArticleMapper;
 import com.codeit.monew.domain.interest.entity.Interest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -109,4 +112,75 @@ public class NaverArticleCollectorTest {
         assertThat(result).isEmpty();
     }
 
+    @Test
+    @DisplayName("NaverApiAuthenticationException 발생 시 빈 리스트 반환")
+    void collect_authException_returnsEmpty() {
+        // given
+        List<Interest> interests = InterestFixture.createMultiple(
+                new Interest("프로그래밍", List.of("Java"))
+        );
+
+        given(naverArticleClient.searchArticle(anyString(), anyInt(), anyInt()))
+                .willThrow(new NaverApiAuthenticationException("인증 실패"));
+
+        // when
+        List<ArticleCreateRequest> result = naverArticleCollector.collect(interests);
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("NaverApiRateLimitException 발생 시 빈 리스트 반환")
+    void collect_rateLimitException_returnsEmpty() {
+        // given
+        List<Interest> interests = InterestFixture.createMultiple(
+                new Interest("프로그래밍", List.of("Spring"))
+        );
+
+        given(naverArticleClient.searchArticle(anyString(), anyInt(), anyInt()))
+                .willThrow(new NaverApiRateLimitException("Rate Limit 초과"));
+
+        // when
+        List<ArticleCreateRequest> result = naverArticleCollector.collect(interests);
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("NaverApiServerException 발생 시 빈 리스트 반환")
+    void collect_serverException_returnsEmpty() {
+        // given
+        List<Interest> interests = InterestFixture.createMultiple(
+                new Interest("프로그래밍", List.of("Kotlin"))
+        );
+
+        given(naverArticleClient.searchArticle(anyString(), anyInt(), anyInt()))
+                .willThrow(new NaverApiServerException("서버 오류"));
+
+        // when
+        List<ArticleCreateRequest> result = naverArticleCollector.collect(interests);
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("기타 Exception 발생 시 빈 리스트 반환")
+    void collect_generalException_returnsEmpty() {
+        // given
+        List<Interest> interests = InterestFixture.createMultiple(
+                new Interest("프로그래밍", List.of("Java"))
+        );
+
+        given(naverArticleClient.searchArticle(anyString(), anyInt(), anyInt()))
+                .willThrow(new RuntimeException("기타 오류"));
+
+        // when
+        List<ArticleCreateRequest> result = naverArticleCollector.collect(interests);
+
+        // then
+        assertThat(result).isEmpty();
+    }
 }
