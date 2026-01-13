@@ -52,6 +52,7 @@ public class UserServiceTest {
                     .thenReturn(new User(dto.email(), dto.nickname(), dto.password()));
             when(userMapper.toDto(any(User.class)))
                     .thenReturn(new UserDto(UUID.randomUUID(), dto.email(), dto.nickname(), LocalDateTime.now()));
+            when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
 
             // when
             UserDto response = userService.signUp(dto);
@@ -73,15 +74,10 @@ public class UserServiceTest {
 
             UUID userId = UUID.randomUUID();
             ReflectionTestUtils.setField(user,"id", userId);
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            user.updateDeletedAt(LocalDateTime.now());
             when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
 
-            // when
-            userService.delete(userId);
-
-            // then
-            verify(userRepository).findById(userId);
-            assertThat(user.getDeletedAt()).isNotNull();
+            // when & then
             assertThatThrownBy(() -> userService.signUp(new UserSignInRequest(userEmail, "newNickname", "password2")))
                     .isInstanceOf(UserAlreadyDeletedException.class);
         }
@@ -96,9 +92,6 @@ public class UserServiceTest {
             String password = "비밀번호야";
             User user = new User(email, nickname, password);
             ReflectionTestUtils.setField(user,"id", UUID.randomUUID());
-
-            // when
-            userService.signUp(new UserSignInRequest(email, nickname, password));
             when(userRepository.findByEmail(email))
                     .thenReturn(Optional.of(user));
 
@@ -146,38 +139,7 @@ public class UserServiceTest {
             assertThatThrownBy(() -> userService.login(email, wrongPassword))
                     .isInstanceOf(UserLoginFailedException.class);
         }
-    }
 
-    @Nested
-    @DisplayName("유저 삭제")
-    class Delete{
-        @Test
-        @DisplayName("""
-            유저 삭제 요청을 통해 논리 삭제가 가능하다.
-            논리 삭제가 된 경우 조회가 불가능하다.""")
-        void userDelete() {
-            // given
-            String userEmail = "test@asdf.com";
-            String userNickname = "delete";
-            String userPassword = "password";
-            User user = new User(userEmail, userNickname, userPassword);
-
-            UUID userId = UUID.randomUUID();
-            ReflectionTestUtils.setField(user,"id", userId);
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-            when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
-
-            // when
-            userService.delete(userId);
-
-            // when & then
-            verify(userRepository).findById(userId);
-            assertThat(user.getDeletedAt()).isNotNull();
-            assertThatThrownBy(() -> userService.delete(userId))
-                    .isInstanceOf(UserAlreadyDeletedException.class);
-            assertThatThrownBy(() -> userService.signUp(new UserSignInRequest(userEmail, "newNickname", "password2")))
-                    .isInstanceOf(UserAlreadyDeletedException.class);
-        }
         @Test
         @DisplayName("논리 삭제된 유저는 로그인 할 수 없다.")
         void deletedUserCantLogin() {
@@ -189,8 +151,31 @@ public class UserServiceTest {
 
             UUID userId = UUID.randomUUID();
             ReflectionTestUtils.setField(user,"id", userId);
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
+            user.updateDeletedAt(LocalDateTime.now());
+
+            // when & then
+            assertThatThrownBy(() -> userService.login(userEmail, userPassword))
+                    .isInstanceOf(UserAlreadyDeletedException.class);
+            verify(userRepository).findByEmail(userEmail);
+        }
+    }
+
+    @Nested
+    @DisplayName("유저 삭제")
+    class Delete{
+        @Test
+        @DisplayName("유저 삭제 요청을 통해 논리 삭제가 가능하다.")
+        void userDelete() {
+            // given
+            String userEmail = "test@asdf.com";
+            String userNickname = "delete";
+            String userPassword = "password";
+            User user = new User(userEmail, userNickname, userPassword);
+
+            UUID userId = UUID.randomUUID();
+            ReflectionTestUtils.setField(user,"id", userId);
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
             // when
             userService.delete(userId);
@@ -198,8 +183,27 @@ public class UserServiceTest {
             // when & then
             verify(userRepository).findById(userId);
             assertThat(user.getDeletedAt()).isNotNull();
-            assertThatThrownBy(() -> userService.login("test@asdf.com", "password"))
+        }
+
+        @Test
+        @DisplayName("논리 삭제가 된 경우 삭제가 불가능하다.")
+        void deletedUserCantDeleteAgain() {
+            // given
+            String userEmail = "test@asdf.com";
+            String userNickname = "delete";
+            String userPassword = "password";
+            User user = new User(userEmail, userNickname, userPassword);
+
+            UUID userId = UUID.randomUUID();
+            ReflectionTestUtils.setField(user,"id", userId);
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            user.updateDeletedAt(LocalDateTime.now());
+
+            // when & then
+            assertThatThrownBy(() -> userService.delete(userId))
                     .isInstanceOf(UserAlreadyDeletedException.class);
         }
+
+
     }
 }
