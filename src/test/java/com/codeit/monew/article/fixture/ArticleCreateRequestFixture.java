@@ -40,8 +40,8 @@ public class ArticleCreateRequestFixture {
 
         return new ArticleCreateRequest(
                 source,
-                "http://" + random.nextInt(100) + source + ".com",
-                source.name() + " 뉴스_" + random.nextInt(100),
+                "http://" + random.nextInt(1000) + source + ".com",
+                source.name() + " 뉴스_" + random.nextInt(1000),
                 LocalDateTime.now().plusDays(d),
                 "test summary"
         );

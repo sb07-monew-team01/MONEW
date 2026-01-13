@@ -2,20 +2,18 @@ package com.codeit.monew.article.repository;
 
 import com.codeit.monew.article.fixture.ArticleCreateRequestFixture;
 import com.codeit.monew.article.fixture.ArticleFixture;
-import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchCondition;
-import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.test.context.ActiveProfiles;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @Import(TestQueryDslConfig.class)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("test")
 class ArticleRepositoryImplTest {
 
     @Autowired
@@ -31,33 +29,59 @@ class ArticleRepositoryImplTest {
 
     @Test
     @DisplayName("""
-    검색어와 출처가 비어있으면 출처가 NAVER인 기사 전체가 조회된다.
-    날짜 범위가 비어있으면 오늘~7일전 사이의 기사가 조회된다.
-    """)
-    void searchAllNaverArticle_EmptyKeyword_EmptySource() {
+            기본 검색 조건(출처, 날짜)에서 커서 기반 페이징으로 기사를 조회한다.
+            출처: NAVER
+            날짜: 최근 일주일, 예시) 12일(월) ~ 5일(월)
+            """)
+    void searchArticleWithCursorPaging() {
         // given
-        ArticleCreateRequest request1 = ArticleCreateRequestFixture.createDummy(0, 0);
-        ArticleCreateRequest request2 = ArticleCreateRequestFixture.createDummy(0, -14);
-        ArticleCreateRequest request3 = ArticleCreateRequestFixture.createDummy(1, 0);
-        ArticleCreateRequest request4 = ArticleCreateRequestFixture.createDummy(2, 2);
-        articleRepository.saveAll(List.of(
-                ArticleFixture.createEntity(request1),
-                ArticleFixture.createEntity(request2),
-                ArticleFixture.createEntity(request3),
-                ArticleFixture.createEntity(request4))
-        );
+        for (int i = 0; i < 10; i++) {
+            articleRepository.save(
+                    ArticleFixture.createEntity(
+                            ArticleCreateRequestFixture.createDummy(i%2, -i)
+                    )
+            );
+        }
 
         ArticleSearchCondition searchCondition
-                = new ArticleSearchCondition(null, null, null, null);
+                = ArticleSearchCondition.builder()
+                .orderBy("publishDate")
+                .direction("DESC")
+                .limit(3)
+                .build();
 
-        // when
-        List<Article> articles = articleRepository.findByKeywordAndSource(searchCondition);
+        // when 첫 번째 페이지
+        Page<Article> pages1 = articleRepository.findByKeywordAndSource(searchCondition);
+        List<Article> articles1 = pages1.getContent();
 
         // then
-        assertThat(articles).hasSize(1);
-        assertThat(articles).extracting(Article::getSource).containsOnly(ArticleSource.NAVER);
-        assertThat(articles.get(0).getPublishDate())
-                .isAfter(LocalDate.now().minusDays(7).atStartOfDay())
-                .isBefore(LocalDate.now().plusDays(1).atStartOfDay());
+        assertThat(articles1).hasSize(3);
+        assertThat(articles1.get(0).getSource()).isEqualTo(ArticleSource.NAVER);
+        assertThat(articles1.get(1).getPublishDate())
+                .isAfter(articles1.get(2).getPublishDate())
+                .isBefore(articles1.get(0).getPublishDate());
+        assertThat(pages1.hasNext()).isTrue();
+
+        // when 두 번째 페이지
+        String nextCursor = articles1.get(2).getPublishDate().toString();
+        LocalDateTime nextAfter = articles1.get(2).getCreatedAt();
+
+        ArticleSearchCondition searchCondition2
+                = ArticleSearchCondition.builder()
+                .cursor(nextCursor)
+                .after(nextAfter)
+                .orderBy("publishDate")
+                .direction("DESC")
+                .limit(3)
+                .build();
+
+        Page<Article> pages2 = articleRepository.findByKeywordAndSource(searchCondition2);
+        List<Article> articles2 = pages2.getContent();
+
+        // then
+        assertThat(articles2).hasSize(1);
+        assertThat(articles2.get(0).getPublishDate())
+                .isBefore(articles1.get(2).getPublishDate());
+        assertThat(pages2.hasNext()).isFalse();
     }
 }

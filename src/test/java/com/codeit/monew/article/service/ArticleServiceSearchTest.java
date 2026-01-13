@@ -2,13 +2,12 @@ package com.codeit.monew.article.service;
 
 import com.codeit.monew.article.fixture.ArticleCreateRequestFixture;
 import com.codeit.monew.article.fixture.ArticleFixture;
+import com.codeit.monew.article.fixture.ArticleSearchRequestFixture;
+import com.codeit.monew.common.dto.PageResponse;
 import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;
-import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
-import com.codeit.monew.domain.article.dto.request.ArticleSearchCondition;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
 import com.codeit.monew.domain.article.dto.response.ArticleDto;
 import com.codeit.monew.domain.article.entity.Article;
-import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.article.service.ArticleServiceImpl;
 import org.junit.jupiter.api.DisplayName;
@@ -17,16 +16,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ArticleServiceSearchTest {
@@ -44,43 +45,40 @@ public class ArticleServiceSearchTest {
     class Search {
 
         @Test
-        @DisplayName("검색어와 선택한 여러 출처가 일치하는 기사를 지정한 날짜 범위 내에서 조회한다.")
-        void titleOrSummaryContainingKeyword() {
+        @DisplayName("""
+                마지막 기사로부터 다음 페이지의 커서를 생성한다.
+                orderBy = publishDate
+                """)
+        void convertArticleCursorPageResponse() {
             // given
-            ArticleCreateRequest request1 = ArticleCreateRequestFixture.createDummy(0, 0);
-            ArticleCreateRequest request2 = ArticleCreateRequestFixture.createDummy(1, 2);
+            Article article = ArticleFixture.createEntity(ArticleCreateRequestFixture.createDummy(0, -1));
+            ArticleDto dto = new ArticleDto(article.getTitle(), article.getSummary(), "NAVER", article.getPublishDate());
 
-            Article article1 =  ArticleFixture.createEntity(request1);
-            Article article2 =  ArticleFixture.createEntity(request2);
+            LocalDateTime lastDate = article.getPublishDate();
+            LocalDateTime lastCreatedAt = article.getCreatedAt();
+            long total = 11L;
+            int pageSize = 10;
 
+            Pageable pageable = PageRequest.of(0, pageSize);
+            Page<Article> articlePage = new PageImpl<>(List.of(article), pageable, total);
 
-            String keyword = "뉴스";
-            List<ArticleSource> sources = List.of(ArticleSource.NAVER, ArticleSource.HANKYUNG);
-            LocalDateTime publishDateTo = LocalDate.now().plusDays(1).atStartOfDay();
-            LocalDateTime publishDateFrom = LocalDate.now().minusDays(7).atStartOfDay();
-
-            ArticleSearchRequest searchRequest
-                    = new ArticleSearchRequest(keyword, sources, publishDateFrom, publishDateTo);
-
-            ArticleSearchCondition searchCondition
-                    = new ArticleSearchCondition(keyword, sources, publishDateFrom, publishDateTo);
-
-
-            ArticleDto dto1 = new ArticleDto("네이버 뉴스", "a", "NAVER", now());
-            ArticleDto dto2 = new ArticleDto("한경 뉴스", "a", "HANKYUNG", now());
-
-            when(articleRepository.findByKeywordAndSource(searchCondition)).thenReturn(List.of(article1));
-
-            when(articleMapper.toDto(article1)).thenReturn(dto1);
+            when(articleRepository.findByKeywordAndSource(any())).thenReturn(articlePage);
+            when(articleRepository.countTotalElements(any())).thenReturn(total);
+            when(articleMapper.toDto(any())).thenReturn(dto);
 
             // when
-            List<ArticleDto> articles = articleService.searchByKeyword(searchRequest);
+            ArticleSearchRequest request = ArticleSearchRequestFixture.createWithOrderBy("publishDate");
+            PageResponse<ArticleDto> articlePages = articleService.searchByKeyword(request);
 
             // then
-            assertThat(articles).hasSize(1);
-            assertThat(articles).extracting(ArticleDto::source).containsExactly("NAVER");
-            assertThat(articles.get(0).publishDate())
-                    .isAfterOrEqualTo(publishDateFrom).isBeforeOrEqualTo(publishDateTo);
+            assertThat(articlePages.nextCursor()).isEqualTo(lastDate.toString());
+            assertThat(articlePages.nextAfter()).isEqualTo(lastCreatedAt);
+
+            assertThat(articlePages.size()).isEqualTo(pageSize);
+            assertThat(articlePages.totalElements()).isEqualTo(total);
+            assertThat(articlePages.hasNext()).isTrue();
+
+            assertThat(articlePages.content()).hasSize(1);
         }
     }
 }
