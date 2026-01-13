@@ -1,4 +1,4 @@
-package com.codeit.monew.domain.user;
+package com.codeit.monew.domain.user.entity;
 
 import com.codeit.monew.domain.BaseUpdatableEntity;
 import jakarta.persistence.Column;
@@ -41,4 +41,9 @@ public class User extends BaseUpdatableEntity {
     public void updateDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
+
+    public boolean isDeleted() {
+        return deletedAt != null;
+    }
+
 }
