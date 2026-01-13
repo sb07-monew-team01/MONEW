@@ -248,5 +248,19 @@ public class InterestServiceImplTest {
             // then
             then(interestRepository).should().deleteById(interestId);
         }
+
+        @Test
+        @DisplayName("실패: 저장소에 존재하지 않는 관심사 UUID를 줄 경우 예외가 발생한다")
+        void fail_delete_interest_not_found(){
+            // given
+            UUID interestId = UUID.randomUUID();
+            given(interestRepository.findById(interestId)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> interestService.delete(interestId))
+                    .isInstanceOf(InterestNotFoundException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.INTEREST_NOT_FOUND);
+        }
     }
 }
