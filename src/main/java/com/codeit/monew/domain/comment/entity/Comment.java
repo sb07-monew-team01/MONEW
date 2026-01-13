@@ -2,7 +2,7 @@ package com.codeit.monew.domain.comment.entity;
 
 import com.codeit.monew.domain.BaseUpdatableEntity;
 import com.codeit.monew.domain.article.entity.Article;
-import com.codeit.monew.domain.user.User;
+import com.codeit.monew.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
