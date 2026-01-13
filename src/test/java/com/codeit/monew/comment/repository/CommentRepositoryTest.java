@@ -17,7 +17,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 import java.time.LocalDateTime;
-
 import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("test")
 @DataJpaTest
@@ -50,16 +49,16 @@ public class CommentRepositoryTest {
         );
         entityManager.persist(article);
 
-        // when - 실제 테스트할 동작
         String content = "댓글 내용입니다.";
         Comment comment = new Comment(user, article, content);
 
-        entityManager.persist(comment);
+        // when - 실제 테스트할 동작
+        Comment saved = commentRepository.save(comment);
         entityManager.flush();
         entityManager.clear(); // 1차 캐시 지우기
 
         // then - DB에서 다시 조회하고 검증하기
-        Comment found = commentRepository.findById(comment.getId()).orElseThrow();
+        Comment found = commentRepository.findById(saved.getId()).orElseThrow();
 
         assertThat(found.getId()).isNotNull();
         assertThat(found.getContent()).isEqualTo(content);
