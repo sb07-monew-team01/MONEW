@@ -35,6 +35,9 @@ public class ArticleServiceSearchTest {
     @Mock
     private ArticleRepository articleRepository;
 
+    @Mock
+    private ArticleMapper articleMapper;
+
     @InjectMocks
     private ArticleServiceImpl articleService;
 
@@ -43,26 +46,39 @@ public class ArticleServiceSearchTest {
 
         @Test
         @DisplayName("""
-        마지막 기사로부터 다음 페이즈를 위한 커서를 생성한다.
-        PageResponse 반환에 성공한다.
-        """)
+                마지막 기사로부터 다음 페이지의 커서를 생성한다.
+                orderBy = publishDate
+                """)
         void convertArticleCursorPageResponse() {
             // given
-            Article article1 =  ArticleFixture.createEntity(ArticleCreateRequestFixture.createDummy(0, -1));
-            LocalDateTime lastDate = article1.getPublishDate();
+            Article article = ArticleFixture.createEntity(ArticleCreateRequestFixture.createDummy(0, -1));
+            ArticleDto dto = new ArticleDto(article.getTitle(), article.getSummary(), "NAVER", article.getPublishDate());
 
-            Pageable pageable = PageRequest.of(0, 10);
-            Page<Article> articlePage = new PageImpl<>(List.of(article1), pageable, 11);
+            LocalDateTime lastDate = article.getPublishDate();
+            LocalDateTime lastCreatedAt = article.getCreatedAt();
+            long total = 11L;
+            int pageSize = 10;
+
+            Pageable pageable = PageRequest.of(0, pageSize);
+            Page<Article> articlePage = new PageImpl<>(List.of(article), pageable, total);
 
             when(articleRepository.findByKeywordAndSource(any())).thenReturn(articlePage);
+            when(articleRepository.countTotalElements(any())).thenReturn(total);
+            when(articleMapper.toDto(any())).thenReturn(dto);
 
             // when
-            ArticleSearchRequest request = ArticleSearchRequestFixture.createDefault();
+            ArticleSearchRequest request = ArticleSearchRequestFixture.createWithOrderBy("publishDate");
             PageResponse<ArticleDto> articlePages = articleService.searchByKeyword(request);
 
             // then
             assertThat(articlePages.nextCursor()).isEqualTo(lastDate.toString());
+            assertThat(articlePages.nextAfter()).isEqualTo(lastCreatedAt);
+
+            assertThat(articlePages.size()).isEqualTo(pageSize);
+            assertThat(articlePages.totalElements()).isEqualTo(total);
             assertThat(articlePages.hasNext()).isTrue();
+
+            assertThat(articlePages.content()).hasSize(1);
         }
     }
 }
