@@ -1,10 +1,7 @@
 package com.codeit.monew.domain.interest.entity;
 
 import com.codeit.monew.domain.BaseUpdatableEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,11 +18,19 @@ public class Interest extends BaseUpdatableEntity {
     @Column(nullable = false)
     private String name;
 
-    @Transient
+    @ElementCollection
+    @CollectionTable(name = "interest_keywords",
+            joinColumns = @JoinColumn(name = "interest_id"))
+    @Column(name = "keyword")
     private List<String> keywords;
 
     public Interest(String name, List<String> keywords) {
         this.name = name;
         this.keywords = new ArrayList<>(keywords);
+    }
+
+    public Interest update(List<String> keywords) {
+        this.keywords = new ArrayList<>(keywords);
+        return this;
     }
 }
