@@ -2,61 +2,74 @@ package com.codeit.monew.comment.repository;
 
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.entity.ArticleSource;
-import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.comment.entity.Comment;
 import com.codeit.monew.domain.comment.repository.CommentRepository;
-import com.codeit.monew.domain.user.User;
-import com.codeit.monew.domain.user.UserRepository;
+import com.codeit.monew.domain.user.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-@Transactional
-@DisplayName("댓글 레포지토리 통합 테스트")
+@ActiveProfiles("test")
+@DataJpaTest
+@Import(TestQueryDslConfig.class)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@TestPropertySource(properties = {
+        "spring.jpa.hibernate.ddl-auto=create-drop"
+})
+@DisplayName("댓글 레포지토리 테스트")
 public class CommentRepositoryTest {
 
     @Autowired
     CommentRepository commentRepository;
     @Autowired
-    UserRepository userRepository;
-    @Autowired
-    ArticleRepository articleRepository;
+    TestEntityManager entityManager;
 
     @Test
     @DisplayName("성공: 댓글 저장 시 기본값이 올바르게 설정된다.")
     void saveComment_Success() {
-        // given
-        User user = userRepository.save(new User(
+        // given - EntityManager로 연관 엔티티 직접 생성
+        User user = new User(
                 "test@email.com",
                 "nick",
-                "1234"));
-        Article article = articleRepository.save(new Article(
+                "1234"
+        );
+        entityManager.persist(user);
+
+        Article article = new Article(
                 ArticleSource.NAVER,
                 "https://naver.com/article/123",
                 "테스트 제목",
                 LocalDateTime.now(),
                 "요약입니다.",
                 null
-        ));
+        );
+        entityManager.persist(article);
 
+        // when - 실제 테스트할 동작
         String content = "댓글 내용입니다.";
-        Comment comment = commentRepository.save(new Comment(user, article, content));
+        Comment comment = new Comment(user, article, content);
 
-        // when
-        Comment saved = commentRepository.save(comment);
+        entityManager.persist(comment);
+        entityManager.flush();
+        entityManager.clear(); // 1차 캐시 지우기
 
-        // then
-        assertThat(saved.getId()).isNotNull();
-        assertThat(saved.getContent()).isEqualTo(content);
-        assertThat(saved.getDeletedAt()).isNull();
-        assertThat(saved.getCreatedAt()).isNotNull();
+        // then - DB에서 다시 조회하고 검증하기
+        Comment found = commentRepository.findById(comment.getId()).orElseThrow();
+
+        assertThat(found.getId()).isNotNull();
+        assertThat(found.getContent()).isEqualTo(content);
+        assertThat(found.getDeletedAt()).isNull();
+        assertThat(found.getCreatedAt()).isNotNull();
     }
 
 }
