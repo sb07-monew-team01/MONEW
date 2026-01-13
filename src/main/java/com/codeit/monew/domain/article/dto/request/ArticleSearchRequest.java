@@ -1,10 +1,12 @@
 package com.codeit.monew.domain.article.dto.request;
 
 import com.codeit.monew.domain.article.entity.ArticleSource;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Builder
 public record ArticleSearchRequest(
         String keyword,
         List<ArticleSource> sourceIn,
@@ -12,7 +14,7 @@ public record ArticleSearchRequest(
         LocalDateTime publishDateTo,
         String orderBy,
         String direction,
-        Object cursor,
+        String cursor,
         LocalDateTime after,
         Integer limit
 ) {

@@ -30,27 +30,22 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public PageResponse<ArticleDto> searchByKeyword(ArticleSearchRequest request) {
 
-        ArticleSearchCondition condition = new ArticleSearchCondition(
-                request.keyword(), request.sourceIn(), request.publishDateFrom(),
-                request.publishDateTo(), request.orderBy(), request.direction(),
-                request.cursor(), request.after(), request.limit()
-        );
+        ArticleSearchCondition condition = ArticleSearchCondition.from(request);
 
         Page<Article> articlePage = articleRepository.findByKeywordAndSource(condition);
-
         long total = articleRepository.countTotalElements(condition);
 
-        Object nextCursor = null;
+        String nextCursor = null;
         LocalDateTime nextAfter = null;
 
         if (articlePage.hasNext() && !articlePage.isEmpty()) {
             List<Article> content = articlePage.getContent();
             Article lastArticle = content.get(content.size() - 1);
 
-            nextCursor = switch (request.orderBy()) {
-//                case "viewCount" -> lastArticle.getViewCount();
-//                case "commentCount" -> lastArticle.getCommentCount();
-                default -> lastArticle.getPublishDate();
+            nextCursor = switch (condition.orderBy()) {
+//                case "viewCount" -> String.valueOf(lastArticle.getViewCount());
+//                case "commentCount" -> String.valueOf(lastArticle.getCommentCount());
+                default -> String.valueOf(lastArticle.getPublishDate());
             };
             nextAfter = lastArticle.getCreatedAt();
         }
@@ -59,7 +54,7 @@ public class ArticleServiceImpl implements ArticleService {
                 .map(articleMapper::toDto)
                 .toList();
 
-        return new PageResponse<>(content, nextCursor, nextAfter, request.limit(), total, articlePage.hasNext());
+        return new PageResponse<>(content, nextCursor, nextAfter, condition.limit(), total, articlePage.hasNext());
     }
 
     @Transactional

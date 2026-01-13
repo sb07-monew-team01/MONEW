@@ -14,8 +14,22 @@ public record ArticleSearchCondition(
         LocalDateTime publishDateTo,
         String orderBy,
         String direction,
-        Object cursor,
+        String cursor,
         LocalDateTime after,
         Integer limit
 ) {
+
+    public static ArticleSearchCondition from(ArticleSearchRequest request) {
+        return new ArticleSearchCondition(
+                request.keyword(),
+                request.sourceIn(),
+                request.publishDateFrom(),
+                request.publishDateTo(),
+                request.orderBy(),
+                request.direction(),
+                request.cursor(),
+                request.after(),
+                request.limit()
+        );
+    }
 }

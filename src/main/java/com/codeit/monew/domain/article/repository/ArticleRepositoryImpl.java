@@ -1,9 +1,6 @@
 package com.codeit.monew.domain.article.repository;
 
-import static com.codeit.monew.domain.article.entity.QArticle.article;
-
 import com.codeit.monew.domain.article.dto.request.ArticleSearchCondition;
-import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.querydsl.core.types.Order;
@@ -11,6 +8,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -21,8 +19,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.codeit.monew.domain.article.entity.QArticle.article;
+
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
@@ -58,7 +59,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
         boolean hasNext = false;
         if (contents.size() > pageSize) {
-            contents.remove(pageSize); // 확인용으로 가져온 마지막 데이터 제거
+            contents.remove(pageSize);
             hasNext = true;
         }
 
@@ -94,7 +95,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     // 커서 페이징 (기본: 게시일, 내림차순)
     BooleanExpression cursorCondition(String orderBy,
                                       String direction,
-                                      Object cursor,
+                                      String cursor,
                                       LocalDateTime after) {
 
         if (cursor == null || after == null) return null;
@@ -102,12 +103,17 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         boolean isDesc = "DESC".equalsIgnoreCase(direction);
 
         if ("publishDate".equalsIgnoreCase(orderBy)) {
-            LocalDateTime date = (LocalDateTime) cursor;
-            return isDesc
-                ? article.publishDate.lt(date)
+            try {
+                LocalDateTime date = LocalDateTime.parse(cursor);
+                return isDesc
+                        ? article.publishDate.lt(date)
                         .or(article.publishDate.eq(date).and(article.createdAt.lt(after)))
-                : article.publishDate.gt(date)
+                        : article.publishDate.gt(date)
                         .or(article.publishDate.eq(date).and(article.createdAt.gt(after)));
+            } catch (Exception e) {
+                log.warn("커서 형식이 잘못됨: {}", cursor);
+                return null;
+            }
         }
         // 다른 orderBy 추가예정
         else return null;
@@ -117,7 +123,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
         Order order = "DESC".equalsIgnoreCase(direction) ? Order.DESC : Order.ASC;
 
-        OrderSpecifier<?> mainSort = switch (orderBy != null ? orderBy : "") {
+        OrderSpecifier<?> mainSort = switch (orderBy) {
 //            case "viewCount" ->
 //            case "commentCount" ->
             default -> new OrderSpecifier<>(order, article.publishDate);
