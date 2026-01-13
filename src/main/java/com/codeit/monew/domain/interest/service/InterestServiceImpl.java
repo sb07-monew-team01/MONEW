@@ -26,8 +26,7 @@ public class InterestServiceImpl implements InterestService{
 
     @Override
     public Interest editKeywords(UUID id, List<String> keywords) {
-        Interest interest = interestRepository.findById(id).orElseThrow(
-                () -> new InterestNotFoundException(ErrorCode.INTEREST_NOT_FOUND));
+        Interest interest = findById(id);
         checkKeyword(keywords);
         return interest.update(keywords);
     }
@@ -56,9 +55,13 @@ public class InterestServiceImpl implements InterestService{
     }
 
     public void delete(UUID id) {
-        interestRepository.findById(id).orElseThrow(
-                () -> new InterestNotFoundException(ErrorCode.INTEREST_NOT_FOUND));
+        findById(id);
         interestRepository.deleteById(id);
+    }
+
+    public Interest findById(UUID id) {
+        return interestRepository.findById(id).orElseThrow(
+                () -> new InterestNotFoundException(ErrorCode.INTEREST_NOT_FOUND));
     }
 }
 

@@ -25,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class InterestServiceImplTest {
@@ -241,6 +240,9 @@ public class InterestServiceImplTest {
         void success_delete_interest(){
             // given
             UUID interestId = UUID.randomUUID();
+            Interest interest = new Interest("백엔드", List.of("java", "spring"));
+            given(interestRepository.findById(interestId))
+                    .willReturn(Optional.of(interest));
 
             // when
             interestService.delete(interestId);
