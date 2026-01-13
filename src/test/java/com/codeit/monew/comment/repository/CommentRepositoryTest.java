@@ -1,5 +1,6 @@
 package com.codeit.monew.comment.repository;
 
+import com.codeit.monew.article.repository.TestQueryDslConfig;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.codeit.monew.domain.comment.entity.Comment;
@@ -18,17 +19,11 @@ import org.springframework.test.context.TestPropertySource;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 @ActiveProfiles("test")
 @DataJpaTest
 @Import(TestQueryDslConfig.class)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@TestPropertySource(properties = {
-        "spring.jpa.hibernate.ddl-auto=create-drop"
-})
 @DisplayName("댓글 레포지토리 테스트")
 public class CommentRepositoryTest {
-
     @Autowired
     CommentRepository commentRepository;
     @Autowired
