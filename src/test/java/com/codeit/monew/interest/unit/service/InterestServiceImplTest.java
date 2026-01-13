@@ -231,4 +231,38 @@ public class InterestServiceImplTest {
                     .isEqualTo(ErrorCode.INTEREST_NULL_KEYWORD);
         }
     }
+
+    @Nested
+    @DisplayName("관심사 삭제 - 행위 검증")
+    class DeleteInterestState {
+        @Test
+        @DisplayName("성공: 관심사 삭제 시 저장소의 delete가 호출된다")
+        void success_delete_interest(){
+            // given
+            UUID interestId = UUID.randomUUID();
+            Interest interest = new Interest("백엔드", List.of("java", "spring"));
+            given(interestRepository.findById(interestId))
+                    .willReturn(Optional.of(interest));
+
+            // when
+            interestService.delete(interestId);
+
+            // then
+            then(interestRepository).should().deleteById(interestId);
+        }
+
+        @Test
+        @DisplayName("실패: 저장소에 존재하지 않는 관심사 UUID를 줄 경우 예외가 발생한다")
+        void fail_delete_interest_not_found(){
+            // given
+            UUID interestId = UUID.randomUUID();
+            given(interestRepository.findById(interestId)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> interestService.delete(interestId))
+                    .isInstanceOf(InterestNotFoundException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.INTEREST_NOT_FOUND);
+        }
+    }
 }

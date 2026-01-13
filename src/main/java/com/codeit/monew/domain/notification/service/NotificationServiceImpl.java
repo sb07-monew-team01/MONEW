@@ -104,8 +104,8 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void deleteAll() {
         //7일지나면삭제니 작동시간 7일이전이면 삭제
-        LocalDateTime oneWeek = LocalDateTime.now().minusDays(7);
+        LocalDateTime date = LocalDateTime.now().minusDays(7);
 
-        notificationRepository.deleteByUpdatedAtBefore(oneWeek);
+        notificationRepository.deleteConfirmedBefore(date);
     }
 }

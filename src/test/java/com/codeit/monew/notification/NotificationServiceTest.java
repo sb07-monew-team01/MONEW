@@ -99,7 +99,7 @@ public class NotificationServiceTest {
 
     @Nested
     @DisplayName("알림 수정(논리삭제)")
-    class CreateNotification2 {
+    class  UpdateNotification_Logical {
 
         @BeforeEach
         void setUp() {
@@ -145,17 +145,17 @@ public class NotificationServiceTest {
 
     @Nested
     @DisplayName("알림 삭제(물리삭제)")
-    class CreateNotification3 {
+    class  UpdateNotification_Physical {
 
         @Test
-        @DisplayName("delete하면 deleteByUpdatedAtBefore 메서드부르냐 ")
+        @DisplayName("delete하면 deleteConfirmedBefore 메서드부른다 ")
         void delete_confirmed_notification_older_than_7d() {
 
             // when
             notificationService.deleteAll();
 
             // then
-            verify(notificationRepository, atLeastOnce()).deleteByUpdatedAtBefore(any());
+            verify(notificationRepository, atLeastOnce()).deleteConfirmedBefore(any());
 
         }
 
