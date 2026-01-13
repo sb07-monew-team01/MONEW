@@ -239,11 +239,14 @@ public class InterestServiceImplTest {
         @Test
         @DisplayName("성공: 관심사 삭제 시 저장소의 delete가 호출된다")
         void success_delete_interest(){
+            // given
+            UUID interestId = UUID.randomUUID();
+
             // when
             interestService.delete(interestId);
 
             // then
-            then(interestRepository).should().deleteById(any(UUID.class));
+            then(interestRepository).should().deleteById(interestId);
         }
     }
 }

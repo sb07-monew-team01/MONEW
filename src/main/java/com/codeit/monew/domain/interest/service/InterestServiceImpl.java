@@ -54,6 +54,10 @@ public class InterestServiceImpl implements InterestService{
             );
         }
     }
+
+    public void delete(UUID id) {
+        interestRepository.deleteById(id);
+    }
 }
 
 
