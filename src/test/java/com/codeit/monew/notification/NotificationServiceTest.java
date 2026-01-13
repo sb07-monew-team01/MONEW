@@ -99,7 +99,7 @@ public class NotificationServiceTest {
 
     @Nested
     @DisplayName("알림 수정(논리삭제)")
-    class CreateNotification2 {
+    class  UpdateNotification_Logical {
 
         @BeforeEach
         void setUp() {
@@ -145,7 +145,7 @@ public class NotificationServiceTest {
 
     @Nested
     @DisplayName("알림 삭제(물리삭제)")
-    class CreateNotification3 {
+    class  UpdateNotification_Physical {
 
         @Test
         @DisplayName("delete하면 deleteConfirmedBefore 메서드부른다 ")
