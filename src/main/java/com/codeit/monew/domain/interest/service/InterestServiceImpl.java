@@ -56,6 +56,8 @@ public class InterestServiceImpl implements InterestService{
     }
 
     public void delete(UUID id) {
+        interestRepository.findById(id).orElseThrow(
+                () -> new InterestNotFoundException(ErrorCode.INTEREST_NOT_FOUND));
         interestRepository.deleteById(id);
     }
 }
