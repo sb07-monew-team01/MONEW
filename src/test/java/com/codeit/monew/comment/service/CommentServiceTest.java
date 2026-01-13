@@ -77,11 +77,11 @@ public class CommentServiceTest {
             );
 
             CommentRegisterRequest request = new CommentRegisterRequest(articleId, userId, content);
-            Comment savedComment = new Comment(user, article, content);
 
+            Comment saved = new Comment(user, article, content);
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
-            when(commentRepository.save(any(Comment.class))).thenReturn(savedComment);
+            when(commentRepository.save(any(Comment.class))).thenReturn(saved);
 
             // when
             CommentDto response = commentService.create(request);
