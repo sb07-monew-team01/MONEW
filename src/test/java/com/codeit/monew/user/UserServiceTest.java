@@ -242,6 +242,21 @@ public class UserServiceTest {
                 verify(userRepository).findById(userId);
                 assertThat(user.getNickname()).isEqualTo(newNickname);
             }
+
+            @Test
+            @DisplayName("수정 요청 uuid가 존재하지 않으면 예외가 발생한다.")
+            void notValidUserUuid() {
+                // given
+                User user = new User("email@ma.com", "nickname", "password");
+                ReflectionTestUtils.setField(user, "id", UUID.randomUUID());
+                when(userRepository.findById(any())).thenReturn(Optional.of(user));
+                UUID wrongUserId = UUID.randomUUID();
+
+                // when & then
+                assertThatThrownBy(() -> userService.updateUser(new UserEmailUpdateDto(wrongUserId, "newNickname")))
+                        .isInstanceOf(UserNotFoundException.class);
+
+            }
         }
 
 
