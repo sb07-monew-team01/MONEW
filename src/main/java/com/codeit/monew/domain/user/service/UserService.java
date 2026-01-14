@@ -1,6 +1,7 @@
 package com.codeit.monew.domain.user.service;
 
 import com.codeit.monew.domain.user.dto.UserDto;
+import com.codeit.monew.domain.user.dto.request.UserEmailUpdateRequest;
 import com.codeit.monew.domain.user.dto.request.UserSignInRequest;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserAlreadyDeletedException;
@@ -54,5 +55,14 @@ public class UserService {
             throw new UserAlreadyDeletedException(user);
         }
         user.updateDeletedAt(LocalDateTime.now());
+    }
+
+    public UserDto updateUser(UserEmailUpdateRequest dto) {
+        User user = userRepository.findById(dto.userId())
+                .orElseThrow(() -> new UserNotFoundException(dto.userId()));
+        if (user.isDeleted())
+            throw new UserAlreadyDeletedException(user);
+        user.updateNickname(dto.newNickname());
+        return userMapper.toDto(user);
     }
 }
