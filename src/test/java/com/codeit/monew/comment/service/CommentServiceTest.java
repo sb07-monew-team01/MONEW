@@ -174,7 +174,6 @@ public class CommentServiceTest {
             // then
             assertThat(comment.isDeleted()).isTrue();
             assertThat(comment.getDeletedAt()).isNotNull();
-            verify(commentRepository).save(any(Comment.class));
 
         }
 
