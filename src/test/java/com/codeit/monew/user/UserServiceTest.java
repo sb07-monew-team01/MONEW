@@ -273,7 +273,5 @@ public class UserServiceTest {
                         .isInstanceOf(UserAlreadyDeletedException.class);
             }
         }
-
-
     }
 }
