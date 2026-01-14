@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @Import({UserService.class, UserMapper.class})
 @ActiveProfiles("test")
-class UserServiceIntegrationTest {
+class UserServiceWithRepositodyTest {
 
     @Autowired
     private UserRepository userRepository;
