@@ -9,6 +9,7 @@ import com.codeit.monew.domain.user.exception.UserLoginFailedException;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
 import com.codeit.monew.domain.user.util.UserMapper;
+import com.codeit.monew.user.UserEmailUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -54,5 +55,12 @@ public class UserService {
             throw new UserAlreadyDeletedException(user);
         }
         user.updateDeletedAt(LocalDateTime.now());
+    }
+
+    public UserDto updateUser(UserEmailUpdateDto dto) {
+        User user = userRepository.findById(dto.userId())
+                .orElseThrow(() -> new UserNotFoundException(dto.userId()));
+        user.updateNickname(dto.newNickname());
+        return userMapper.toDto(user);
     }
 }

@@ -224,10 +224,14 @@ public class UserServiceTest {
             @DisplayName("유저 닉네임을 수정할 수 있다.")
             void changeNickname() {
                 // given
-                User user = new User("email@email.com", "nickname", "password");
+                String email = "email@email.com";
+                String nickname = "nickname";
+                User user = new User(email, nickname, "password");
                 UUID userId = UUID.randomUUID();
                 ReflectionTestUtils.setField(user,"id", userId);
                 when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+                when(userMapper.toDto(any(User.class)))
+                        .thenReturn(new UserDto(UUID.randomUUID(), email, nickname, LocalDateTime.now()));
                 String newNickname = "itsMe";
                 UserEmailUpdateDto dto = new UserEmailUpdateDto(userId, newNickname);
 
@@ -236,8 +240,7 @@ public class UserServiceTest {
 
                 //then
                 verify(userRepository).findById(userId);
-                assertThat(userDto.nickname()).isEqualTo(newNickname);
-
+                assertThat(user.getNickname()).isEqualTo(newNickname);
             }
         }
 
