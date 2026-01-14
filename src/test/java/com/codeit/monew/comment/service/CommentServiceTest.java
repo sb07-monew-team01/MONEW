@@ -177,6 +177,23 @@ public class CommentServiceTest {
             verify(commentRepository).save(any(Comment.class));
 
         }
+
+        @Test
+        @DisplayName("실패: 같은 댓글을 여러 번 삭제할 수 없다.")
+        void failToSoftDeleteComment_alreadyDelete() {
+            // given
+            Comment spyComment = spy(comment);
+            UUID spyCommentId = UUID.randomUUID();
+            doReturn(commentId).when(spyComment).getId();
+
+            when(commentRepository.findById(spyCommentId)).thenReturn(Optional.of(spyComment));
+            commentService.delete(spyCommentId);
+
+            // when & then
+            assertThatThrownBy(()-> commentService.delete(spyCommentId))
+                    .isInstanceOf(CommentAlreadyDeleteException.class);
+
+        }
     }
 }
 

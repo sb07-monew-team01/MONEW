@@ -16,6 +16,7 @@ import com.codeit.monew.domain.user.repository.UserRepository;
 import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -62,6 +63,7 @@ public class CommentServiceImpl implements CommentService {
 
     // 논리 삭제
     @Override
+    @Transactional
     public CommentDto delete(UUID commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
@@ -71,6 +73,7 @@ public class CommentServiceImpl implements CommentService {
         }
 
         comment.softDelete();
+
         return CommentDto.from(comment);
     }
 }
