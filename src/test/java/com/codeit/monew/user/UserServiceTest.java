@@ -1,11 +1,13 @@
 package com.codeit.monew.user;
 
 import com.codeit.monew.domain.user.dto.UserDto;
+import com.codeit.monew.domain.user.dto.request.UserEmailUpdateRequest;
 import com.codeit.monew.domain.user.dto.request.UserSignInRequest;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserAlreadyDeletedException;
 import com.codeit.monew.domain.user.exception.UserAlreadyExistsException;
 import com.codeit.monew.domain.user.exception.UserLoginFailedException;
+import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
 import com.codeit.monew.domain.user.service.UserService;
 import com.codeit.monew.domain.user.util.UserMapper;
@@ -159,6 +161,18 @@ public class UserServiceTest {
                     .isInstanceOf(UserAlreadyDeletedException.class);
             verify(userRepository).findByEmail(userEmail);
         }
+
+        @Test
+        @DisplayName("존재하지 않는 이메일로 로그인 요청을 하면 예외가 발생한다.")
+        void notExistEmail() {
+            // given
+            String email = "not@email.com";
+            when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> userService.login(email, "password"))
+                    .isInstanceOf(UserNotFoundException.class);
+        }
     }
 
     @Nested
@@ -204,6 +218,61 @@ public class UserServiceTest {
                     .isInstanceOf(UserAlreadyDeletedException.class);
         }
 
+        @Nested
+        @DisplayName("유저 수정")
+        class Update{
+            @Test
+            @DisplayName("유저 닉네임을 수정할 수 있다.")
+            void changeNickname() {
+                // given
+                String email = "email@email.com";
+                String nickname = "nickname";
+                User user = new User(email, nickname, "password");
+                UUID userId = UUID.randomUUID();
+                ReflectionTestUtils.setField(user,"id", userId);
+                when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+                when(userMapper.toDto(any(User.class)))
+                        .thenReturn(new UserDto(UUID.randomUUID(), email, nickname, LocalDateTime.now()));
+                String newNickname = "itsMe";
+                UserEmailUpdateRequest dto = new UserEmailUpdateRequest(userId, newNickname);
 
+                // when
+                userService.updateUser(dto);
+
+                //then
+                verify(userRepository).findById(userId);
+                assertThat(user.getNickname()).isEqualTo(newNickname);
+            }
+
+            @Test
+            @DisplayName("수정 요청 uuid가 존재하지 않으면 예외가 발생한다.")
+            void notValidUserUuid() {
+                // given
+                User user = new User("email@ma.com", "nickname", "password");
+                UUID validId = UUID.randomUUID();
+                UUID wrongUserId = UUID.randomUUID();
+                ReflectionTestUtils.setField(user, "id", validId);
+                when(userRepository.findById(wrongUserId)).thenReturn(Optional.empty());
+
+                // when & then
+                assertThatThrownBy(() -> userService.updateUser(new UserEmailUpdateRequest(wrongUserId, "newNickname")))
+                        .isInstanceOf(UserNotFoundException.class);
+            }
+
+            @Test
+            @DisplayName("논리 삭제된 유저 수정시 예외가 발생한다.")
+            void deletedUserUpdate() {
+                // given
+                User user = new User("email@sdsd@com", "nickname", "password");
+                ReflectionTestUtils.setField(user,"id", UUID.randomUUID());
+                user.updateDeletedAt(LocalDateTime.now());
+                UserEmailUpdateRequest dto = new UserEmailUpdateRequest(user.getId(), "newNickname");
+                when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+                // when & then
+                assertThatThrownBy(() -> userService.updateUser(dto))
+                        .isInstanceOf(UserAlreadyDeletedException.class);
+            }
+        }
     }
 }
