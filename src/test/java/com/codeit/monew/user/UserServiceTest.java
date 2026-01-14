@@ -256,7 +256,21 @@ public class UserServiceTest {
                 // when & then
                 assertThatThrownBy(() -> userService.updateUser(new UserEmailUpdateDto(wrongUserId, "newNickname")))
                         .isInstanceOf(UserNotFoundException.class);
+            }
 
+            @Test
+            @DisplayName("논리 삭제된 유저 수정시 예외가 발생한다.")
+            void deletedUserUpdate() {
+                // given
+                User user = new User("email@sdsd@com", "nickname", "password");
+                ReflectionTestUtils.setField(user,"id", UUID.randomUUID());
+                user.updateDeletedAt(LocalDateTime.now());
+                UserEmailUpdateDto dto = new UserEmailUpdateDto(user.getId(), "newNickname");
+                when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+                // when & then
+                assertThatThrownBy(() -> userService.updateUser(dto))
+                        .isInstanceOf(UserAlreadyDeletedException.class);
             }
         }
 
