@@ -194,6 +194,18 @@ public class CommentServiceTest {
                     .isInstanceOf(CommentAlreadyDeleteException.class);
 
         }
+
+        @Test
+        @DisplayName("실패: 존재하지 않는 댓글 ID로 삭제를 시도할 수 없다.")
+        void failToSoftDeleteComment_notFound() {
+            // given
+            UUID invalidId = UUID.randomUUID();
+            when(commentRepository.findById(invalidId)).thenReturn(Optional.empty());
+
+            //when & then
+            assertThatThrownBy(()-> commentService.delete(invalidId))
+                    .isInstanceOf(CommentNotFoundException.class);
+        }
     }
 }
 
