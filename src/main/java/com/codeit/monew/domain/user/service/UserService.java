@@ -1,6 +1,7 @@
 package com.codeit.monew.domain.user.service;
 
 import com.codeit.monew.domain.user.dto.UserDto;
+import com.codeit.monew.domain.user.dto.request.UserEmailUpdateRequest;
 import com.codeit.monew.domain.user.dto.request.UserSignInRequest;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserAlreadyDeletedException;
@@ -9,7 +10,6 @@ import com.codeit.monew.domain.user.exception.UserLoginFailedException;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
 import com.codeit.monew.domain.user.util.UserMapper;
-import com.codeit.monew.user.UserEmailUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -57,7 +57,7 @@ public class UserService {
         user.updateDeletedAt(LocalDateTime.now());
     }
 
-    public UserDto updateUser(UserEmailUpdateDto dto) {
+    public UserDto updateUser(UserEmailUpdateRequest dto) {
         User user = userRepository.findById(dto.userId())
                 .orElseThrow(() -> new UserNotFoundException(dto.userId()));
         if (user.isDeleted())

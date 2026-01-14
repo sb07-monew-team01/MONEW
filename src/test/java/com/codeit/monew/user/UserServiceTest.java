@@ -1,6 +1,7 @@
 package com.codeit.monew.user;
 
 import com.codeit.monew.domain.user.dto.UserDto;
+import com.codeit.monew.domain.user.dto.request.UserEmailUpdateRequest;
 import com.codeit.monew.domain.user.dto.request.UserSignInRequest;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserAlreadyDeletedException;
@@ -233,7 +234,7 @@ public class UserServiceTest {
                 when(userMapper.toDto(any(User.class)))
                         .thenReturn(new UserDto(UUID.randomUUID(), email, nickname, LocalDateTime.now()));
                 String newNickname = "itsMe";
-                UserEmailUpdateDto dto = new UserEmailUpdateDto(userId, newNickname);
+                UserEmailUpdateRequest dto = new UserEmailUpdateRequest(userId, newNickname);
 
                 // when
                 userService.updateUser(dto);
@@ -254,7 +255,7 @@ public class UserServiceTest {
                 when(userRepository.findById(wrongUserId)).thenReturn(Optional.empty());
 
                 // when & then
-                assertThatThrownBy(() -> userService.updateUser(new UserEmailUpdateDto(wrongUserId, "newNickname")))
+                assertThatThrownBy(() -> userService.updateUser(new UserEmailUpdateRequest(wrongUserId, "newNickname")))
                         .isInstanceOf(UserNotFoundException.class);
             }
 
@@ -265,7 +266,7 @@ public class UserServiceTest {
                 User user = new User("email@sdsd@com", "nickname", "password");
                 ReflectionTestUtils.setField(user,"id", UUID.randomUUID());
                 user.updateDeletedAt(LocalDateTime.now());
-                UserEmailUpdateDto dto = new UserEmailUpdateDto(user.getId(), "newNickname");
+                UserEmailUpdateRequest dto = new UserEmailUpdateRequest(user.getId(), "newNickname");
                 when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
                 // when & then
