@@ -1,8 +1,9 @@
 package com.codeit.monew.domain.article.entity;
 
-import com.codeit.monew.domain.BaseEntity;
+import com.codeit.monew.domain.BaseUpdatableEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Article extends BaseEntity {
+public class Article extends BaseUpdatableEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "source", nullable = false)
@@ -28,6 +29,14 @@ public class Article extends BaseEntity {
     @Column(name = "summary", nullable = false)
     private String summary;
 
+    @Column(name = "view_count", nullable = false)
+    @ColumnDefault("0")
+    private long viewCount;
+
+    @Column(name = "comment_count", nullable = false)
+    @ColumnDefault("0")
+    private long commentCount;
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
@@ -40,5 +49,17 @@ public class Article extends BaseEntity {
         this.publishDate = publishDate;
         this.summary = summary;
         this.deletedAt = deletedAt;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
+
+    public void increaseCommentCount() {
+        this.commentCount++;
+    }
+
+    public void decreaseCommentCount() {
+        this.commentCount--;
     }
 }

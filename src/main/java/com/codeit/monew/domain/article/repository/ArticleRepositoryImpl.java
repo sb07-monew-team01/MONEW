@@ -102,6 +102,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
         boolean isDesc = "DESC".equalsIgnoreCase(direction);
 
+        // 게시일 정렬
         if ("publishDate".equalsIgnoreCase(orderBy)) {
             try {
                 LocalDateTime date = LocalDateTime.parse(cursor);
@@ -115,8 +116,24 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 return null;
             }
         }
-        // 다른 orderBy 추가예정
-        else return null;
+        // 조회수 정렬
+        else if ("viewCount".equalsIgnoreCase(orderBy)) {
+            long count = Long.parseLong(cursor);
+            return isDesc
+                    ? article.viewCount.lt(count)
+                    .or(article.viewCount.eq(count).and(article.createdAt.lt(after)))
+                    : article.viewCount.gt(count)
+                    .or(article.viewCount.eq(count).and(article.createdAt.gt(after)));
+        }
+        // 댓글수 정렬
+        else {
+            long count = Long.parseLong(cursor);
+            return isDesc
+                    ? article.commentCount.lt(count)
+                    .or(article.commentCount.eq(count).and(article.createdAt.lt(after)))
+                    : article.commentCount.gt(count)
+                    .or(article.commentCount.eq(count).and(article.createdAt.gt(after)));
+        }
     }
 
     private OrderSpecifier<?>[] articleSorts(String orderBy, String direction) {
@@ -124,8 +141,8 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         Order order = "DESC".equalsIgnoreCase(direction) ? Order.DESC : Order.ASC;
 
         OrderSpecifier<?> mainSort = switch (orderBy) {
-//            case "viewCount" ->
-//            case "commentCount" ->
+            case "viewCount" -> new OrderSpecifier<>(order, article.viewCount);
+            case "commentCount" -> new OrderSpecifier<>(order, article.commentCount);
             default -> new OrderSpecifier<>(order, article.publishDate);
         };
 
