@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -31,6 +32,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -181,12 +183,14 @@ public class CommentServiceTest {
         @DisplayName("실패: 같은 댓글을 여러 번 삭제할 수 없다.")
         void failToSoftDeleteComment_alreadyDelete() {
             // given
-            when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+            Comment deletedComment = new Comment(user, article, "이미 삭제된 댓글");
+            ReflectionTestUtils.setField(deletedComment, "deletedAt", LocalDateTime.now());
+            when(commentRepository.findById(commentId)).thenReturn(Optional.of(deletedComment));
 
-            commentService.delete(commentId);
+            assertThatThrownBy(() -> commentService.delete(commentId))
+                    .isInstanceOf(CommentAlreadyDeleteException.class);
 
-            assertThat(comment.isDeleted()).isTrue();
-            assertThat(comment.getDeletedAt()).isNotNull();
+            then(commentRepository).should(never()).save(any(Comment.class));
         }
 
         @Test
