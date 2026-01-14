@@ -60,6 +60,8 @@ public class UserService {
     public UserDto updateUser(UserEmailUpdateDto dto) {
         User user = userRepository.findById(dto.userId())
                 .orElseThrow(() -> new UserNotFoundException(dto.userId()));
+        if (user.isDeleted())
+            throw new UserAlreadyDeletedException(user);
         user.updateNickname(dto.newNickname());
         return userMapper.toDto(user);
     }
