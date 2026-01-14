@@ -5,8 +5,10 @@ import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.comment.dto.request.CommentRegisterRequest;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
 import com.codeit.monew.domain.comment.entity.Comment;
+import com.codeit.monew.domain.comment.exception.CommentAlreadyDeleteException;
 import com.codeit.monew.domain.comment.exception.CommentContentEmptyException;
 import com.codeit.monew.domain.comment.exception.CommentContentTooLongException;
+import com.codeit.monew.domain.comment.exception.CommentNotFoundException;
 import com.codeit.monew.domain.comment.repository.CommentRepository;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
@@ -14,6 +16,8 @@ import com.codeit.monew.domain.user.repository.UserRepository;
 import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -54,5 +58,19 @@ public class CommentServiceImpl implements CommentService {
                 false,
                 saved.getCreatedAt()
         );
+    }
+
+    // 논리 삭제
+    @Override
+    public CommentDto delete(UUID commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (comment.isDeleted()) {
+            throw new CommentAlreadyDeleteException(ErrorCode.COMMENT_ALREADY_DELETE);
+        }
+
+        comment.softDelete();
+        return CommentDto.from(comment);
     }
 }

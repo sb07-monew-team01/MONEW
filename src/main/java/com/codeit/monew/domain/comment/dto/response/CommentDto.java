@@ -1,5 +1,7 @@
 package com.codeit.monew.domain.comment.dto.response;
 
+import com.codeit.monew.domain.comment.entity.Comment;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -12,4 +14,17 @@ public record CommentDto(
         Long likeCount,
         Boolean likedByMe,
         LocalDateTime createdAt
-) { }
+) {
+    public static CommentDto from(Comment comment) {
+        return new CommentDto(
+                comment.getId(),
+                comment.getArticle().getId(),
+                comment.getUser().getId(),
+                comment.getUser().getNickname(),
+                comment.getContent(),
+                null,  // 삭제 시 좋아요 정보 불필요
+                null,
+                comment.getCreatedAt()
+        );
+    }
+}

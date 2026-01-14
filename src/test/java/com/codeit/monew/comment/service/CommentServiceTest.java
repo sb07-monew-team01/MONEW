@@ -168,6 +168,7 @@ public class CommentServiceTest {
             commentRepository.save(comment);
 
             // when
+            when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
             commentService.delete(comment.getId());
 
             // then
@@ -176,6 +177,5 @@ public class CommentServiceTest {
 
         }
     }
-
 }
 
