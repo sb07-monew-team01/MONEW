@@ -6,17 +6,17 @@ import com.codeit.monew.domain.article.dto.request.ArticleSearchCondition;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
+import org.assertj.core.api.ListAssert;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,7 +39,7 @@ class ArticleRepositoryImplTest {
         for (int i = 0; i < 10; i++) {
             articleRepository.save(
                     ArticleFixture.createEntity(
-                            ArticleCreateRequestFixture.createDummy(i%2, -i)
+                            ArticleCreateRequestFixture.createDummy(i % 2, -i)
                     )
             );
         }
@@ -84,5 +84,58 @@ class ArticleRepositoryImplTest {
         assertThat(articles2.get(0).getPublishDate())
                 .isBefore(articles1.get(2).getPublishDate());
         assertThat(pages2.hasNext()).isFalse();
+    }
+
+    @Test
+    @DisplayName("""
+            기본 검색 조건에서 특정값을 기준으로 기사 목록을 정렬한다.
+            정렬순: 조회수, 댓글수
+            """)
+    void searchArticleWithViewAndCommentCount() {
+
+        // given
+        for (int i = 0; i < 5; i++) {
+            articleRepository.save(
+                    ArticleFixture.createWithViewAndComment(
+                            ArticleCreateRequestFixture.createDummy(0, 0), 5-i, i
+                    )
+            );
+        }
+
+        ArticleSearchCondition searchByViewCount
+                = ArticleSearchCondition.builder()
+                .orderBy("viewCount")
+                .direction("DESC")
+                .limit(10)
+                .build();
+
+        ArticleSearchCondition searchByCommentCount
+                = ArticleSearchCondition.builder()
+                .orderBy("commentCount")
+                .direction("DESC")
+                .limit(10)
+                .build();
+
+        // when
+        // 조회수 정렬
+        Slice<Article> pagesWithView = articleRepository.findByKeywordAndSource(searchByViewCount);
+        List<Article> articlesWithView = pagesWithView.getContent();
+
+        // 댓글수 정렬
+        Slice<Article> pagesWithComment = articleRepository.findByKeywordAndSource(searchByCommentCount);
+        List<Article> articlesWithComment = pagesWithComment.getContent();
+
+        // then
+        assertThat(articlesWithView).hasSize(5);
+        assertThat(articlesWithView)
+                .extracting(Article::getViewCount)
+                .isSortedAccordingTo(Comparator.reverseOrder());
+        assertThat(articlesWithComment)
+                .extracting(Article::getCommentCount)
+                .isSortedAccordingTo(Comparator.reverseOrder());
+
+        List<Article> reversedComment = new ArrayList<>(articlesWithComment);
+        Collections.reverse(reversedComment);
+        assertThat(articlesWithView).isEqualTo(reversedComment);
     }
 }
