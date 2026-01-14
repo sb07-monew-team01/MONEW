@@ -64,7 +64,7 @@ public class CommentServiceImpl implements CommentService {
     // 논리 삭제
     @Override
     @Transactional
-    public CommentDto delete(UUID commentId) {
+    public void delete(UUID commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
 
@@ -73,7 +73,5 @@ public class CommentServiceImpl implements CommentService {
         }
 
         comment.softDelete();
-
-        return CommentDto.from(comment);
     }
 }

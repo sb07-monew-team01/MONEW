@@ -6,5 +6,5 @@ import com.codeit.monew.domain.comment.dto.response.CommentDto;
 import java.util.UUID;
 public interface CommentService {
     CommentDto create(CommentRegisterRequest request);
-    CommentDto delete(UUID commentId);
+    void delete(UUID commentId);
 }
