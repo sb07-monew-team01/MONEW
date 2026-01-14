@@ -1,4 +1,4 @@
-package com.codeit.monew.user;
+package com.codeit.monew.user.service;
 
 import com.codeit.monew.domain.user.dto.UserDto;
 import com.codeit.monew.domain.user.dto.request.UserEmailUpdateRequest;
@@ -172,6 +172,8 @@ public class UserServiceTest {
             // when & then
             assertThatThrownBy(() -> userService.login(email, "password"))
                     .isInstanceOf(UserNotFoundException.class);
+
+
         }
     }
 
