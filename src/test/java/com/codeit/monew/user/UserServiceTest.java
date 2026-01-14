@@ -6,6 +6,7 @@ import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserAlreadyDeletedException;
 import com.codeit.monew.domain.user.exception.UserAlreadyExistsException;
 import com.codeit.monew.domain.user.exception.UserLoginFailedException;
+import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
 import com.codeit.monew.domain.user.service.UserService;
 import com.codeit.monew.domain.user.util.UserMapper;
@@ -158,6 +159,18 @@ public class UserServiceTest {
             assertThatThrownBy(() -> userService.login(userEmail, userPassword))
                     .isInstanceOf(UserAlreadyDeletedException.class);
             verify(userRepository).findByEmail(userEmail);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 이메일로 로그인 요청을 하면 예외가 발생한다.")
+        void notExistEmail() {
+            // given
+            String email = "not@email.com";
+            when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> userService.login(email, "password"))
+                    .isInstanceOf(UserNotFoundException.class);
         }
     }
 
