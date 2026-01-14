@@ -217,6 +217,30 @@ public class UserServiceTest {
                     .isInstanceOf(UserAlreadyDeletedException.class);
         }
 
+        @Nested
+        @DisplayName("유저 수정")
+        class Update{
+            @Test
+            @DisplayName("유저 닉네임을 수정할 수 있다.")
+            void changeNickname() {
+                // given
+                User user = new User("email@email.com", "nickname", "password");
+                UUID userId = UUID.randomUUID();
+                ReflectionTestUtils.setField(user,"id", userId);
+                when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+                String newNickname = "itsMe";
+                UserEmailUpdateDto dto = new UserEmailUpdateDto(userId, newNickname);
+
+                // when
+                UserDto userDto = userService.updateUser(dto);
+
+                //then
+                verify(userRepository).findById(userId);
+                assertThat(userDto.nickname()).isEqualTo(newNickname);
+
+            }
+        }
+
 
     }
 }
