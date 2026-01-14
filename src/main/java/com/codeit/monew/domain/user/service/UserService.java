@@ -27,7 +27,7 @@ public class UserService {
 
     public UserDto signUp(UserSignInRequest dto) {
         Optional<User> byEmail = userRepository.findByEmail(dto.email());
-        if(byEmail.isEmpty()){
+        if (byEmail.isEmpty()) {
             User user = new User(dto.email(), dto.nickname(), dto.password());
             User saved = userRepository.save(user);
             return userMapper.toDto(saved);
@@ -41,7 +41,7 @@ public class UserService {
     public UserDto login(String email, String password) {
         User byEmail = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(email));
-        if(byEmail.isDeleted())
+        if (byEmail.isDeleted())
             throw new UserAlreadyDeletedException(byEmail);
         if (byEmail.getPassword().equals(password))
             return userMapper.toDto(byEmail);
@@ -64,5 +64,11 @@ public class UserService {
             throw new UserAlreadyDeletedException(user);
         user.updateNickname(dto.newNickname());
         return userMapper.toDto(user);
+    }
+
+    public void deleteHard(UUID userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        userRepository.deleteById(userId);
     }
 }
