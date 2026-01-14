@@ -236,7 +236,7 @@ public class UserServiceTest {
                 UserEmailUpdateDto dto = new UserEmailUpdateDto(userId, newNickname);
 
                 // when
-                UserDto userDto = userService.updateUser(dto);
+                userService.updateUser(dto);
 
                 //then
                 verify(userRepository).findById(userId);
