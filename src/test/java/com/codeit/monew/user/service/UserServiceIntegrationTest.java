@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +35,6 @@ class UserServiceIntegrationTest {
     void userDelete() {
         // given
         User user = new User("email@sdsd@com", "nickname", "password");
-        user.updateDeletedAt(LocalDateTime.now().minusDays(8));
         userRepository.save(user);
         UUID userId = user.getId();
 

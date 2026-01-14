@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 
@@ -31,13 +32,15 @@ class UserRepositoryTest {
         // 논리삭제 이후 7일 지난 유저들
         for (int i = 0; i < 20; i++) {
             User user = new User("demail" + i + "@gmail.com", "nickname" + i, "password" + i);
-            user.updateDeletedAt(LocalDateTime.now().minusDays(8));  // 8일 전으로 설정
+            user.updateDeletedAt();
+            ReflectionTestUtils.setField(user,"deletedAt", LocalDateTime.now().minusDays(8));  // 8일 전으로 설정
             userRepository.save(user);  // 수정 후 저장
         }
         // 논리 삭제 이후 7일이 지나지 않은 유저들
         for (int i = 0; i < 35; i++) {
             User user = new User("nemail" + i + "@gmail.com", "nickname" + i, "password" + i);
-            user.updateDeletedAt(LocalDateTime.now().minusHours(70));  // 3일 전
+            user.updateDeletedAt();
+            ReflectionTestUtils.setField(user,"deletedAt", LocalDateTime.now().minusDays(3));  // 3일 전
             userRepository.save(user);  // 수정 후 저장
         }
         // 논리 삭제가 이루어지지 않은 유저들

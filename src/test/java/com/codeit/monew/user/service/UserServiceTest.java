@@ -76,7 +76,7 @@ public class UserServiceTest {
 
             UUID userId = UUID.randomUUID();
             ReflectionTestUtils.setField(user,"id", userId);
-            user.updateDeletedAt(LocalDateTime.now());
+            user.updateDeletedAt();
             when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
 
             // when & then
@@ -154,7 +154,7 @@ public class UserServiceTest {
             UUID userId = UUID.randomUUID();
             ReflectionTestUtils.setField(user,"id", userId);
             when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
-            user.updateDeletedAt(LocalDateTime.now());
+            user.updateDeletedAt();
 
             // when & then
             assertThatThrownBy(() -> userService.login(userEmail, userPassword))
@@ -213,7 +213,7 @@ public class UserServiceTest {
             UUID userId = UUID.randomUUID();
             ReflectionTestUtils.setField(user,"id", userId);
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-            user.updateDeletedAt(LocalDateTime.now());
+            user.updateDeletedAt();
 
             // when & then
             assertThatThrownBy(() -> userService.delete(userId))
@@ -267,7 +267,7 @@ public class UserServiceTest {
                 // given
                 User user = new User("email@sdsd@com", "nickname", "password");
                 ReflectionTestUtils.setField(user,"id", UUID.randomUUID());
-                user.updateDeletedAt(LocalDateTime.now());
+                user.updateDeletedAt();
                 UserEmailUpdateRequest dto = new UserEmailUpdateRequest(user.getId(), "newNickname");
                 when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 

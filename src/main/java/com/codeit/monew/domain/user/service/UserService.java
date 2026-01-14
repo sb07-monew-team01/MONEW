@@ -13,7 +13,6 @@ import com.codeit.monew.domain.user.util.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -54,7 +53,7 @@ public class UserService {
         if (user.isDeleted()) {
             throw new UserAlreadyDeletedException(user);
         }
-        user.updateDeletedAt(LocalDateTime.now());
+        user.updateDeletedAt();
     }
 
     public UserDto updateUser(UserEmailUpdateRequest dto) {
