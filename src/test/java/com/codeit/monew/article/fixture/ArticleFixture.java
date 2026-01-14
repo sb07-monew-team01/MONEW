@@ -13,4 +13,16 @@ public class ArticleFixture {
                 .summary(request.summary())
                 .build();
     }
+
+    public static Article createWithViewAndComment(ArticleCreateRequest request, long view, long comment) {
+        return Article.builder()
+                .source(request.source())
+                .sourceUrl(request.sourceUrl())
+                .title(request.title())
+                .publishDate(request.publishDate())
+                .summary(request.summary())
+                .viewCount(view)
+                .commentCount(comment)
+                .build();
+    }
 }

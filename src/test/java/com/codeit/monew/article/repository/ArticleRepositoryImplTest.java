@@ -39,7 +39,7 @@ class ArticleRepositoryImplTest {
         for (int i = 0; i < 10; i++) {
             articleRepository.save(
                     ArticleFixture.createEntity(
-                            ArticleCreateRequestFixture.createWithSourceAndDate(i % 2, -i)
+                            ArticleCreateRequestFixture.createDummy(i % 2, -i)
                     )
             );
         }
@@ -96,8 +96,8 @@ class ArticleRepositoryImplTest {
         // given
         for (int i = 0; i < 5; i++) {
             articleRepository.save(
-                    ArticleFixture.createEntity(
-                            ArticleCreateRequestFixture.createWithViewAndCommentCount(5 - i, i)
+                    ArticleFixture.createWithViewAndComment(
+                            ArticleCreateRequestFixture.createDummy(0, 0), 5-i, i
                     )
             );
         }
