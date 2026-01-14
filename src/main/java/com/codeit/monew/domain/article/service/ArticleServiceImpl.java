@@ -11,7 +11,7 @@ import com.codeit.monew.domain.article.matcher.ArticleMatcher;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.interest.entity.Interest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +32,7 @@ public class ArticleServiceImpl implements ArticleService {
 
         ArticleSearchCondition condition = ArticleSearchCondition.from(request);
 
-        Page<Article> articlePage = articleRepository.findByKeywordAndSource(condition);
+        Slice<Article> articlePage = articleRepository.findByKeywordAndSource(condition);
         long total = articleRepository.countTotalElements(condition);
 
         String nextCursor = null;
