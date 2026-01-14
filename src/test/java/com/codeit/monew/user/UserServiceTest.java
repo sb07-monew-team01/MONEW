@@ -248,9 +248,10 @@ public class UserServiceTest {
             void notValidUserUuid() {
                 // given
                 User user = new User("email@ma.com", "nickname", "password");
-                ReflectionTestUtils.setField(user, "id", UUID.randomUUID());
-                when(userRepository.findById(any())).thenReturn(Optional.of(user));
+                UUID validId = UUID.randomUUID();
                 UUID wrongUserId = UUID.randomUUID();
+                ReflectionTestUtils.setField(user, "id", validId);
+                when(userRepository.findById(any())).thenReturn(Optional.of(user));
 
                 // when & then
                 assertThatThrownBy(() -> userService.updateUser(new UserEmailUpdateDto(wrongUserId, "newNickname")))
