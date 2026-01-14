@@ -2,6 +2,7 @@ package com.codeit.monew.article.fixture;
 
 import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
 import com.codeit.monew.domain.article.entity.Article;
+import org.springframework.test.util.ReflectionTestUtils;
 
 public class ArticleFixture {
     public static Article createEntity(ArticleCreateRequest request) {
@@ -22,8 +23,8 @@ public class ArticleFixture {
                 .publishDate(request.publishDate())
                 .summary(request.summary())
                 .build();
-        article.updateViewCount(view);
-        article.updateCommentCount(comment);
+        ReflectionTestUtils.setField(article, "viewCount", view);
+        ReflectionTestUtils.setField(article, "commentCount", comment);
         return article;
     }
 }

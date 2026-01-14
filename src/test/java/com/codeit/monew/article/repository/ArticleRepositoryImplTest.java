@@ -6,17 +6,17 @@ import com.codeit.monew.domain.article.dto.request.ArticleSearchCondition;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
+import org.assertj.core.api.ListAssert;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -127,7 +127,15 @@ class ArticleRepositoryImplTest {
 
         // then
         assertThat(articlesWithView).hasSize(5);
-        assertThat(articlesWithView.get(0)).isEqualTo(articlesWithComment.get(4));
-        assertThat(articlesWithView.get(4).getTitle()).isEqualTo(articlesWithComment.get(0).getTitle());
+        assertThat(articlesWithView)
+                .extracting(Article::getViewCount)
+                .isSortedAccordingTo(Comparator.reverseOrder());
+        assertThat(articlesWithComment)
+                .extracting(Article::getCommentCount)
+                .isSortedAccordingTo(Comparator.reverseOrder());
+
+        List<Article> reversedComment = new ArrayList<>(articlesWithComment);
+        Collections.reverse(reversedComment);
+        assertThat(articlesWithView).isEqualTo(reversedComment);
     }
 }

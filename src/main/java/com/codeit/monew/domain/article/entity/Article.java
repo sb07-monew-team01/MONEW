@@ -51,11 +51,15 @@ public class Article extends BaseUpdatableEntity {
         this.deletedAt = deletedAt;
     }
 
-    public void updateViewCount(long viewCount) {
-        this.viewCount = viewCount;
+    public void increaseViewCount() {
+        this.viewCount++;
     }
 
-    public void updateCommentCount(long commentCount) {
-        this.commentCount = commentCount;
+    public void increaseCommentCount() {
+        this.commentCount++;
+    }
+
+    public void decreaseCommentCount() {
+        this.commentCount--;
     }
 }
