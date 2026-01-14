@@ -42,14 +42,20 @@ public class Article extends BaseUpdatableEntity {
 
     // 테스트용
     @Builder
-    public Article(ArticleSource source, String sourceUrl, String title, LocalDateTime publishDate, String summary, LocalDateTime deletedAt, long viewCount, long commentCount) {
+    public Article(ArticleSource source, String sourceUrl, String title, LocalDateTime publishDate, String summary, LocalDateTime deletedAt) {
         this.source = source;
         this.sourceUrl = sourceUrl;
         this.title = title;
         this.publishDate = publishDate;
         this.summary = summary;
         this.deletedAt = deletedAt;
+    }
+
+    public void updateViewCount(long viewCount) {
         this.viewCount = viewCount;
+    }
+
+    public void updateCommentCount(long commentCount) {
         this.commentCount = commentCount;
     }
 }
