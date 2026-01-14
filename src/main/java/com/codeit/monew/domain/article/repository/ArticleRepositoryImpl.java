@@ -9,10 +9,10 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -29,7 +29,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Article> findByKeywordAndSource(ArticleSearchCondition searchCondition) {
+    public Slice<Article> findByKeywordAndSource(ArticleSearchCondition searchCondition) {
 
         int pageSize = searchCondition.limit();
         Pageable pageable = PageRequest.of(0, pageSize);
@@ -63,7 +63,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
             hasNext = true;
         }
 
-        return new PageImpl<>(contents, pageable, hasNext ? pageSize + 1 : contents.size());
+        return new SliceImpl<>(contents, pageable, hasNext);
     }
 
     // 키워드를 포함하는 기사 제목, 요약 조회

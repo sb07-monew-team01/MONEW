@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
@@ -51,7 +52,7 @@ class ArticleRepositoryImplTest {
                 .build();
 
         // when 첫 번째 페이지
-        Page<Article> pages1 = articleRepository.findByKeywordAndSource(searchCondition);
+        Slice<Article> pages1 = articleRepository.findByKeywordAndSource(searchCondition);
         List<Article> articles1 = pages1.getContent();
 
         // then
@@ -75,7 +76,7 @@ class ArticleRepositoryImplTest {
                 .limit(3)
                 .build();
 
-        Page<Article> pages2 = articleRepository.findByKeywordAndSource(searchCondition2);
+        Slice<Article> pages2 = articleRepository.findByKeywordAndSource(searchCondition2);
         List<Article> articles2 = pages2.getContent();
 
         // then
