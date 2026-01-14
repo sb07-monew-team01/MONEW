@@ -6,8 +6,10 @@ import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.comment.dto.request.CommentRegisterRequest;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
 import com.codeit.monew.domain.comment.entity.Comment;
+import com.codeit.monew.domain.comment.exception.CommentAlreadyDeleteException;
 import com.codeit.monew.domain.comment.exception.CommentContentEmptyException;
 import com.codeit.monew.domain.comment.exception.CommentContentTooLongException;
+import com.codeit.monew.domain.comment.exception.CommentNotFoundException;
 import com.codeit.monew.domain.comment.repository.CommentRepository;
 import com.codeit.monew.domain.comment.service.CommentServiceImpl;
 import com.codeit.monew.domain.user.entity.User;
@@ -29,8 +31,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("댓글 서비스 테스트")
@@ -48,11 +49,13 @@ public class CommentServiceTest {
 
     UUID articleId;
     UUID userId;
+    UUID commentId;
 
     @BeforeEach
     void setUp() {
         articleId = UUID.randomUUID();
         userId = UUID.randomUUID();
+        commentId = UUID.randomUUID();
     }
 
     @Nested
@@ -148,32 +151,30 @@ public class CommentServiceTest {
     @Nested
     @DisplayName("댓글 삭제")
     class DeleteComment {
+        User user = new User("test@email.com","nick","1234");
+        Article article = new Article(
+                ArticleSource.NAVER,
+                "www.naver.com/article/123",
+                "제목입니다.",
+                LocalDateTime.now(),
+                "요약입니다.",
+                null
+        );
+        Comment comment = new Comment(user, article, "삭제 테스트용 댓글");
 
         @Test
         @DisplayName("성공: 댓글이 정상적으로 논리 삭제된다.")
         void softDeleteComment_success() {
             // given
-            UUID articleId = UUID.randomUUID();
-            UUID userId = UUID.randomUUID();
-            User user = new User("test@email.com","nick","1234");
-            Article article = new Article(
-                    ArticleSource.NAVER,
-                    "www.naver.com/article/123",
-                    "제목입니다.",
-                    LocalDateTime.now(),
-                    "요약입니다.",
-                    null
-            );
-            Comment comment = new Comment(user, article, "삭제 테스트용 댓글");
-            commentRepository.save(comment);
+            when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
 
             // when
-            when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
-            commentService.delete(comment.getId());
+            commentService.delete(commentId);
 
             // then
-            Comment found = commentRepository.findById(comment.getId()).orElseThrow();
-            assertThat(found.getDeletedAt()).isNotNull();
+            assertThat(comment.isDeleted()).isTrue();
+            assertThat(comment.getDeletedAt()).isNotNull();
+            verify(commentRepository).save(any(Comment.class));
 
         }
     }
