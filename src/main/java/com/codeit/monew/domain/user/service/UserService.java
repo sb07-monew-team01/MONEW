@@ -13,7 +13,6 @@ import com.codeit.monew.domain.user.util.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,7 +26,7 @@ public class UserService {
 
     public UserDto signUp(UserSignInRequest dto) {
         Optional<User> byEmail = userRepository.findByEmail(dto.email());
-        if(byEmail.isEmpty()){
+        if (byEmail.isEmpty()) {
             User user = new User(dto.email(), dto.nickname(), dto.password());
             User saved = userRepository.save(user);
             return userMapper.toDto(saved);
@@ -41,7 +40,7 @@ public class UserService {
     public UserDto login(String email, String password) {
         User byEmail = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(email));
-        if(byEmail.isDeleted())
+        if (byEmail.isDeleted())
             throw new UserAlreadyDeletedException(byEmail);
         if (byEmail.getPassword().equals(password))
             return userMapper.toDto(byEmail);
@@ -54,7 +53,7 @@ public class UserService {
         if (user.isDeleted()) {
             throw new UserAlreadyDeletedException(user);
         }
-        user.updateDeletedAt(LocalDateTime.now());
+        user.updateDeletedAt();
     }
 
     public UserDto updateUser(UserEmailUpdateRequest dto) {
@@ -64,5 +63,11 @@ public class UserService {
             throw new UserAlreadyDeletedException(user);
         user.updateNickname(dto.newNickname());
         return userMapper.toDto(user);
+    }
+
+    public void deleteHard(UUID userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        userRepository.deleteById(userId);
     }
 }
