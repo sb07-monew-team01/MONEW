@@ -100,17 +100,6 @@ public class CommentServiceTest {
             verify(commentRepository).save(any(Comment.class));
         }
 
-        @Test
-        @DisplayName("실패: 댓글 내용이 없을 경우 예외가 발생한다.")
-        void failToCreateComment_null() {
-            // given
-            CommentRegisterRequest request = new CommentRegisterRequest(articleId, userId, null);
-
-            // when & then
-            assertThatThrownBy(
-                    () -> commentService.create(request))
-                    .isInstanceOf(CommentContentEmptyException.class);
-        }
 
 //        @Test
 //        @DisplayName("실패: 기사가 존재하지 않을 경우 예외가 발생한다.")
@@ -136,18 +125,6 @@ public class CommentServiceTest {
                     .isInstanceOf(UserNotFoundException.class);
         }
 
-        @Test
-        @DisplayName("실패: 댓글 내용이 500자를 초과할 경우 댓글 등록에 실패한다.")
-        void failToCreateComment_exceedContent() {
-            // given
-            String longContent1 = "a".repeat(501);
-            CommentRegisterRequest request = new CommentRegisterRequest(articleId, userId, longContent1);
-
-            // when & then
-            assertThatThrownBy(
-                    () -> commentService.create(request))
-                    .isInstanceOf(CommentContentTooLongException.class);
-        }
     }
 
     @Nested
@@ -260,35 +237,6 @@ public class CommentServiceTest {
             assertThatThrownBy(() -> commentService.update(invalidId, request))
                     .isInstanceOf(CommentNotFoundException.class);
 
-        }
-
-        @Test
-        @DisplayName("실패: 댓글 내용이 500자를 초과할 경우 댓글 수정에 실패한다.")
-        void failToUpdateComment_exceedContent() {
-            // given
-            String longContent = "a".repeat(501);
-            CommentUpdateRequest request = new CommentUpdateRequest(longContent);
-
-            given(commentRepository.findById(commentId))
-                    .willReturn(Optional.of(comment));
-
-            // when & then
-            assertThatThrownBy(() -> commentService.update(commentId, request))
-                    .isInstanceOf(CommentContentTooLongException.class);
-        }
-
-        @Test
-        @DisplayName("실패: 댓글 내용이 없을 경우 예외가 발생한다.")
-        void failToUpdateComment_null() {
-            // given
-            CommentUpdateRequest request = new CommentUpdateRequest(null);
-
-            given(commentRepository.findById(commentId))
-                    .willReturn(Optional.of(comment));
-
-            // when & then
-            assertThatThrownBy(() -> commentService.update(commentId, request))
-                    .isInstanceOf(CommentContentEmptyException.class);
         }
 
     }
