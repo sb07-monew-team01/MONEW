@@ -2,15 +2,15 @@ package com.codeit.monew.user.service;
 
 import com.codeit.monew.domain.user.dto.UserDto;
 import com.codeit.monew.domain.user.dto.request.UserLoginRequest;
-import com.codeit.monew.domain.user.dto.request.UserUpdateRequest;
 import com.codeit.monew.domain.user.dto.request.UserSignUpRequest;
+import com.codeit.monew.domain.user.dto.request.UserUpdateRequest;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserAlreadyDeletedException;
 import com.codeit.monew.domain.user.exception.UserAlreadyExistsException;
 import com.codeit.monew.domain.user.exception.UserLoginFailedException;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
-import com.codeit.monew.domain.user.service.UserService;
+import com.codeit.monew.domain.user.service.UserServiceImpl;
 import com.codeit.monew.domain.user.util.UserMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -41,11 +41,11 @@ public class UserServiceTest {
     private UserMapper userMapper;
 
     @InjectMocks
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @Nested
     @DisplayName("회원 가입")
-    class SignUp{
+    class SignUp {
         @Test
         @DisplayName("이메일, 닉네임, 비밀번호로 회원 가입을 할 수 있다.")
         void signUp() {
@@ -76,7 +76,7 @@ public class UserServiceTest {
             User user = new User(userEmail, userNickname, userPassword);
 
             UUID userId = UUID.randomUUID();
-            ReflectionTestUtils.setField(user,"id", userId);
+            ReflectionTestUtils.setField(user, "id", userId);
             user.updateDeletedAt();
             when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
 
@@ -94,7 +94,7 @@ public class UserServiceTest {
             String nickname = "나야";
             String password = "비밀번호야";
             User user = new User(email, nickname, password);
-            ReflectionTestUtils.setField(user,"id", UUID.randomUUID());
+            ReflectionTestUtils.setField(user, "id", UUID.randomUUID());
             when(userRepository.findByEmail(email))
                     .thenReturn(Optional.of(user));
 
@@ -107,10 +107,10 @@ public class UserServiceTest {
 
     @Nested
     @DisplayName("로그인")
-    class Login{
+    class Login {
         @Test
         @DisplayName("이메일과 비밀번호로 로그인할 수 있다.")
-        void login(){
+        void login() {
             // given
             String email = "email@email.com";
             String password = "password";
@@ -153,7 +153,7 @@ public class UserServiceTest {
             User user = new User(userEmail, userNickname, userPassword);
 
             UUID userId = UUID.randomUUID();
-            ReflectionTestUtils.setField(user,"id", userId);
+            ReflectionTestUtils.setField(user, "id", userId);
             when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
             user.updateDeletedAt();
 
@@ -180,7 +180,7 @@ public class UserServiceTest {
 
     @Nested
     @DisplayName("유저 삭제")
-    class Delete{
+    class Delete {
         @Test
         @DisplayName("유저 삭제 요청을 통해 논리 삭제가 가능하다.")
         void userDelete() {
@@ -191,7 +191,7 @@ public class UserServiceTest {
             User user = new User(userEmail, userNickname, userPassword);
 
             UUID userId = UUID.randomUUID();
-            ReflectionTestUtils.setField(user,"id", userId);
+            ReflectionTestUtils.setField(user, "id", userId);
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
             // when
@@ -212,7 +212,7 @@ public class UserServiceTest {
             User user = new User(userEmail, userNickname, userPassword);
 
             UUID userId = UUID.randomUUID();
-            ReflectionTestUtils.setField(user,"id", userId);
+            ReflectionTestUtils.setField(user, "id", userId);
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             user.updateDeletedAt();
 
@@ -220,62 +220,63 @@ public class UserServiceTest {
             assertThatThrownBy(() -> userService.delete(userId))
                     .isInstanceOf(UserAlreadyDeletedException.class);
         }
+    }
 
-        @Nested
-        @DisplayName("유저 수정")
-        class Update{
-            @Test
-            @DisplayName("유저 닉네임을 수정할 수 있다.")
-            void changeNickname() {
-                // given
-                String email = "email@email.com";
-                String nickname = "nickname";
-                User user = new User(email, nickname, "password");
-                UUID userId = UUID.randomUUID();
-                ReflectionTestUtils.setField(user,"id", userId);
-                when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-                when(userMapper.toDto(any(User.class)))
-                        .thenReturn(new UserDto(UUID.randomUUID(), email, nickname, LocalDateTime.now()));
-                String newNickname = "itsMe";
-                UserUpdateRequest dto = new UserUpdateRequest(userId, newNickname);
+    @Nested
+    @DisplayName("유저 수정")
+    class Update {
+        @Test
+        @DisplayName("유저 닉네임을 수정할 수 있다.")
+        void changeNickname() {
+            // given
+            String email = "email@email.com";
+            String nickname = "nickname";
+            User user = new User(email, nickname, "password");
+            UUID userId = UUID.randomUUID();
+            ReflectionTestUtils.setField(user, "id", userId);
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(userMapper.toDto(any(User.class)))
+                    .thenReturn(new UserDto(UUID.randomUUID(), email, nickname, LocalDateTime.now()));
+            String newNickname = "itsMe";
+            UserUpdateRequest dto = new UserUpdateRequest(userId, newNickname);
 
-                // when
-                userService.updateUser(dto);
+            // when
+            userService.updateUser(dto);
 
-                //then
-                verify(userRepository).findById(userId);
-                assertThat(user.getNickname()).isEqualTo(newNickname);
-            }
+            //then
+            verify(userRepository).findById(userId);
+            assertThat(user.getNickname()).isEqualTo(newNickname);
+        }
 
-            @Test
-            @DisplayName("수정 요청 uuid가 존재하지 않으면 예외가 발생한다.")
-            void notValidUserUuid() {
-                // given
-                User user = new User("email@ma.com", "nickname", "password");
-                UUID validId = UUID.randomUUID();
-                UUID wrongUserId = UUID.randomUUID();
-                ReflectionTestUtils.setField(user, "id", validId);
-                when(userRepository.findById(wrongUserId)).thenReturn(Optional.empty());
+        @Test
+        @DisplayName("수정 요청 uuid가 존재하지 않으면 예외가 발생한다.")
+        void notValidUserUuid() {
+            // given
+            User user = new User("email@ma.com", "nickname", "password");
+            UUID validId = UUID.randomUUID();
+            UUID wrongUserId = UUID.randomUUID();
+            ReflectionTestUtils.setField(user, "id", validId);
+            when(userRepository.findById(wrongUserId)).thenReturn(Optional.empty());
 
-                // when & then
-                assertThatThrownBy(() -> userService.updateUser(new UserUpdateRequest(wrongUserId, "newNickname")))
-                        .isInstanceOf(UserNotFoundException.class);
-            }
+            // when & then
+            assertThatThrownBy(() -> userService.updateUser(new UserUpdateRequest(wrongUserId, "newNickname")))
+                    .isInstanceOf(UserNotFoundException.class);
+        }
 
-            @Test
-            @DisplayName("논리 삭제된 유저 수정시 예외가 발생한다.")
-            void deletedUserUpdate() {
-                // given
-                User user = new User("email@sdsd@com", "nickname", "password");
-                ReflectionTestUtils.setField(user,"id", UUID.randomUUID());
-                user.updateDeletedAt();
-                UserUpdateRequest dto = new UserUpdateRequest(user.getId(), "newNickname");
-                when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        @Test
+        @DisplayName("논리 삭제된 유저 수정시 예외가 발생한다.")
+        void deletedUserUpdate() {
+            // given
+            User user = new User("email@sdsd@com", "nickname", "password");
+            ReflectionTestUtils.setField(user, "id", UUID.randomUUID());
+            user.updateDeletedAt();
+            UserUpdateRequest dto = new UserUpdateRequest(user.getId(), "newNickname");
+            when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
-                // when & then
-                assertThatThrownBy(() -> userService.updateUser(dto))
-                        .isInstanceOf(UserAlreadyDeletedException.class);
-            }
+            // when & then
+            assertThatThrownBy(() -> userService.updateUser(dto))
+                    .isInstanceOf(UserAlreadyDeletedException.class);
         }
     }
 }
+
