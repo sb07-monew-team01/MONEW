@@ -1,5 +1,6 @@
 package com.codeit.monew.notification;
 import com.codeit.monew.article.repository.TestQueryDslConfig;
+import com.codeit.monew.config.QueryDslConfig;
 import com.codeit.monew.domain.notification.entity.Notification;
 
 import com.codeit.monew.domain.notification.repository.NotificationRepository;
@@ -24,9 +25,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
+
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(TestQueryDslConfig.class)
+@Import(QueryDslConfig.class)
 public class NotificationRepositoryDeleteTest {
 
     @Autowired
