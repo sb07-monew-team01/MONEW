@@ -2,8 +2,8 @@ package com.codeit.monew.domain.user.service;
 
 import com.codeit.monew.domain.user.dto.UserDto;
 import com.codeit.monew.domain.user.dto.request.UserLoginRequest;
-import com.codeit.monew.domain.user.dto.request.UserUpdateRequest;
 import com.codeit.monew.domain.user.dto.request.UserSignUpRequest;
+import com.codeit.monew.domain.user.dto.request.UserUpdateRequest;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserAlreadyDeletedException;
 import com.codeit.monew.domain.user.exception.UserAlreadyExistsException;
@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,15 +37,8 @@ public class UserService {
         }
 
         User user = byEmail.get();
-        if (user.isDeleted()) {
-            if (user.getDeletedAt().isAfter(LocalDateTime.now().minusDays(7))) {
-                throw new UserAlreadyDeletedException(user);
-            } else { // 삭제된지 7일이 지났다면 삭제후 재가입 허용
-                userRepository.delete(user);
-                User saved = userRepository.save(new User(dto.email(), dto.nickname(), dto.password()));
-                return userMapper.toDto(saved);
-            }
-        }
+        if (user.isDeleted())
+            throw new UserAlreadyDeletedException(user);
         throw new UserAlreadyExistsException(user);
     }
 
