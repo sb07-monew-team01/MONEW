@@ -49,7 +49,6 @@ public class Comment extends BaseUpdatableEntity {
 
     public void updateContent(String newContent) {
         this.content = newContent;
-        this.updatedAt = LocalDateTime.now();
     }
 
 
