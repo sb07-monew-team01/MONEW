@@ -1,6 +1,5 @@
 package com.codeit.monew.notification;
 import com.codeit.monew.article.repository.TestQueryDslConfig;
-import com.codeit.monew.config.QueryDslConfig;
 import com.codeit.monew.domain.notification.entity.Notification;
 
 import com.codeit.monew.domain.notification.repository.NotificationRepository;
@@ -28,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(QueryDslConfig.class)
+@Import(TestQueryDslConfig.class)
 public class NotificationRepositoryDeleteTest {
 
     @Autowired
