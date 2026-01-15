@@ -214,6 +214,7 @@ public class CommentServiceTest {
 
             // then
             then(commentRepository).should().delete(comment);
+        }
     }
 }
 

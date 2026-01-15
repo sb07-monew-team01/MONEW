@@ -7,4 +7,5 @@ import java.util.UUID;
 public interface CommentService {
     CommentDto create(CommentRegisterRequest request);
     void delete(UUID commentId);
+    void hardDelete(UUID commentId);
 }
