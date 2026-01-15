@@ -30,6 +30,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
@@ -213,6 +214,40 @@ public class CommentServiceTest {
             // then
             then(commentRepository).should().delete(comment);
         }
+    }
+
+    @Nested
+    @DisplayName("댓글 수정")
+    class UpdateComment {
+        UUID articleId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        User user = new User("test@email.com","nick","1234");
+        Article article = new Article(
+                ArticleSource.NAVER,
+                "www.naver.com/article/123",
+                "제목입니다.",
+                LocalDateTime.now(),
+                "요약입니다.",
+                null);
+        Comment comment = new Comment(user, article, "수정 전 댓글 내용");
+
+        @Test
+        @DisplayName("성공: 댓글이 정상적으로 수정된다.")
+        void updateComment_success() {
+            // given
+            CommentUpdateRequest request = new CommentUpdateRequest("수정 후 댓글 내용");
+            given(commentRepository.findById(commentId))
+                    .willReturn(Optional.of(comment));
+
+            // when
+            commentService.update(commentId, content);
+
+            // then
+            then(commentRepository).should().findById(commentId);
+            assertThat(comment.getContent()).isEqualTo(content);
+        }
+
+
     }
 }
 
