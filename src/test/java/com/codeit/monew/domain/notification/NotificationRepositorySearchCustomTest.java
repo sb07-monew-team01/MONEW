@@ -5,6 +5,7 @@ package com.codeit.monew.domain.notification;
 import com.codeit.monew.domain.notification.dto.request.NotificationPageRequest;
 import com.codeit.monew.domain.notification.entity.Notification;
 import com.codeit.monew.domain.notification.repository.NotificationRepository;
+import com.codeit.monew.global.config.TestJpaAuditing;
 import com.codeit.monew.global.config.TestQueryDslConfig;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(TestQueryDslConfig.class)
+@Import({TestJpaAuditing.class ,TestQueryDslConfig.class})
 public class NotificationRepositorySearchCustomTest {
 
     @Autowired
