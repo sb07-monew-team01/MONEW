@@ -90,9 +90,6 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public CommentDto update(UUID commentId, CommentUpdateRequest request) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(()-> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
-
         if (request.content() == null || request.content().isBlank()) {
             throw new CommentContentEmptyException(ErrorCode.COMMENT_EMPTY_CONTENT);
         }
@@ -100,6 +97,9 @@ public class CommentServiceImpl implements CommentService {
         if (request.content().length() > 500) {
             throw new CommentContentTooLongException(ErrorCode.COMMENT_TOO_LONG);
         }
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(()-> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
 
         comment.updateContent(request.content());
 
