@@ -15,10 +15,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -54,7 +51,7 @@ class ArticleRepositoryImplTest {
                 .build();
 
         // when 첫 번째 페이지
-        Slice<Article> pages1 = articleRepository.findByKeywordAndSource(searchCondition);
+        Slice<Article> pages1 = articleRepository.findByKeywordsAndSources(searchCondition);
         List<Article> articles1 = pages1.getContent();
 
         // then
@@ -78,7 +75,7 @@ class ArticleRepositoryImplTest {
                 .limit(3)
                 .build();
 
-        Slice<Article> pages2 = articleRepository.findByKeywordAndSource(searchCondition2);
+        Slice<Article> pages2 = articleRepository.findByKeywordsAndSources(searchCondition2);
         List<Article> articles2 = pages2.getContent();
 
         // then
@@ -120,11 +117,11 @@ class ArticleRepositoryImplTest {
 
         // when
         // 조회수 정렬
-        Slice<Article> pagesWithView = articleRepository.findByKeywordAndSource(searchByViewCount);
+        Slice<Article> pagesWithView = articleRepository.findByKeywordsAndSources(searchByViewCount);
         List<Article> articlesWithView = pagesWithView.getContent();
 
         // 댓글수 정렬
-        Slice<Article> pagesWithComment = articleRepository.findByKeywordAndSource(searchByCommentCount);
+        Slice<Article> pagesWithComment = articleRepository.findByKeywordsAndSources(searchByCommentCount);
         List<Article> articlesWithComment = pagesWithComment.getContent();
 
         // then

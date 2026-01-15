@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 @Builder
 public record ArticleSearchCondition(
-        String keyword,
+        List<String> keywords,
         List<ArticleSource> sourceIn,
         LocalDateTime publishDateFrom,
         LocalDateTime publishDateTo,
@@ -19,9 +19,9 @@ public record ArticleSearchCondition(
         Integer limit
 ) {
 
-    public static ArticleSearchCondition from(ArticleSearchRequest request) {
+    public static ArticleSearchCondition of(ArticleSearchRequest request, List<String> keywords) {
         return new ArticleSearchCondition(
-                request.keyword(),
+                keywords,
                 request.sourceIn(),
                 request.publishDateFrom(),
                 request.publishDateTo(),
