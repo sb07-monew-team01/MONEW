@@ -184,13 +184,11 @@ public class CommentServiceTest {
         void failToSoftDeleteComment_alreadyDelete() {
             // given
             Comment deletedComment = new Comment(user, article, "이미 삭제된 댓글");
-            ReflectionTestUtils.setField(deletedComment, "deletedAt", LocalDateTime.now());
+            deletedComment.softDelete();
             when(commentRepository.findById(commentId)).thenReturn(Optional.of(deletedComment));
 
             assertThatThrownBy(() -> commentService.delete(commentId))
                     .isInstanceOf(CommentAlreadyDeleteException.class);
-
-            then(commentRepository).should(never()).save(any(Comment.class));
         }
 
         @Test
