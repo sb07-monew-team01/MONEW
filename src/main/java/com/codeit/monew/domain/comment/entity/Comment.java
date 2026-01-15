@@ -38,4 +38,14 @@ public class Comment extends BaseUpdatableEntity {
         this.article = article;
         this.content = content;
     }
+
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public boolean isDeleted() {
+        return deletedAt != null;
+    }
+
+
 }
