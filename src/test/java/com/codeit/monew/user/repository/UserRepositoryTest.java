@@ -33,14 +33,14 @@ class UserRepositoryTest {
         for (int i = 0; i < 20; i++) {
             User user = new User("demail" + i + "@gmail.com", "nickname" + i, "password" + i);
             user.updateDeletedAt();
-            ReflectionTestUtils.setField(user,"deletedAt", LocalDateTime.now().minusDays(8));  // 8일 전으로 설정
+            ReflectionTestUtils.setField(user,"deletedAt", LocalDateTime.now().minusDays(1));  // 1일 전으로 설정
             userRepository.save(user);  // 수정 후 저장
         }
         // 논리 삭제 이후 7일이 지나지 않은 유저들
         for (int i = 0; i < 35; i++) {
             User user = new User("nemail" + i + "@gmail.com", "nickname" + i, "password" + i);
             user.updateDeletedAt();
-            ReflectionTestUtils.setField(user,"deletedAt", LocalDateTime.now().minusDays(3));  // 3일 전
+            ReflectionTestUtils.setField(user,"deletedAt", LocalDateTime.now().minusHours(3));  // 3시간 전
             userRepository.save(user);  // 수정 후 저장
         }
         // 논리 삭제가 이루어지지 않은 유저들
@@ -50,7 +50,7 @@ class UserRepositoryTest {
         }
 
         // when
-        long deleted = userRepository.deleteAllByDeletedAtBefore(LocalDateTime.now().minusDays(7));
+        long deleted = userRepository.deleteAllByDeletedAtBefore(LocalDateTime.now().minusDays(1));
 
         // then
         assertThat(deleted).isEqualTo(20);

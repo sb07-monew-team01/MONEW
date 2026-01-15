@@ -1,8 +1,9 @@
 package com.codeit.monew.user.service;
 
 import com.codeit.monew.domain.user.dto.UserDto;
-import com.codeit.monew.domain.user.dto.request.UserEmailUpdateRequest;
-import com.codeit.monew.domain.user.dto.request.UserSignInRequest;
+import com.codeit.monew.domain.user.dto.request.UserLoginRequest;
+import com.codeit.monew.domain.user.dto.request.UserUpdateRequest;
+import com.codeit.monew.domain.user.dto.request.UserSignUpRequest;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserAlreadyDeletedException;
 import com.codeit.monew.domain.user.exception.UserAlreadyExistsException;
@@ -49,7 +50,7 @@ public class UserServiceTest {
         @DisplayName("이메일, 닉네임, 비밀번호로 회원 가입을 할 수 있다.")
         void signUp() {
             // given
-            UserSignInRequest dto = new UserSignInRequest("someemail@gmail.com", "닉네임이야", "password1");
+            UserSignUpRequest dto = new UserSignUpRequest("someemail@gmail.com", "닉네임이야", "password1");
             when(userRepository.save(any(User.class)))
                     .thenReturn(new User(dto.email(), dto.nickname(), dto.password()));
             when(userMapper.toDto(any(User.class)))
@@ -80,7 +81,7 @@ public class UserServiceTest {
             when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
 
             // when & then
-            assertThatThrownBy(() -> userService.signUp(new UserSignInRequest(userEmail, "newNickname", "password2")))
+            assertThatThrownBy(() -> userService.signUp(new UserSignUpRequest(userEmail, "newNickname", "password2")))
                     .isInstanceOf(UserAlreadyDeletedException.class);
         }
 
@@ -98,7 +99,7 @@ public class UserServiceTest {
                     .thenReturn(Optional.of(user));
 
             //then
-            assertThatThrownBy(() -> userService.signUp(new UserSignInRequest(email, "다른닉네임이야", "다른비밀번호야")))
+            assertThatThrownBy(() -> userService.signUp(new UserSignUpRequest(email, "다른닉네임이야", "다른비밀번호야")))
                     .isInstanceOf(UserAlreadyExistsException.class);
 
         }
@@ -119,7 +120,7 @@ public class UserServiceTest {
                     .thenReturn(new UserDto(UUID.randomUUID(), email, "nickname", LocalDateTime.now()));
 
             // when
-            UserDto userDto = userService.login(email, password);
+            UserDto userDto = userService.login(new UserLoginRequest(email, password));
 
             //then
             verify(userRepository).findByEmail(email);
@@ -138,7 +139,7 @@ public class UserServiceTest {
 
 
             // when & then
-            assertThatThrownBy(() -> userService.login(email, wrongPassword))
+            assertThatThrownBy(() -> userService.login(new UserLoginRequest(email, wrongPassword)))
                     .isInstanceOf(UserLoginFailedException.class);
         }
 
@@ -157,7 +158,7 @@ public class UserServiceTest {
             user.updateDeletedAt();
 
             // when & then
-            assertThatThrownBy(() -> userService.login(userEmail, userPassword))
+            assertThatThrownBy(() -> userService.login(new UserLoginRequest(userEmail, userPassword)))
                     .isInstanceOf(UserAlreadyDeletedException.class);
             verify(userRepository).findByEmail(userEmail);
         }
@@ -170,7 +171,7 @@ public class UserServiceTest {
             when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> userService.login(email, "password"))
+            assertThatThrownBy(() -> userService.login(new UserLoginRequest(email, "password")))
                     .isInstanceOf(UserNotFoundException.class);
 
 
@@ -236,7 +237,7 @@ public class UserServiceTest {
                 when(userMapper.toDto(any(User.class)))
                         .thenReturn(new UserDto(UUID.randomUUID(), email, nickname, LocalDateTime.now()));
                 String newNickname = "itsMe";
-                UserEmailUpdateRequest dto = new UserEmailUpdateRequest(userId, newNickname);
+                UserUpdateRequest dto = new UserUpdateRequest(userId, newNickname);
 
                 // when
                 userService.updateUser(dto);
@@ -257,7 +258,7 @@ public class UserServiceTest {
                 when(userRepository.findById(wrongUserId)).thenReturn(Optional.empty());
 
                 // when & then
-                assertThatThrownBy(() -> userService.updateUser(new UserEmailUpdateRequest(wrongUserId, "newNickname")))
+                assertThatThrownBy(() -> userService.updateUser(new UserUpdateRequest(wrongUserId, "newNickname")))
                         .isInstanceOf(UserNotFoundException.class);
             }
 
@@ -268,7 +269,7 @@ public class UserServiceTest {
                 User user = new User("email@sdsd@com", "nickname", "password");
                 ReflectionTestUtils.setField(user,"id", UUID.randomUUID());
                 user.updateDeletedAt();
-                UserEmailUpdateRequest dto = new UserEmailUpdateRequest(user.getId(), "newNickname");
+                UserUpdateRequest dto = new UserUpdateRequest(user.getId(), "newNickname");
                 when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
                 // when & then
