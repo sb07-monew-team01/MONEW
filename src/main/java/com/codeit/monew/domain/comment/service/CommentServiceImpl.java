@@ -31,16 +31,6 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto create(CommentRegisterRequest request) {
-
-        if (request.content() == null || request.content().isBlank()) {
-            throw new CommentContentEmptyException(ErrorCode.COMMENT_EMPTY_CONTENT);
-        }
-
-        if (request.content().length() > 500) {
-            throw new CommentContentTooLongException(ErrorCode.COMMENT_TOO_LONG);
-        }
-
-
         User user = userRepository.findById(request.userId())
                 .orElseThrow(() -> new UserNotFoundException("존재하지 않는 사용자입니다."));
 
@@ -90,14 +80,6 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public CommentDto update(UUID commentId, CommentUpdateRequest request) {
-        if (request.content() == null || request.content().isBlank()) {
-            throw new CommentContentEmptyException(ErrorCode.COMMENT_EMPTY_CONTENT);
-        }
-
-        if (request.content().length() > 500) {
-            throw new CommentContentTooLongException(ErrorCode.COMMENT_TOO_LONG);
-        }
-
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(()-> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
 
