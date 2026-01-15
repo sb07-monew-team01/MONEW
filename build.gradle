@@ -47,7 +47,9 @@ dependencies {
     //문자열 처리 전용 유틸
     implementation "org.apache.commons:commons-text:1.11.0"
 
+    // rss 수집 라이브러리
     implementation 'com.rometools:rome:2.1.0'
+    // jsoup 라이브러리
     implementation 'org.jsoup:jsoup:1.17.2'
 
 
