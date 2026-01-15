@@ -220,9 +220,7 @@ public class CommentServiceTest {
     @Nested
     @DisplayName("댓글 수정")
     class UpdateComment {
-        UUID articleId = UUID.randomUUID();
-        UUID userId = UUID.randomUUID();
-        User user = new User("test@email.com","nick","1234");
+        User user = new User("test@email.com", "nick", "1234");
         Article article = new Article(
                 ArticleSource.NAVER,
                 "www.naver.com/article/123",
@@ -248,6 +246,50 @@ public class CommentServiceTest {
             assertThat(comment.getContent()).isEqualTo(request.content());
         }
 
+        @Test
+        @DisplayName("실패: 존재하지 않는 댓글 ID로 수정을 시도할 수 없다.")
+        void failToUpdateComment_notFound() {
+            // given
+            UUID invalidId = UUID.randomUUID();
+            CommentUpdateRequest request = new CommentUpdateRequest("수정 후 댓글 내용");
+
+            given(commentRepository.findById(invalidId))
+                    .willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> commentService.update(invalidId, request))
+                    .isInstanceOf(CommentNotFoundException.class);
+
+        }
+
+        @Test
+        @DisplayName("실패: 댓글 내용이 500자를 초과할 경우 댓글 수정에 실패한다.")
+        void failToUpdateComment_exceedContent() {
+            // given
+            String longContent = "a".repeat(501);
+            CommentUpdateRequest request = new CommentUpdateRequest(longContent);
+
+            given(commentRepository.findById(commentId))
+                    .willReturn(Optional.of(comment));
+
+            // when & then
+            assertThatThrownBy(() -> commentService.update(commentId, request))
+                    .isInstanceOf(CommentContentTooLongException.class);
+        }
+
+        @Test
+        @DisplayName("실패: 댓글 내용이 없을 경우 예외가 발생한다.")
+        void failToUpdateComment_null() {
+            // given
+            CommentUpdateRequest request = new CommentUpdateRequest(null);
+
+            given(commentRepository.findById(commentId))
+                    .willReturn(Optional.of(comment));
+
+            // when & then
+            assertThatThrownBy(() -> commentService.update(commentId, request))
+                    .isInstanceOf(CommentContentEmptyException.class);
+        }
 
     }
 }
