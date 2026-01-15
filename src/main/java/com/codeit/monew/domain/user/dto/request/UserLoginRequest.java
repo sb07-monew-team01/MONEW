@@ -1,14 +1,14 @@
 package com.codeit.monew.domain.user.dto.request;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 public record UserLoginRequest(
-        @NotNull(message = "이메일은 필수입니다.")
+        @NotBlank(message = "이메일은 필수입니다.")
         @Email
         String email,
 
-        @NotNull(message = "비밀번호는 필수입니다.")
+        @NotBlank(message = "비밀번호는 필수입니다.")
         String password
 ) {
 }
