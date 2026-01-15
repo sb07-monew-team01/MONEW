@@ -1,6 +1,6 @@
 package com.codeit.monew.domain.article.service;
 
-import com.codeit.monew.common.dto.PageResponse;
+import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
 import com.codeit.monew.domain.article.dto.response.ArticleDto;

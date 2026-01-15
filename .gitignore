@@ -52,7 +52,5 @@ $RECYCLE.BIN/
 # 환경변수
 .env
 
-/.github/
-/docs/
-/.github/
-/docs/
+# 개발 환경
+application-dev.yml

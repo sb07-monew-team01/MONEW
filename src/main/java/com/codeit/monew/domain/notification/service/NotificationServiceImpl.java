@@ -1,6 +1,6 @@
 package com.codeit.monew.domain.notification.service;
 
-import com.codeit.monew.common.dto.PageResponse;
+import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.domain.notification.dto.request.*;
 import com.codeit.monew.domain.notification.dto.response.NotificationDto;
 import com.codeit.monew.domain.notification.entity.Notification;
