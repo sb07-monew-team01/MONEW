@@ -79,7 +79,7 @@ public class CommentServiceImpl implements CommentService {
     // 물리 삭제
     @Override
     @Transactional
-    public void hardDelete(UUID commentId) {
+    public void deleteHard(UUID commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
 
@@ -103,7 +103,7 @@ public class CommentServiceImpl implements CommentService {
 
         comment.updateContent(request.content());
 
-        return CommentDto.from(comment);
+        return CommentDto.toDto(comment);
 
 
     }

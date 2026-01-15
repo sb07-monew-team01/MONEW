@@ -210,7 +210,7 @@ public class CommentServiceTest {
             when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
 
             // when
-            commentService.hardDelete(commentId);
+            commentService.deleteHard(commentId);
 
             // then
             then(commentRepository).should().delete(comment);
@@ -242,8 +242,8 @@ public class CommentServiceTest {
             commentService.update(commentId, request);
 
             // then
-            then(commentRepository).should().findById(commentId);
             assertThat(comment.getContent()).isEqualTo(request.content());
+            then(commentRepository).should().findById(commentId);
         }
 
         @Test

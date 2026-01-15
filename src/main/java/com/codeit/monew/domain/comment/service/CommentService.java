@@ -8,6 +8,6 @@ import java.util.UUID;
 public interface CommentService {
     CommentDto create(CommentRegisterRequest request);
     void delete(UUID commentId);
-    void hardDelete(UUID commentId);
+    void deleteHard(UUID commentId);
     CommentDto update(UUID commentId, CommentUpdateRequest request);
 }

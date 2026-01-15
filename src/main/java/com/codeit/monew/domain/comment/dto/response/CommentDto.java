@@ -15,7 +15,7 @@ public record CommentDto(
         Boolean likedByMe,
         LocalDateTime createdAt
 ) {
-    public static CommentDto from(Comment comment)
+    public static CommentDto toDto(Comment comment)
     {
         return new CommentDto(
                 comment.getId(),
