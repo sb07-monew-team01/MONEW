@@ -202,6 +202,18 @@ public class CommentServiceTest {
             assertThatThrownBy(()-> commentService.delete(invalidId))
                     .isInstanceOf(CommentNotFoundException.class);
         }
+
+        @Test
+        @DisplayName("성공: 댓글이 정상적으로 물리 삭제된다.")
+        void hardDeleteComment_success() {
+            // given
+            when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+
+            // when
+            commentService.hardDelete(commentId);
+
+            // then
+            then(commentRepository).should().delete(comment);
     }
 }
 
