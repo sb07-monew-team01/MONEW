@@ -29,7 +29,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<Article> findByKeywordAndSource(ArticleSearchCondition searchCondition) {
+    public Slice<Article> findByKeywordsAndSources(ArticleSearchCondition searchCondition) {
 
         int pageSize = searchCondition.limit();
         Pageable pageable = PageRequest.of(0, pageSize);
@@ -45,7 +45,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         List<Article> contents = queryFactory
                 .selectFrom(article)
                 .where(
-                        keywordContains(searchCondition.keyword()),
+                        keywordsContains(searchCondition.keywords()),
                         sourceIn(searchCondition.sourceIn()),
                         startDate(searchCondition.publishDateFrom()),
                         endDate(searchCondition.publishDateTo()),
@@ -67,10 +67,14 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     }
 
     // 키워드를 포함하는 기사 제목, 요약 조회
-    BooleanExpression keywordContains(String keyword) {
-        if (keyword == null || keyword.isBlank()) return null;
-        return article.title.contains(keyword)
-                .or(article.summary.contains(keyword));
+    BooleanExpression keywordsContains(List<String> keywords) {
+        if (keywords == null || keywords.isEmpty()) return null;
+
+        return keywords.stream()
+                .map(keyword -> article.title.contains(keyword)
+                        .or(article.summary.contains(keyword)))
+                .reduce(BooleanExpression::and)
+                .orElse(null);
     }
 
     // 해당하는 출처의 기사 조회
@@ -158,7 +162,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .select(article.count())
                 .from(article)
                 .where(
-                        keywordContains(searchCondition.keyword()),
+                        keywordsContains(searchCondition.keywords()),
                         sourceIn(searchCondition.sourceIn()),
                         startDate(searchCondition.publishDateFrom()),
                         endDate(searchCondition.publishDateTo())
