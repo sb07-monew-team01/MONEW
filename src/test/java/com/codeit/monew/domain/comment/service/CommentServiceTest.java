@@ -4,6 +4,7 @@ import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.comment.dto.request.CommentRegisterRequest;
+import com.codeit.monew.domain.comment.dto.request.CommentUpdateRequest;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
 import com.codeit.monew.domain.comment.entity.Comment;
 import com.codeit.monew.domain.comment.exception.CommentAlreadyDeleteException;
@@ -240,11 +241,11 @@ public class CommentServiceTest {
                     .willReturn(Optional.of(comment));
 
             // when
-            commentService.update(commentId, content);
+            commentService.update(commentId, request);
 
             // then
             then(commentRepository).should().findById(commentId);
-            assertThat(comment.getContent()).isEqualTo(content);
+            assertThat(comment.getContent()).isEqualTo(request.content());
         }
 
 

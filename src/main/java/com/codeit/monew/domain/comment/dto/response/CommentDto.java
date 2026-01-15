@@ -15,4 +15,17 @@ public record CommentDto(
         Boolean likedByMe,
         LocalDateTime createdAt
 ) {
+    public static CommentDto from(Comment comment)
+    {
+        return new CommentDto(
+                comment.getId(),
+                comment.getArticle().getId(),
+                comment.getUser().getId(),
+                comment.getUser().getNickname(),
+                comment.getContent(),
+                null,
+                null,
+                comment.getCreatedAt()
+        );
+    }
 }

@@ -47,5 +47,11 @@ public class Comment extends BaseUpdatableEntity {
         return deletedAt != null;
     }
 
+    public void updateContent(String newContent) {
+        this.content = newContent;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+
 
 }

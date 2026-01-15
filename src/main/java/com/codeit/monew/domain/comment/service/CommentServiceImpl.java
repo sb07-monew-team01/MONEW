@@ -3,6 +3,7 @@ package com.codeit.monew.domain.comment.service;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.comment.dto.request.CommentRegisterRequest;
+import com.codeit.monew.domain.comment.dto.request.CommentUpdateRequest;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
 import com.codeit.monew.domain.comment.entity.Comment;
 import com.codeit.monew.domain.comment.exception.CommentAlreadyDeleteException;
@@ -83,5 +84,19 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
 
         commentRepository.delete(comment);
+    }
+
+    // 수정
+    @Override
+    @Transactional
+    public CommentDto update(UUID commentId, CommentUpdateRequest request) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(()-> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
+
+        comment.updateContent(request.content());
+
+        return CommentDto.from(comment);
+
+
     }
 }
