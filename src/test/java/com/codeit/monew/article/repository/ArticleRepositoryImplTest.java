@@ -6,7 +6,6 @@ import com.codeit.monew.domain.article.dto.request.ArticleSearchCondition;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
-import org.assertj.core.api.ListAssert;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +51,7 @@ class ArticleRepositoryImplTest {
                 .build();
 
         // when 첫 번째 페이지
-        Slice<Article> pages1 = articleRepository.findByKeywordAndSource(searchCondition);
+        Slice<Article> pages1 = articleRepository.findByKeywordsAndSources(searchCondition);
         List<Article> articles1 = pages1.getContent();
 
         // then
@@ -76,7 +75,7 @@ class ArticleRepositoryImplTest {
                 .limit(3)
                 .build();
 
-        Slice<Article> pages2 = articleRepository.findByKeywordAndSource(searchCondition2);
+        Slice<Article> pages2 = articleRepository.findByKeywordsAndSources(searchCondition2);
         List<Article> articles2 = pages2.getContent();
 
         // then
@@ -118,11 +117,11 @@ class ArticleRepositoryImplTest {
 
         // when
         // 조회수 정렬
-        Slice<Article> pagesWithView = articleRepository.findByKeywordAndSource(searchByViewCount);
+        Slice<Article> pagesWithView = articleRepository.findByKeywordsAndSources(searchByViewCount);
         List<Article> articlesWithView = pagesWithView.getContent();
 
         // 댓글수 정렬
-        Slice<Article> pagesWithComment = articleRepository.findByKeywordAndSource(searchByCommentCount);
+        Slice<Article> pagesWithComment = articleRepository.findByKeywordsAndSources(searchByCommentCount);
         List<Article> articlesWithComment = pagesWithComment.getContent();
 
         // then

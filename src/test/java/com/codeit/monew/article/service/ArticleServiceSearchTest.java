@@ -19,8 +19,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.*;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,7 +31,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -77,7 +78,7 @@ public class ArticleServiceSearchTest {
             Pageable pageable = PageRequest.of(0, pageSize);
             Slice<Article> articlePage = new SliceImpl<>(articles, pageable, true);
 
-            when(articleRepository.findByKeywordAndSource(any())).thenReturn(articlePage);
+            when(articleRepository.findByKeywordsAndSources(any())).thenReturn(articlePage);
             when(articleRepository.countTotalElements(any())).thenReturn(total);
             when(articleMapper.toDto(any())).thenReturn(dto);
 
@@ -110,20 +111,24 @@ public class ArticleServiceSearchTest {
 
             Article a1 = ArticleFixture.createEntity(
                     ArticleCreateRequestFixture.createWithTitleAndSummary("음식", "냉면, 라면"));
-            Slice<Article> articlePage = new SliceImpl<>(List.of(a1), PageRequest.of(0, 10), true);
+            ArticleDto dto = new ArticleDto(a1.getTitle(), a1.getSummary(), a1.getSourceUrl(), a1.getPublishDate());
 
-            when(articleRepository.findByKeywordAndSource(any())).thenReturn(articlePage);
-            when(articleMapper.toDto(a1)).thenReturn(
-                    new ArticleDto(a1.getTitle(), a1.getSummary(), a1.getSourceUrl(), a1.getPublishDate()));
+            Slice<Article> articlePage = new SliceImpl<>(List.of(a1), Pageable.unpaged(), true);
+
+            when(articleRepository.findByKeywordsAndSources(any())).thenReturn(articlePage);
+            when(articleMapper.toDto(a1)).thenReturn(dto);
 
             // when
             ArticleSearchRequest request = ArticleSearchRequestFixture.createWithInterestId(interestId);
-            PageResponse<ArticleDto> articlePages = articleService.searchByKeyword(request);
+            PageResponse<ArticleDto> result = articleService.searchByKeyword(request);
 
             // then
             verify(interestRepository, times(1)).findById(interestId);
-            verify(articleRepository, times(1)).findByKeywordAndSource(any());
+            verify(articleRepository, times(1)).findByKeywordsAndSources(any());
             verify(articleMapper, times(1)).toDto(a1);
+
+            assertThat(result.content()).hasSize(1);
+            assertThat(result.content().get(0)).isEqualTo(dto);
         }
     }
 }

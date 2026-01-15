@@ -5,7 +5,7 @@ import com.codeit.monew.domain.article.entity.Article;
 import org.springframework.data.domain.Slice;
 
 public interface ArticleRepositoryCustom {
-    Slice<Article> findByKeywordAndSource(ArticleSearchCondition searchCondition);
+    Slice<Article> findByKeywordsAndSources(ArticleSearchCondition searchCondition);
 
     long countTotalElements(ArticleSearchCondition searchCondition);
 }
