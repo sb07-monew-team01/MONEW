@@ -20,7 +20,7 @@ public class NaverArticleClient {
 
     private final RestClient restClient = RestClient.builder()
             .baseUrl("https://openapi.naver.com")
-            .build();;
+            .build();
 
 
     public NaverApiResponse searchArticle(String query, int display, int start) {
