@@ -9,7 +9,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
 
@@ -20,53 +19,25 @@ class ArticleMatcherImplTest {
     private final ArticleMatcherImpl articleMatcher = new ArticleMatcherImpl();
 
     @Nested
-    @DisplayName("Article 관심사 포함 검사")
-    class ArticleMatcher{
+    @DisplayName("Article 관심사 포함 검사 - 모든 키워드 포함")
+    class ArticleMatcherAllRequired {
 
         @ParameterizedTest
-        @ValueSource(strings = {
-                "네이버 입니다",
-                "javaProgramming",
-                "Coin코인",
-                "경경경제제제"
+        @DisplayName("관심사 이름과 키워드가 모두 제목/요약에 포함되어야 true")
+        @CsvSource({
+                "네이버 기사, 네이버 요약",
+                "Java 프로그래밍, Java 요약",
+                "Coin 경제, Coin 요약"
         })
-        @DisplayName("기사 제목에 관심사들의 키워드가 포함되면 true를 반환한다.")
-        void match_articleTitleContainsKeyword_thenTrue(String title) {
+        void match_allKeywordsInTitleAndSummary_thenTrue(String title, String summary) {
             // given
             ArticleCreateRequest articleCreateRequest
-                    = ArticleCreateRequestFixture.createWithTitleAndSummary(title, "요약은 아무거나");
+                    = ArticleCreateRequestFixture.createWithTitleAndSummary(title, summary);
 
-            // 관심사 리스트
-            List<Interest> interests = InterestFixture.createMultiple(
-                    InterestFixture.create("기사", List.of("네이버", "조선")),
-                    InterestFixture.create("프로그래밍", List.of("Java", "Spring")),
-                    InterestFixture.create("코인", List.of("경제", "비트코인"))
-            );
-
-            //when
-            boolean result = articleMatcher.match(articleCreateRequest, interests);
-
-            //then
-            assertThat(result).isTrue();
-        }
-        @ParameterizedTest
-        @ValueSource(strings = {
-                "네이버 입니다",
-                "javaProgramming",
-                "Coin코인",
-                "경경경제제제"
-        })
-        @DisplayName("기사 내용에 관심사들의 키워드가 포함되면 true를 반환한다.")
-        void match_Summary_ContainsKeyword_success(String summary) {
-            // given
-            ArticleCreateRequest articleCreateRequest
-                    = ArticleCreateRequestFixture.createWithTitleAndSummary("제목은 아무거나", summary);
-
-            // 관심사 리스트
-            List<Interest> interests = InterestFixture.createMultiple(
-                    InterestFixture.create("기사", List.of("네이버", "조선")),
-                    InterestFixture.create("프로그래밍", List.of("Java", "Spring")),
-                    InterestFixture.create("코인", List.of("경제", "비트코인"))
+            List<Interest> interests = List.of(
+                    InterestFixture.create("네이버", List.of("기사")),
+                    InterestFixture.create("Java", List.of("프로그래밍")),
+                    InterestFixture.create("Coin", List.of("경제"))
             );
 
             // when
@@ -78,32 +49,29 @@ class ArticleMatcherImplTest {
 
         @ParameterizedTest
         @CsvSource({
-                "네이버제목, 네이버 요약",
-                "javaProgramming , JavaPrograming 요약",
-                "Coin코인, aaaaaaaaaaa",
-                "경경경제제제, bbbbbbbbbbbbb"
+                "네이버, 아무내용",
+                "아무제목, 기사",
+                "네이버, 기사",
+                "기사 관련, 네이버",
+                "네이버, 다른내용",
+                "JAAAAVA, CO"
         })
-        @DisplayName("기사 요약과 제목에 관심사들의 키워드가 포함되지 않으면 false를 반환한다.")
-        void match_articleTitleAndSummary_notContainsKeyword_fail(String title, String summary) {
+        @DisplayName("관심사 이름 또는 키워드 중 하나라도 누락되면 false")
+        void match_extremeCases(String title, String summary) {
             // given
             ArticleCreateRequest articleCreateRequest
                     = ArticleCreateRequestFixture.createWithTitleAndSummary(title, summary);
 
-            // 관심사 리스트
-            List<Interest> interests = InterestFixture.createMultiple(
-                    InterestFixture.create("xxx", List.of("111", "222")),
-                    InterestFixture.create("Coin코인보다 긴 키워드 네임", List.of("JavaPrograming 요약보다 긴 키워드")),
-                    InterestFixture.create("제b", List.of("bbbbbbbbbbbbbbbbbbbbbbbb", "g요"))
+            List<Interest> interests = List.of(
+                    InterestFixture.create("네이버", List.of("아무내용임")),
+                    InterestFixture.create("Java", List.of("프로그래밍")),
+                    InterestFixture.create("Coin", List.of("경제"))
             );
 
             // when
             boolean result = articleMatcher.match(articleCreateRequest, interests);
 
-            // then
             assertThat(result).isFalse();
         }
     }
-
-
-
 }
