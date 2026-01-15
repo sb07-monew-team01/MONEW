@@ -1,15 +1,14 @@
 package com.codeit.monew.domain.notification.service;
 
-import com.codeit.monew.domain.notification.dto.request.NotificationCreateRequest;
-import com.codeit.monew.domain.notification.dto.request.NotificationCreateRequestList;
-import com.codeit.monew.domain.notification.dto.request.NotificationUpdateAllRequest;
-import com.codeit.monew.domain.notification.dto.request.NotificationUpdateRequest;
+import com.codeit.monew.global.dto.PageResponse;
+import com.codeit.monew.domain.notification.dto.request.*;
 import com.codeit.monew.domain.notification.dto.response.NotificationDto;
 import com.codeit.monew.domain.notification.entity.Notification;
 import com.codeit.monew.domain.notification.exception.NotificationNotFoundException;
 import com.codeit.monew.domain.notification.mapper.NotificationMapper;
 import com.codeit.monew.domain.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -107,5 +106,24 @@ public class NotificationServiceImpl implements NotificationService {
         LocalDateTime date = LocalDateTime.now().minusDays(7);
 
         notificationRepository.deleteConfirmedBefore(date);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<NotificationDto> findUnconfirmed(NotificationPageRequest request) {
+
+        Slice<Notification> search = notificationRepository.search(request);
+
+        long totalElements = notificationRepository.countByUserId(request.userid());
+
+         List<NotificationDto> pageDtoList = search.getContent()
+                 .stream()
+                 .map(NotificationMapper::toDto)
+                 .toList();
+
+         String nextCursor = search.hasNext() ? search.getContent().get(search.getContent().size()-1).getCreatedAt().toString() : null;
+
+         LocalDateTime nextAfter =  nextCursor != null ? LocalDateTime.parse(nextCursor) : null;
+
+        return new PageResponse<>(pageDtoList, nextCursor,nextAfter, search.getSize(), totalElements, search.hasNext());
     }
 }

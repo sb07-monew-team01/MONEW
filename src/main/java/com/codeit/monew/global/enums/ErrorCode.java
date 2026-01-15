@@ -19,8 +19,11 @@ public enum ErrorCode {
     INTEREST_NULL_KEYWORD("키워드가 null일 수 없습니다.", HttpStatus.BAD_REQUEST),
     TOO_MANY_KEYWORD("키워드가 10개를 초과합니다.", HttpStatus.BAD_REQUEST),
 
+    // Comment
     COMMENT_EMPTY_CONTENT("댓글 내용이 null일 수 없습니다.", HttpStatus.BAD_REQUEST),
     COMMENT_TOO_LONG("댓글 내용은 500자 이하여야 합니다.", HttpStatus.BAD_REQUEST),
+    COMMENT_ALREADY_DELETE("이미 삭제된 댓글입니다.", HttpStatus.CONFLICT),
+    COMMENT_NOT_FOUND("해당 댓글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     //Notification
     NOTIFICATION_NOT_FOUND("해당 알림을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST);

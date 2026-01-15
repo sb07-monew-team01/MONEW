@@ -9,10 +9,10 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -29,7 +29,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Article> findByKeywordAndSource(ArticleSearchCondition searchCondition) {
+    public Slice<Article> findByKeywordsAndSources(ArticleSearchCondition searchCondition) {
 
         int pageSize = searchCondition.limit();
         Pageable pageable = PageRequest.of(0, pageSize);
@@ -45,7 +45,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         List<Article> contents = queryFactory
                 .selectFrom(article)
                 .where(
-                        keywordContains(searchCondition.keyword()),
+                        keywordsContains(searchCondition.keywords()),
                         sourceIn(searchCondition.sourceIn()),
                         startDate(searchCondition.publishDateFrom()),
                         endDate(searchCondition.publishDateTo()),
@@ -63,14 +63,18 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
             hasNext = true;
         }
 
-        return new PageImpl<>(contents, pageable, hasNext ? pageSize + 1 : contents.size());
+        return new SliceImpl<>(contents, pageable, hasNext);
     }
 
     // 키워드를 포함하는 기사 제목, 요약 조회
-    BooleanExpression keywordContains(String keyword) {
-        if (keyword == null || keyword.isBlank()) return null;
-        return article.title.contains(keyword)
-                .or(article.summary.contains(keyword));
+    BooleanExpression keywordsContains(List<String> keywords) {
+        if (keywords == null || keywords.isEmpty()) return null;
+
+        return keywords.stream()
+                .map(keyword -> article.title.contains(keyword)
+                        .or(article.summary.contains(keyword)))
+                .reduce(BooleanExpression::and)
+                .orElse(null);
     }
 
     // 해당하는 출처의 기사 조회
@@ -102,6 +106,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
         boolean isDesc = "DESC".equalsIgnoreCase(direction);
 
+        // 게시일 정렬
         if ("publishDate".equalsIgnoreCase(orderBy)) {
             try {
                 LocalDateTime date = LocalDateTime.parse(cursor);
@@ -115,8 +120,24 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 return null;
             }
         }
-        // 다른 orderBy 추가예정
-        else return null;
+        // 조회수 정렬
+        else if ("viewCount".equalsIgnoreCase(orderBy)) {
+            long count = Long.parseLong(cursor);
+            return isDesc
+                    ? article.viewCount.lt(count)
+                    .or(article.viewCount.eq(count).and(article.createdAt.lt(after)))
+                    : article.viewCount.gt(count)
+                    .or(article.viewCount.eq(count).and(article.createdAt.gt(after)));
+        }
+        // 댓글수 정렬
+        else {
+            long count = Long.parseLong(cursor);
+            return isDesc
+                    ? article.commentCount.lt(count)
+                    .or(article.commentCount.eq(count).and(article.createdAt.lt(after)))
+                    : article.commentCount.gt(count)
+                    .or(article.commentCount.eq(count).and(article.createdAt.gt(after)));
+        }
     }
 
     private OrderSpecifier<?>[] articleSorts(String orderBy, String direction) {
@@ -124,8 +145,8 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         Order order = "DESC".equalsIgnoreCase(direction) ? Order.DESC : Order.ASC;
 
         OrderSpecifier<?> mainSort = switch (orderBy) {
-//            case "viewCount" ->
-//            case "commentCount" ->
+            case "viewCount" -> new OrderSpecifier<>(order, article.viewCount);
+            case "commentCount" -> new OrderSpecifier<>(order, article.commentCount);
             default -> new OrderSpecifier<>(order, article.publishDate);
         };
 
@@ -141,7 +162,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .select(article.count())
                 .from(article)
                 .where(
-                        keywordContains(searchCondition.keyword()),
+                        keywordsContains(searchCondition.keywords()),
                         sourceIn(searchCondition.sourceIn()),
                         startDate(searchCondition.publishDateFrom()),
                         endDate(searchCondition.publishDateTo())

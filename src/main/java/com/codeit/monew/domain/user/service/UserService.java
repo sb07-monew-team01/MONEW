@@ -1,58 +1,21 @@
 package com.codeit.monew.domain.user.service;
 
 import com.codeit.monew.domain.user.dto.UserDto;
-import com.codeit.monew.domain.user.dto.request.UserSignInRequest;
-import com.codeit.monew.domain.user.entity.User;
-import com.codeit.monew.domain.user.exception.UserAlreadyDeletedException;
-import com.codeit.monew.domain.user.exception.UserAlreadyExistsException;
-import com.codeit.monew.domain.user.exception.UserLoginFailedException;
-import com.codeit.monew.domain.user.exception.UserNotFoundException;
-import com.codeit.monew.domain.user.repository.UserRepository;
-import com.codeit.monew.domain.user.util.UserMapper;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import com.codeit.monew.domain.user.dto.request.UserLoginRequest;
+import com.codeit.monew.domain.user.dto.request.UserSignUpRequest;
+import com.codeit.monew.domain.user.dto.request.UserUpdateRequest;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
-@Service
-@RequiredArgsConstructor
-public class UserService {
+public interface UserService {
 
-    private final UserRepository userRepository;
+    UserDto signUp(UserSignUpRequest dto);
 
-    private final UserMapper userMapper;
+    UserDto login(UserLoginRequest dto);
 
-    public UserDto signUp(UserSignInRequest dto) {
-        Optional<User> byEmail = userRepository.findByEmail(dto.email());
-        if(byEmail.isEmpty()){
-            User user = new User(dto.email(), dto.nickname(), dto.password());
-            User saved = userRepository.save(user);
-            return userMapper.toDto(saved);
-        }
-        User user = byEmail.get();
-        if (user.getDeletedAt() != null)
-            throw new UserAlreadyDeletedException(user);
-        throw new UserAlreadyExistsException(user);
-    }
+    UserDto updateUser(UserUpdateRequest dto);
 
-    public UserDto login(String email, String password) {
-        User byEmail = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(email));
-        if(byEmail.isDeleted())
-            throw new UserAlreadyDeletedException(byEmail);
-        if (byEmail.getPassword().equals(password))
-            return userMapper.toDto(byEmail);
-        throw new UserLoginFailedException(email);
-    }
+    void delete(UUID userId);
 
-    public void delete(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-        if (user.isDeleted()) {
-            throw new UserAlreadyDeletedException(user);
-        }
-        user.updateDeletedAt(LocalDateTime.now());
-    }
+    void deleteHard(UUID userId);
 }

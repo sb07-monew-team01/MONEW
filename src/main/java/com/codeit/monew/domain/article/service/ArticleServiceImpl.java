@@ -1,6 +1,6 @@
 package com.codeit.monew.domain.article.service;
 
-import com.codeit.monew.common.dto.PageResponse;
+import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;
 import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchCondition;
@@ -10,12 +10,16 @@ import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.matcher.ArticleMatcher;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.interest.entity.Interest;
+import com.codeit.monew.domain.interest.exception.InterestNotFoundException;
+import com.codeit.monew.domain.interest.repository.InterestRepository;
+import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,6 +27,7 @@ import java.util.List;
 public class ArticleServiceImpl implements ArticleService {
 
     private ArticleRepository articleRepository;
+    private InterestRepository interestRepository;
     private ArticleMapper articleMapper;
     private ArticleMatcher articleMatcher;
 
@@ -30,9 +35,18 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public PageResponse<ArticleDto> searchByKeyword(ArticleSearchRequest request) {
 
-        ArticleSearchCondition condition = ArticleSearchCondition.from(request);
+        List<String> keywords = new ArrayList<>();
+        if (request.keyword() != null) keywords.add(request.keyword());
+        if (request.interestId() != null) {
+            Interest interest = interestRepository.findById(request.interestId()).orElseThrow(
+                    () -> new InterestNotFoundException(ErrorCode.INTEREST_NOT_FOUND));
+            keywords.add(interest.getName());
+            keywords.addAll(interest.getKeywords());
+        }
 
-        Page<Article> articlePage = articleRepository.findByKeywordAndSource(condition);
+        ArticleSearchCondition condition = ArticleSearchCondition.of(request, keywords);
+
+        Slice<Article> articlePage = articleRepository.findByKeywordsAndSources(condition);
         long total = articleRepository.countTotalElements(condition);
 
         String nextCursor = null;
@@ -43,8 +57,8 @@ public class ArticleServiceImpl implements ArticleService {
             Article lastArticle = content.get(content.size() - 1);
 
             nextCursor = switch (condition.orderBy()) {
-//                case "viewCount" -> String.valueOf(lastArticle.getViewCount());
-//                case "commentCount" -> String.valueOf(lastArticle.getCommentCount());
+                case "viewCount" -> String.valueOf(lastArticle.getViewCount());
+                case "commentCount" -> String.valueOf(lastArticle.getCommentCount());
                 default -> String.valueOf(lastArticle.getPublishDate());
             };
             nextAfter = lastArticle.getCreatedAt();

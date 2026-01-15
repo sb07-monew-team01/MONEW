@@ -38,8 +38,8 @@ public class User extends BaseUpdatableEntity {
         this.nickname = nickname;
     }
 
-    public void updateDeletedAt(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
+    public void updateDeletedAt() {
+        this.deletedAt = LocalDateTime.now();
     }
 
     public boolean isDeleted() {

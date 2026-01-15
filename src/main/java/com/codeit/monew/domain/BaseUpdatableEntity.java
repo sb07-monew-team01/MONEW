@@ -12,6 +12,6 @@ import java.time.LocalDateTime;
 public abstract class BaseUpdatableEntity extends BaseEntity {
 
     @LastModifiedDate
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDateTime updatedAt;
 }
