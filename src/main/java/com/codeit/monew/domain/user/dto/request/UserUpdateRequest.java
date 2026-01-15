@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-public record UserEmailUpdateRequest(
+public record UserUpdateRequest(
         @NotNull(message = "유저 아이디는 필수입니다.")
         UUID userId,
 
