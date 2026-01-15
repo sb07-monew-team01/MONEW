@@ -36,7 +36,7 @@ class ArticleMatcherImplTest {
 
             List<Interest> interests = List.of(
                     InterestFixture.create("네이버", List.of("기사")),
-                    InterestFixture.create("Java", List.of("프로그래밍")),
+                    InterestFixture.create("Java", List.of("프로그래밍", "요")),
                     InterestFixture.create("Coin", List.of("경제"))
             );
 
