@@ -23,8 +23,8 @@ public record CommentDto(
                 comment.getUser().getId(),
                 comment.getUser().getNickname(),
                 comment.getContent(),
-                null,
-                null,
+                null, // 아직 좋아요 기능 구현 안 됨
+                null, // 아직 좋아요 기능 구현 안 됨
                 comment.getCreatedAt()
         );
     }

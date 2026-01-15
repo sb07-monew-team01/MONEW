@@ -93,6 +93,14 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(()-> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
 
+        if (request.content() == null || request.content().isBlank()) {
+            throw new CommentContentEmptyException(ErrorCode.COMMENT_EMPTY_CONTENT);
+        }
+
+        if (request.content().length() > 500) {
+            throw new CommentContentTooLongException(ErrorCode.COMMENT_TOO_LONG);
+        }
+
         comment.updateContent(request.content());
 
         return CommentDto.from(comment);

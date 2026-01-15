@@ -3,7 +3,6 @@ package com.codeit.monew.domain.comment.service;
 import com.codeit.monew.domain.comment.dto.request.CommentRegisterRequest;
 import com.codeit.monew.domain.comment.dto.request.CommentUpdateRequest;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 public interface CommentService {
