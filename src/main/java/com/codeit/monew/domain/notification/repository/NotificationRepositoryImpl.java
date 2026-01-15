@@ -26,6 +26,7 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
     public Slice<Notification> search(NotificationPageRequest request) {
 
         //쿼리 펙토리 형님
+        //유저아이디 , 확인안된 알림 ,커서
         List<Notification> content = queryFactory
                 .selectFrom(notification)
                 .where(
@@ -37,18 +38,11 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
                 .limit(request.limit() + 1)
                 .fetch();
 
-        //처음에 +1 값 으로 다음꺼 판단하고
-        boolean hasNext = content.size() > request.limit();
-
-        //용무끝났으니 마지막 1개 제거
-        if (hasNext) {
-            content.remove(request.limit());
-        }
-        return new SliceImpl<>(content, Pageable.unpaged(), hasNext);
+        return  Slice(content, request.limit());
     }
 
     private BooleanExpression Cursor(NotificationPageRequest request) {
-
+       //일단 널 주면 전체조회
         if (request.cursor() == null || request.after() == null) {
             return null;
         }
@@ -60,4 +54,15 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
         return notification.createdAt.gt(cursorTime);
     }
 
+    //컨텐츠받고 넥스트확인후 11개받았으니 배열상 11번째 삭제 하고 슬라이스객체로
+    private <T> Slice<T> Slice(List<T> content, int limit) {
+
+        boolean hasNext = content.size() > limit;
+
+        if (hasNext) {
+            content.remove(limit);
+        }
+
+        return new SliceImpl<>(content, Pageable.unpaged(), hasNext);
+    }
 }

@@ -14,16 +14,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,19 +35,18 @@ public class NotificationServicePaginationTest {
     @Mock
     NotificationRepository notificationRepository;
 
-    @Mock
-    NotificationMapper notificationMapper;
-
     @InjectMocks
     NotificationServiceImpl notificationService;
 
     @Nested
-    @DisplayName("알림조회")
+    @DisplayName("알림조회 : 서비스에서 처리하는 nextcursor와nextafter가 적절히 들어가냐")
     class Search {
+
         private UUID userId;
         private int limit;
         private List<Notification> content = new ArrayList<>();
         private NotificationPageRequest request;
+
         @BeforeEach
         void setUp() {
             userId = UUID.randomUUID();
