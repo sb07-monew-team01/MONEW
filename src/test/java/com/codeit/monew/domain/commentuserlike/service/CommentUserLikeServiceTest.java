@@ -93,6 +93,23 @@ class CommentUserLikeServiceTest {
                 verify(commentUserLikeRepository).save(any(CommentUserLike.class));
             }
         }
+        @Test
+        @DisplayName("성공: 이미 좋아요 상태에서 다시 누르면 좋아요가 취소된다")
+        void success_unlike() {
+            // given
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
+            CommentUserLike existingLike = mock(CommentUserLike.class);
+            given(commentUserLikeRepository.findByUserIdAndCommentId(userId, commentId))
+                    .willReturn(Optional.of(existingLike));
+
+            // when
+            commentUserLikeService.like(userId, commentId);
+
+            // then
+            verify(commentUserLikeRepository).delete(existingLike);
+            verify(commentUserLikeRepository, never()).save(any(CommentUserLike.class));
+        }
 
 
     }
