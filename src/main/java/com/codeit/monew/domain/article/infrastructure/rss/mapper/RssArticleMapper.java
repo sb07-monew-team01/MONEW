@@ -53,7 +53,7 @@ public class RssArticleMapper {
 
         List<String> tags = new ArrayList<>();
         tags.add("#" + matched.getName());
-        matched.getKeywords().forEach(k -> tags.add("#" + k));
+        matched.getKeywords().forEach(k -> tags.add("#" + k.getKeyword()));
 
         String newSummary = article.summary() + "<br>" + String.join(" ", tags);
 

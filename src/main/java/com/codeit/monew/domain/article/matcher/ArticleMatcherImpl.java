@@ -28,7 +28,7 @@ public class ArticleMatcherImpl implements ArticleMatcher {
 
         // 모든 키워드가 포함되어야 함
         return interest.getKeywords().stream()
-                .allMatch(keyword -> target.contains(keyword.toLowerCase().trim()));
+                .allMatch(keyword -> target.contains(keyword.getKeyword().toLowerCase().trim()));
     }
 
 }

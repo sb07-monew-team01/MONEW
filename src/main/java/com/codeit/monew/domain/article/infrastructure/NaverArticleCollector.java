@@ -8,6 +8,7 @@ import com.codeit.monew.domain.article.infrastructure.naver.client.NaverArticleC
 import com.codeit.monew.domain.article.infrastructure.naver.dto.NaverApiResponse;
 import com.codeit.monew.domain.article.infrastructure.naver.mapper.NaverArticleMapper;
 import com.codeit.monew.domain.interest.entity.Interest;
+import com.codeit.monew.domain.interestkeyword.InterestKeyword;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -41,6 +42,7 @@ public class NaverArticleCollector implements ArticleCollector{
     // name + keywords 전부 합치기
     private String buildQuery(Interest interest) {
         String keywords = interest.getKeywords().stream()
+                .map(InterestKeyword::getKeyword)
                 .collect(Collectors.joining(" "));
 
         return interest.getName() + " " + keywords;
