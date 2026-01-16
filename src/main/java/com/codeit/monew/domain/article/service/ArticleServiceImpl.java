@@ -80,11 +80,13 @@ public class ArticleServiceImpl implements ArticleService {
             List<Article> content = articlePage.getContent();
             Article lastArticle = content.get(content.size() - 1);
 
-            nextCursor = switch (condition.orderBy()) {
+            String value = switch (condition.orderBy()) {
                 case "viewCount" -> String.valueOf(lastArticle.getViewCount());
                 case "commentCount" -> String.valueOf(lastArticle.getCommentCount());
                 default -> String.valueOf(lastArticle.getPublishDate());
             };
+
+            nextCursor = value + "_" + lastArticle.getId();
             nextAfter = lastArticle.getCreatedAt();
         }
 
