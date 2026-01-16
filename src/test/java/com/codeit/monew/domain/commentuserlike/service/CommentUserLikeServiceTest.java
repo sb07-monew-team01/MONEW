@@ -1,14 +1,14 @@
 package com.codeit.monew.domain.commentuserlike.service;
 
-import com.codeit.monew.domain.article.entity.Article;
-import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.codeit.monew.domain.comment.entity.Comment;
+import com.codeit.monew.domain.comment.exception.CommentNotFoundException;
 import com.codeit.monew.domain.comment.repository.CommentRepository;
 import com.codeit.monew.domain.commentuserlike.dto.CommentUserLikeDto;
 import com.codeit.monew.domain.commentuserlike.entity.CommentUserLike;
 import com.codeit.monew.domain.commentuserlike.mapper.CommentUserLikeMapper;
 import com.codeit.monew.domain.commentuserlike.repository.CommentUserLikeRepository;
 import com.codeit.monew.domain.user.entity.User;
+import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,10 +20,10 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -42,9 +42,6 @@ class CommentUserLikeServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private CommentUserLikeMapper commentUserLikeMapper;
-
     @InjectMocks
     private CommentUserLikeServiceImpl commentUserLikeService;
 
@@ -52,7 +49,6 @@ class CommentUserLikeServiceTest {
     private UUID commentId;
     private User user;
     private Comment comment;
-    private Article article;
 
     @BeforeEach
     void setUp() {
@@ -92,6 +88,7 @@ class CommentUserLikeServiceTest {
                 verify(commentUserLikeRepository).save(any(CommentUserLike.class));
             }
         }
+
         @Test
         @DisplayName("성공: 이미 좋아요 상태에서 다시 누르면 좋아요가 취소된다")
         void success_unlike() {
@@ -110,6 +107,28 @@ class CommentUserLikeServiceTest {
             verify(commentUserLikeRepository, never()).save(any(CommentUserLike.class));
         }
 
+        @Test
+        @DisplayName("실패: 존재하지 않는 사용자가 좋아요를 누르면 예외가 발생한다")
+        void fail_user_not_found() {
+            // given
+            given(userRepository.findById(userId)).willReturn(Optional.empty());
 
+            // when & then
+            assertThatThrownBy(() -> commentUserLikeService.like(userId, commentId))
+                    .isInstanceOf(UserNotFoundException.class);
+        }
+
+        @Test
+        @DisplayName("실패: 존재하지 않는 댓글에 좋아요를 누르면 예외가 발생한다")
+        void fail_comment_not_found() {
+            // given
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(commentRepository.findById(commentId)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> commentUserLikeService.like(userId, commentId))
+                    .isInstanceOf(CommentNotFoundException.class);
+
+        }
     }
 }
