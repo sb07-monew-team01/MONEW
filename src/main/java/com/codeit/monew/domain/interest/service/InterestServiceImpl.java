@@ -19,8 +19,6 @@ public class InterestServiceImpl implements InterestService{
     @Override
     public Interest create(String name, List<String> keywords) {
         interestNamePolicy.apply(name, interestRepository.findAll());
-        checkKeyword(keywords);
-
         return interestRepository.save(new Interest(name, keywords));
     }
 
