@@ -36,8 +36,6 @@ public class InterestTest {
                     .containsExactlyElementsOf(keywords);
         }
 
-
-
         @Test
         @DisplayName("실패: 관심사 내에서 키워드가 중복되면 예외가 발생한다")
         void fail_create_interest_duplicate_keyword(){
