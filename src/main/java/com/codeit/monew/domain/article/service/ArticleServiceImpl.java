@@ -1,6 +1,6 @@
 package com.codeit.monew.domain.article.service;
 
-import com.codeit.monew.domain.interestkeyword.InterestKeyword;
+import com.codeit.monew.domain.interestkeyword.entity.InterestKeyword;
 import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;

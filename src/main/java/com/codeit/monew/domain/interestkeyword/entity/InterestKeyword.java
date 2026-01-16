@@ -1,4 +1,4 @@
-package com.codeit.monew.domain.interestkeyword;
+package com.codeit.monew.domain.interestkeyword.entity;
 
 import com.codeit.monew.domain.interest.entity.Interest;
 import jakarta.persistence.*;

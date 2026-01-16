@@ -1,7 +1,7 @@
 package com.codeit.monew.domain.interest.entity;
 
 import com.codeit.monew.domain.BaseUpdatableEntity;
-import com.codeit.monew.domain.interestkeyword.InterestKeyword;
+import com.codeit.monew.domain.interestkeyword.entity.InterestKeyword;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Entity
