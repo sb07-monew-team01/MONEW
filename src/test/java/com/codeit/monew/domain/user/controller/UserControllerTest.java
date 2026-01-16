@@ -88,7 +88,5 @@ class UserControllerTest {
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().is(409));
         }
-
-        // TODO : 이미 존재하는 이메일로는 가입할 수 없다 (409)
     }
 }

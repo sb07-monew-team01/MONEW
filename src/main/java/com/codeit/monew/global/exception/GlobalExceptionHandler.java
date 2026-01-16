@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
             details.put("message", error.getDefaultMessage() == null? errorCode.description : error.getDefaultMessage());
             details.put("field", error.getObjectName());
         });
-        return ResponseEntity.status(errorCode.httpStatus)
+        return ResponseEntity.status(errorCode.httpStatus.value())
                 .body(new ErrorResponse<>(e, "올바른 형식이 아닙니다.", details, errorCode));
     }
 }
