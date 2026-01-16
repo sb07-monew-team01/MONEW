@@ -46,4 +46,14 @@ public class ArticleCreateRequestFixture {
                 "test summary"
         );
     }
+
+    public static ArticleCreateRequest createWithTitleAndSummaryAndSource(String title, String summary, ArticleSource articleSource) {
+        return new ArticleCreateRequest(
+                articleSource,
+                "http//target.com",
+                title,
+                LocalDateTime.now(),
+                summary
+        );
+    }
 }

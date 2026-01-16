@@ -11,7 +11,6 @@ import com.codeit.monew.domain.comment.exception.CommentContentEmptyException;
 import com.codeit.monew.domain.comment.exception.CommentContentTooLongException;
 import com.codeit.monew.domain.comment.exception.CommentNotFoundException;
 import com.codeit.monew.domain.comment.repository.CommentRepository;
-import com.codeit.monew.domain.comment.service.CommentServiceImpl;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
@@ -23,7 +22,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -201,6 +199,19 @@ public class CommentServiceTest {
             //when & then
             assertThatThrownBy(()-> commentService.delete(invalidId))
                     .isInstanceOf(CommentNotFoundException.class);
+        }
+
+        @Test
+        @DisplayName("성공: 댓글이 정상적으로 물리 삭제된다.")
+        void hardDeleteComment_success() {
+            // given
+            when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+
+            // when
+            commentService.hardDelete(commentId);
+
+            // then
+            then(commentRepository).should().delete(comment);
         }
     }
 }

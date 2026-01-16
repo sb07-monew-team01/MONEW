@@ -74,4 +74,14 @@ public class CommentServiceImpl implements CommentService {
 
         comment.softDelete();
     }
+
+    // 물리 삭제
+    @Override
+    @Transactional
+    public void hardDelete(UUID commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
+
+        commentRepository.delete(comment);
+    }
 }
