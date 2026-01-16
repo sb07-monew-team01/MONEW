@@ -63,8 +63,7 @@ public class NotificationRepositoryDeleteTest {
 
             // given
             repository.saveAll(notifications);
-            //강제로 업데이트 7일 이전놈들 주입 3번과 4번친구
-            //인서트된  친구들 강제로값 변경해서 넣어주기  1번,2번친구들 업데이트 날짜 8일전 날짜로
+
             em.flush();
             em.createQuery("update Notification n set n.updatedAt = :t where n.id in :ids")
                     .setParameter("t", LocalDateTime.now().minusDays(8))
@@ -73,17 +72,15 @@ public class NotificationRepositoryDeleteTest {
             em.clear();
 
             // when
-            //설정한 7일이전 으로 기준하면
             repository.deleteConfirmedBefore(time);
 
             // then
-            //5개의 정보가 그대로 있어야한다
             List<Notification> remains = repository.findAll();
-            //확인을 안한것들 모든것이 false
+
             assertThat(remains)
                     .extracting(Notification::getConfirmed)
                     .containsOnly(false);
-            //날짜만 7일이상이라 모두 생존
+
             assertThat(remains).hasSize(5);
         }
 
@@ -92,7 +89,6 @@ public class NotificationRepositoryDeleteTest {
         void confirm_true_delete() {
 
             // given
-            //모두 논리삭제가 되었다는가정하에
             ReflectionTestUtils.setField(notifications.get(0), "confirmed", true);
             ReflectionTestUtils.setField(notifications.get(1), "confirmed", true);
             ReflectionTestUtils.setField(notifications.get(2), "confirmed", true);
@@ -100,7 +96,7 @@ public class NotificationRepositoryDeleteTest {
             ReflectionTestUtils.setField(notifications.get(4), "confirmed", true);
 
             repository.saveAll(notifications);
-            //인서트된  친구들 강제로값 변경해서 넣어주기  1번,2번친구들 업데이트 날짜 4일전 날짜로
+
             em.flush();
             em.createQuery("update Notification n set n.updatedAt = :t where n.id in :ids")
                     .setParameter("t", LocalDateTime.now().minusDays(4))
@@ -109,11 +105,9 @@ public class NotificationRepositoryDeleteTest {
             em.clear();
 
             // when
-            //설정한 7일이전 으로 기준하면
             repository.deleteConfirmedBefore(time);
 
             // then
-            //설정값 7일 이후 날짜만 남아있냐
             List<Notification> remains = repository.findAll();
             assertThat(remains)
                     .extracting(Notification::getUpdatedAt)
@@ -125,7 +119,6 @@ public class NotificationRepositoryDeleteTest {
         void confirm_true_delete2() {
 
             // given
-            //모두 논리삭제가 되었다는가정하에
             ReflectionTestUtils.setField(notifications.get(0), "confirmed", true);
             ReflectionTestUtils.setField(notifications.get(1), "confirmed", true);
             ReflectionTestUtils.setField(notifications.get(2), "confirmed", true);
@@ -133,7 +126,7 @@ public class NotificationRepositoryDeleteTest {
             ReflectionTestUtils.setField(notifications.get(4), "confirmed", true);
 
             repository.saveAll(notifications);
-            //인서트된  친구들 강제로값 변경해서 넣어주기  모든친구들 업데이트 날짜 8일전 날짜로
+
             em.flush();
             em.createQuery("update Notification n set n.updatedAt = :t where n.id in :ids")
                     .setParameter("t", LocalDateTime.now().minusDays(8))
@@ -147,11 +140,9 @@ public class NotificationRepositoryDeleteTest {
             em.clear();
 
             // when
-            //설정한 7일이전 으로 기준하면
             repository.deleteConfirmedBefore(time);
 
             // then
-            //true와 ,시간이 7일 지난 친구들 모두 삭제
             List<Notification> remains = repository.findAll();
             assertThat(remains).isEmpty();
         }

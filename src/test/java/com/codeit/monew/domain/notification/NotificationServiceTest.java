@@ -108,7 +108,6 @@ public class NotificationServiceTest {
             notificationId = UUID.randomUUID();
         }
 
-
         @Test
         @DisplayName("파라미터에 받은 알림id가 존재하지 않으면 예외")
         void update_notification_NotificationNotFoundException() {
@@ -131,7 +130,7 @@ public class NotificationServiceTest {
             Notification notification =
                     Notification.forInterest(userId, resourceId, "축구", 5);
             NotificationUpdateRequest request = new NotificationUpdateRequest(userId, notificationId);
-            //알림 업데이트로직 안에  알림 찾으면  notification 뱉어버리게
+
             when(notificationRepository.findById(any()))
                     .thenReturn(Optional.of(notification));
 

@@ -68,11 +68,10 @@ public class NotificationServicePaginationTest {
         @Test
         @DisplayName(" hasNext = true 면 , nextCursor,nextAfter 값이 들어간다")
         void hasNextIsTrue_nextCursorAndNextAfter_exist() {
+
             // given
-            //다음은 21개정도있다
             Slice<Notification> slice =
                     new SliceImpl<>(content, Pageable.unpaged(), true);
-            //가짜로 레포가 이렇게 답한다고 하고
             when(notificationRepository.search(eq(request))).thenReturn(slice);
             when(notificationRepository.countByUserIdAndConfirmedFalse(userId)).thenReturn(21L);
 
@@ -81,7 +80,6 @@ public class NotificationServicePaginationTest {
                      notificationService.findUnconfirmedCustom(request);
 
             // then
-            //넥스트커서값이 적절하게 들어가냐
             Notification last = content.get(limit - 1);
             assertThat(res.nextCursor()).isEqualTo(last.getCreatedAt().toString());
             assertThat(res.nextAfter()).isEqualTo(last.getCreatedAt());
@@ -90,11 +88,10 @@ public class NotificationServicePaginationTest {
         @Test
         @DisplayName(" hasNext = flase 면 , nextCursor,nextAfter 값이 null이다")
         void hasNextIsFalse_nextCursorAndNextAfter_null() {
+
             // given
-            // 10개 리턴 다음껀없어
             Slice<Notification> slice =
                     new SliceImpl<>(content, Pageable.unpaged(), false);
-            //가짜로 레포가 이렇게 답한다고 하고
             when(notificationRepository.search(eq(request))).thenReturn(slice);
             when(notificationRepository.countByUserIdAndConfirmedFalse(userId)).thenReturn(10L);
 
@@ -103,7 +100,6 @@ public class NotificationServicePaginationTest {
                     notificationService.findUnconfirmedCustom(request);
 
             // then
-            //넥스트커서값이 다 null이냐
             Notification last = content.get(limit - 1);
             assertThat(res.nextCursor()).isNull();
             assertThat(res.nextAfter()).isNull();
