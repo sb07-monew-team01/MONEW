@@ -16,6 +16,7 @@ import java.util.UUID;
 @Table(name = "interests")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Interest extends BaseUpdatableEntity {
+
     //Fields
     @Column(nullable = false)
     private String name;
@@ -26,8 +27,6 @@ public class Interest extends BaseUpdatableEntity {
             orphanRemoval = true
     )
     private List<InterestKeyword> keywords;
-
-
 
     //Constructors
     public Interest(String name, List<String> keywords) {
