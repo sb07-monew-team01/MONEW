@@ -64,7 +64,7 @@ class ArticleRepositoryImplTest {
         assertThat(pages1.hasNext()).isTrue();
 
         // when 두 번째 페이지
-        String nextCursor = articles1.get(2).getPublishDate().toString();
+        String nextCursor = articles1.get(2).getPublishDate().toString() + "_" + articles1.get(2).getId();
         LocalDateTime nextAfter = articles1.get(2).getCreatedAt();
 
         ArticleSearchCondition searchCondition2
