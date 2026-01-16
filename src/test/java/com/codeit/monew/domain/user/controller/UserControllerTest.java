@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -78,8 +79,8 @@ class UserControllerTest {
         @DisplayName("이미 존재하는 이메일로는 가입할 수 없다.")
         void fail_emailAlreadyExist() throws Exception {
             // given
-            UserSignUpRequest request = new UserSignUpRequest("","nickname", "password");
-            when(userService.signUp(request)).thenThrow(new UserAlreadyExistsException(request.email()));
+            UserSignUpRequest request = new UserSignUpRequest("rmail@sadf.com","nickname", "password");
+            when(userService.signUp(any())).thenThrow(new UserAlreadyExistsException(request.email()));
 
             // when & then
             mockMvc.perform(post("/api/users")
