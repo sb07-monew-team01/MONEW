@@ -1,6 +1,5 @@
 package com.codeit.monew.domain.user.controller;
 
-import com.codeit.monew.domain.user.controller.UserController;
 import com.codeit.monew.domain.user.dto.request.UserSignUpRequest;
 import com.codeit.monew.domain.user.service.UserServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,13 +41,28 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/users")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
-                            .andExpect(status().isCreated());
-            }
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isCreated());
         }
 
+
         // TODO : 올바르지 않은 이메일 형식으로 가입할 수 없다. (400)
+        // TODO : 이메일에 공백이 올 수 없다. (400)
         // TODO : 이미 존재하는 이메일로는 가입할 수 없다 (409)
-        // TODO : 알 수 없는 서버 오류가 발생한 경우 500이 돌아온다.
+        @Test
+        @DisplayName("올바르지 않은 이메일 형식으로 가입할 수 없다.")
+        void fail_notValidEmail() throws Exception {
+            // given
+            String wrongEmail1 = "sadlifhn.lcm";
+            UserSignUpRequest request = new UserSignUpRequest(wrongEmail1,"nickname", "password");
+
+            // when & then
+            mockMvc.perform(post("/api/users")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().is(400));
+
+        }
     }
+}
