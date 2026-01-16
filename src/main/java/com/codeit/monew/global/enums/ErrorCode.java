@@ -26,7 +26,10 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND("해당 댓글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     //Notification
-    NOTIFICATION_NOT_FOUND("해당 알림을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST);
+    NOTIFICATION_NOT_FOUND("해당 알림을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
+
+    // Global
+    INVALID_ARGUMENT("입력값이 올바르지 않습니다.", HttpStatus.BAD_REQUEST);
 
     public final String description;
     public final HttpStatus httpStatus;
