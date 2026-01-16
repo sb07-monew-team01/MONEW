@@ -19,9 +19,6 @@ public class Comment extends BaseUpdatableEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(name = "updated_at", nullable = true)
-    private LocalDateTime updatedAt;
-
     @Column(name = "deleted_at", nullable = true)
     private LocalDateTime deletedAt;
 
