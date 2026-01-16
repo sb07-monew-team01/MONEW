@@ -76,7 +76,7 @@ class UserControllerTest {
 
         @Test
         @DisplayName("이미 존재하는 이메일로는 가입할 수 없다.")
-        void fail_emailNotBlank() throws Exception {
+        void fail_emailAlreadyExist() throws Exception {
             // given
             UserSignUpRequest request = new UserSignUpRequest("","nickname", "password");
             when(userService.signUp(request)).thenThrow(new UserAlreadyExistsException(request.email()));
