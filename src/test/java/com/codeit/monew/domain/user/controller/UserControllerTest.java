@@ -56,7 +56,7 @@ class UserControllerTest {
 
         @Test
         @DisplayName("올바르지 않은 이메일 형식으로 가입할 수 없다.")
-        void fail_notValidEmail() throws Exception {
+        void notValidEmail() throws Exception {
             // given
             UserSignUpRequest request = new UserSignUpRequest("sadlifhn.lcm","nickname", "password");
 
@@ -72,7 +72,7 @@ class UserControllerTest {
         class failed{
             @Test
             @DisplayName("이메일에 공백이 올 수 없다.")
-            void fail_emailNotBlank() throws Exception {
+            void emailNotBlank() throws Exception {
                 // given
                 UserSignUpRequest request = new UserSignUpRequest(" ","nickname", "password");
 
@@ -85,7 +85,7 @@ class UserControllerTest {
 
             @Test
             @DisplayName("이미 존재하는 이메일로는 가입할 수 없다.")
-            void fail_emailAlreadyExist() throws Exception {
+            void emailAlreadyExist() throws Exception {
                 // given
                 UserSignUpRequest request = new UserSignUpRequest("rmail@sadf.com","nickname", "password");
                 when(userService.signUp(any())).thenThrow(new UserAlreadyExistsException(request.email()));
@@ -103,7 +103,7 @@ class UserControllerTest {
         class Login {
             @Test
             @DisplayName("올바른 이메일과 비밀번호로 로그인 할 수 있다.")
-            void success_login() throws Exception {
+            void login() throws Exception {
                 // given
                 String email = "email@asdf.com";
                 UserLoginRequest request = new UserLoginRequest(email, "request");
