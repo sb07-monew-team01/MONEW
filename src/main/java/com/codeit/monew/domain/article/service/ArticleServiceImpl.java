@@ -1,5 +1,6 @@
 package com.codeit.monew.domain.article.service;
 
+import com.codeit.monew.domain.interestkeyword.InterestKeyword;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;
 import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
@@ -41,7 +42,7 @@ public class ArticleServiceImpl implements ArticleService {
             Interest interest = interestRepository.findById(request.interestId()).orElseThrow(
                     () -> new InterestNotFoundException(ErrorCode.INTEREST_NOT_FOUND));
             keywords.add(interest.getName());
-            keywords.addAll(interest.getKeywords());
+            keywords.addAll(interest.getKeywords().stream().map(InterestKeyword::getKeyword).toList());
         }
 
         ArticleSearchCondition condition = ArticleSearchCondition.of(request, keywords);

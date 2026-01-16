@@ -6,6 +6,7 @@ import com.codeit.monew.domain.interest.exception.KeywordValidException;
 import com.codeit.monew.domain.interest.policy.InterestNamePolicy;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interest.service.InterestServiceImpl;
+import com.codeit.monew.domain.interestkeyword.InterestKeyword;
 import com.codeit.monew.global.enums.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -56,7 +57,9 @@ public class InterestServiceImplTest {
             // then
             assertThat(result).isNotNull();
             assertThat(result.getName()).isEqualTo(name);
-            assertThat(result.getKeywords()).containsExactlyElementsOf(keywords);
+            assertThat(result.getKeywords())
+                    .extracting(InterestKeyword::getKeyword)
+                    .containsExactlyElementsOf(keywords);
         }
 
         @Test
@@ -152,7 +155,9 @@ public class InterestServiceImplTest {
             interestService.editKeywords(interestId, List.of("DB", "Spring boot"));
 
             // then
-            assertThat(interest.getKeywords()).containsExactly("DB", "Spring boot");
+            assertThat(interest.getKeywords())
+                    .extracting(InterestKeyword::getKeyword)
+                    .containsExactly("DB", "Spring boot");
         }
 
         @Test
