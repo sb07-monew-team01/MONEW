@@ -4,8 +4,12 @@ import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
 import com.codeit.monew.domain.article.fixture.ArticleCreateRequestFixture;
 import com.codeit.monew.domain.article.fixture.ArticleFixture;
 import com.codeit.monew.domain.article.fixture.ArticleSearchRequestFixture;
+import com.codeit.monew.domain.articleView.entity.ArticleView;
+import com.codeit.monew.domain.articleView.repository.ArticleViewRepository;
 import com.codeit.monew.domain.interest.exception.InterestNotFoundException;
 import com.codeit.monew.domain.interest.exception.KeywordValidException;
+import com.codeit.monew.domain.user.entity.User;
+import com.codeit.monew.domain.user.repository.UserRepository;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
@@ -45,9 +49,12 @@ public class ArticleServiceSearchTest {
 
     @Mock
     private ArticleRepository articleRepository;
-
     @Mock
     private InterestRepository interestRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private ArticleViewRepository articleViewRepository;
 
     @Mock
     private ArticleMapper articleMapper;
@@ -251,28 +258,33 @@ public class ArticleServiceSearchTest {
             @Test
             @DisplayName("""
                     기사 id를 통해 조회한다.
+                    처음 조회라면 기사 뷰를 생성하고 조회수를 하나 올린다.
                     """)
             void searchArticleByIdAndUserId() {
                 // given
+                UUID userId = UUID.randomUUID();
                 UUID articleId = UUID.randomUUID();
 
-                Article article = ArticleFixture.createEntity(
-                        ArticleCreateRequestFixture.createWithTitleAndSummary("a", "b"));
-                ArticleDto dto
-                        = new ArticleDto(article.getTitle(), article.getSummary(), article.getSourceUrl(), article.getPublishDate());
-
+                Article article = ArticleFixture.createWithViewAndComment(
+                        ArticleCreateRequestFixture.createDefault(), 5, 5);
+                User user = new User("email@a.a", "nickname", "password");
 
                 when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
-                when(articleMapper.toDto(article)).thenReturn(dto);
+                when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+                when(articleViewRepository.existsByUserIdAndArticleId(userId, articleId)).thenReturn(false);
+
                 // when
-                ArticleDto view = articleService.searchById(articleId);
+                ArticleDto dto = articleService.searchById(articleId);
 
                 // then
                 verify(articleRepository, times(1)).findById(articleId);
+                verify(userRepository, times(1)).findById(userId);
                 verify(articleMapper, times(1)).toDto(article);
 
-                assertThat(view).isNotNull();
-                assertThat(view.title()).isEqualTo("a");
+                verify(articleViewRepository, times(1)).save(any(ArticleView.class));
+
+                assertThat(dto).isNotNull();
+                assertThat(dto.viewCount()).isEqualTo(6);
             }
         }
         @Test
