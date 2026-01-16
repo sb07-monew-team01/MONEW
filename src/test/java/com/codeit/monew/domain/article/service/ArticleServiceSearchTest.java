@@ -103,9 +103,9 @@ public class ArticleServiceSearchTest {
 
                 // then
                 String expectedCursor = String.valueOf(switch (orderBy) {
-                    case "viewCount" -> article.getViewCount();
-                    case "commentCount" -> article.getCommentCount();
-                    default -> article.getPublishDate();
+                    case "viewCount" -> article.getViewCount() + "_" + article.getId();
+                    case "commentCount" -> article.getCommentCount() + "_" + article.getId();
+                    default -> article.getPublishDate() + "_" + article.getId();
                 });
 
                 assertThat(articlePages.nextCursor()).isEqualTo(expectedCursor);
