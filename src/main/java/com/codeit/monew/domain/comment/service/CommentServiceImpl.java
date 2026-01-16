@@ -3,6 +3,7 @@ package com.codeit.monew.domain.comment.service;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.comment.dto.request.CommentRegisterRequest;
+import com.codeit.monew.domain.comment.dto.request.CommentUpdateRequest;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
 import com.codeit.monew.domain.comment.entity.Comment;
 import com.codeit.monew.domain.comment.exception.CommentAlreadyDeleteException;
@@ -30,16 +31,6 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto create(CommentRegisterRequest request) {
-
-        if (request.content() == null || request.content().isBlank()) {
-            throw new CommentContentEmptyException(ErrorCode.COMMENT_EMPTY_CONTENT);
-        }
-
-        if (request.content().length() > 500) {
-            throw new CommentContentTooLongException(ErrorCode.COMMENT_TOO_LONG);
-        }
-
-
         User user = userRepository.findById(request.userId())
                 .orElseThrow(() -> new UserNotFoundException("존재하지 않는 사용자입니다."));
 
@@ -78,10 +69,24 @@ public class CommentServiceImpl implements CommentService {
     // 물리 삭제
     @Override
     @Transactional
-    public void hardDelete(UUID commentId) {
+    public void deleteHard(UUID commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
 
         commentRepository.delete(comment);
+    }
+
+    // 수정
+    @Override
+    @Transactional
+    public CommentDto update(UUID commentId, CommentUpdateRequest request) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(()-> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
+
+        comment.updateContent(request.content());
+
+        return CommentDto.toDto(comment);
+
+
     }
 }
