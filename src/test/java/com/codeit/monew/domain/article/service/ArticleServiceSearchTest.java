@@ -275,5 +275,20 @@ public class ArticleServiceSearchTest {
                 assertThat(view.title()).isEqualTo("a");
             }
         }
+        @Test
+        @DisplayName("잘못된 기사id를 받으면 예외를 반환한다.")
+        void searchArticle_ThrowException_WhenNotFound() {
+            // given
+            UUID articleId = UUID.randomUUID();
+
+            when(articleRepository.findById(articleId)).thenReturn(Optional.empty());
+            // when & then
+            assertThatThrownBy(() -> articleService.searchById(articleId))
+                    .isInstanceOf(ArticleNotFoundException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.ARTICLE_NOT_FOUND);
+
+            verify(articleRepository, times(1)).findById(articleId);
+        }
     }
 }
