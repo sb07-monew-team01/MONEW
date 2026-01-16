@@ -89,11 +89,12 @@ public class NotificationRepositorySearchCustomTest {
 
             // given
             NotificationPageRequest request = new NotificationPageRequest(null , null, 50, userId);
+            LocalDateTime firstCreatedAt = notifications.get(0).getCreatedAt();
+            LocalDateTime limitCreatedAt = notifications.get(49).getCreatedAt();
 
             // when
             Slice<Notification> search = repository.search(request);
-            LocalDateTime firstCreatedAt = notifications.get(0).getCreatedAt();
-            LocalDateTime limitCreatedAt = notifications.get(49).getCreatedAt();
+
 
             // then
             assertThat(search.getContent().get(0).getCreatedAt()).isEqualTo(firstCreatedAt);
