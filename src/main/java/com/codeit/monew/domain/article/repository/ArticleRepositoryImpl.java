@@ -19,6 +19,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static com.codeit.monew.domain.article.entity.QArticle.article;
 
@@ -104,40 +105,61 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                                       LocalDateTime after) {
 
         if (cursor == null || after == null) return null;
+        String[] parts = cursor.split("_");
+        if (parts.length != 2) return Expressions.FALSE;
+
+        String cursorPart = parts[0];
+        UUID cursorId = UUID.fromString(parts[1]);
 
         boolean isDesc = "DESC".equalsIgnoreCase(direction);
 
         // 게시일 정렬
         if ("publishDate".equalsIgnoreCase(orderBy)) {
             try {
-                LocalDateTime date = LocalDateTime.parse(cursor);
+                LocalDateTime date = LocalDateTime.parse(cursorPart);
                 return isDesc
                         ? article.publishDate.lt(date)
                         .or(article.publishDate.eq(date).and(article.createdAt.lt(after)))
+                        .or(article.publishDate.eq(date).and(article.createdAt.eq(after)).and(article.id.lt(cursorId)))
                         : article.publishDate.gt(date)
-                        .or(article.publishDate.eq(date).and(article.createdAt.gt(after)));
+                        .or(article.publishDate.eq(date).and(article.createdAt.gt(after)))
+                        .or(article.publishDate.eq(date).and(article.createdAt.eq(after)).and(article.id.gt(cursorId)));
             } catch (Exception e) {
-                log.warn("커서 형식이 잘못됨: {}", cursor);
+                log.warn("커서 형식이 잘못됨: {}", cursorPart);
                 return Expressions.FALSE;
             }
         }
         // 조회수 정렬
         else if ("viewCount".equalsIgnoreCase(orderBy)) {
-            long count = Long.parseLong(cursor);
-            return isDesc
-                    ? article.viewCount.lt(count)
-                    .or(article.viewCount.eq(count).and(article.createdAt.lt(after)))
-                    : article.viewCount.gt(count)
-                    .or(article.viewCount.eq(count).and(article.createdAt.gt(after)));
+            try {
+                long count = Long.parseLong(cursorPart);
+                return isDesc
+                        ? article.viewCount.lt(count)
+                        .or(article.viewCount.eq(count).and(article.createdAt.lt(after)))
+                        .or(article.viewCount.eq(count).and(article.createdAt.eq(after)).and(article.id.lt(cursorId)))
+                        : article.viewCount.gt(count)
+                        .or(article.viewCount.eq(count).and(article.createdAt.gt(after)))
+                        .or(article.viewCount.eq(count).and(article.createdAt.eq(after)).and(article.id.gt(cursorId)));
+            } catch (NumberFormatException e) {
+                log.warn("커서 형식이 잘못됨: {}", cursorPart);
+                return Expressions.FALSE;
+            }
         }
         // 댓글수 정렬
         else {
-            long count = Long.parseLong(cursor);
-            return isDesc
-                    ? article.commentCount.lt(count)
-                    .or(article.commentCount.eq(count).and(article.createdAt.lt(after)))
-                    : article.commentCount.gt(count)
-                    .or(article.commentCount.eq(count).and(article.createdAt.gt(after)));
+            try {
+                long count = Long.parseLong(cursorPart);
+                return isDesc
+                        ? article.commentCount.lt(count)
+                        .or(article.commentCount.eq(count).and(article.createdAt.lt(after)))
+                        .or(article.commentCount.eq(count).and(article.createdAt.eq(after)).and(article.id.lt(cursorId)))
+                        : article.commentCount.gt(count)
+                        .or(article.commentCount.eq(count).and(article.createdAt.gt(after)))
+                        .or(article.commentCount.eq(count).and(article.createdAt.eq(after)).and(article.id.gt(cursorId)));
+            } catch (NumberFormatException e) {
+                log.warn("커서 형식이 잘못됨: {}", cursorPart);
+                return Expressions.FALSE;
+            }
         }
     }
 
