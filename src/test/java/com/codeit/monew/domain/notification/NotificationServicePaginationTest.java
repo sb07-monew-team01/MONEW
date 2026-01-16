@@ -74,11 +74,11 @@ public class NotificationServicePaginationTest {
                     new SliceImpl<>(content, Pageable.unpaged(), true);
             //가짜로 레포가 이렇게 답한다고 하고
             when(notificationRepository.search(eq(request))).thenReturn(slice);
-            when(notificationRepository.countByUserId(userId)).thenReturn(21L);
+            when(notificationRepository.countByUserIdAndConfirmedFalse(userId)).thenReturn(21L);
 
              // when
              PageResponse<NotificationDto> res =
-                     notificationService.findUnconfirmed(request);
+                     notificationService.findUnconfirmedCustom(request);
 
             // then
             //넥스트커서값이 적절하게 들어가냐
@@ -96,11 +96,11 @@ public class NotificationServicePaginationTest {
                     new SliceImpl<>(content, Pageable.unpaged(), false);
             //가짜로 레포가 이렇게 답한다고 하고
             when(notificationRepository.search(eq(request))).thenReturn(slice);
-            when(notificationRepository.countByUserId(userId)).thenReturn(10L);
+            when(notificationRepository.countByUserIdAndConfirmedFalse(userId)).thenReturn(10L);
 
             // when
             PageResponse<NotificationDto> res =
-                    notificationService.findUnconfirmed(request);
+                    notificationService.findUnconfirmedCustom(request);
 
             // then
             //넥스트커서값이 다 null이냐

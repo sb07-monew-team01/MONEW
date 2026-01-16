@@ -8,6 +8,8 @@ import com.codeit.monew.domain.notification.exception.NotificationNotFoundExcept
 import com.codeit.monew.domain.notification.mapper.NotificationMapper;
 import com.codeit.monew.domain.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -108,22 +110,45 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.deleteConfirmedBefore(date);
     }
 
+
+    //그저 형식 에맞게 최대50개 배출
     @Transactional(readOnly = true)
+    @Override
     public PageResponse<NotificationDto> findUnconfirmed(NotificationPageRequest request) {
+
+        Pageable pageable = Pageable.ofSize(request.limit());
+
+        Page<Notification> search = notificationRepository.findUnconfirmedByUserId(request.userid(),pageable);
+
+        List<NotificationDto> pageDtoList = search.getContent()
+                .stream()
+                .map(NotificationMapper::toDto)
+                .toList();
+
+        return new PageResponse<>(pageDtoList, null, null, search.getSize(), search.getTotalElements(), false);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public PageResponse<NotificationDto> findUnconfirmedCustom(NotificationPageRequest request) {
 
         Slice<Notification> search = notificationRepository.search(request);
 
-        long totalElements = notificationRepository.countByUserId(request.userid());
+        long totalElements = notificationRepository.countByUserIdAndConfirmedFalse(request.userid());
 
          List<NotificationDto> pageDtoList = search.getContent()
                  .stream()
                  .map(NotificationMapper::toDto)
                  .toList();
 
-         String nextCursor = search.hasNext() ? search.getContent().get(search.getContent().size()-1).getCreatedAt().toString() : null;
+         String nextCursor = search.hasNext() ?
+                 search.getContent().get(search.getContent().size()-1).getCreatedAt().toString() : null;
 
-         LocalDateTime nextAfter =  nextCursor != null ? LocalDateTime.parse(nextCursor) : null;
+         LocalDateTime nextAfter =  nextCursor != null ?
+                 LocalDateTime.parse(nextCursor) : null;
 
-        return new PageResponse<>(pageDtoList, nextCursor,nextAfter, search.getSize(), totalElements, search.hasNext());
+        return new PageResponse<>(pageDtoList, nextCursor, nextAfter, search.getSize(), totalElements, search.hasNext());
     }
+
+
 }

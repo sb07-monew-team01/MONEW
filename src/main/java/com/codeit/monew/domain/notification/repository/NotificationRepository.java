@@ -1,6 +1,9 @@
 package com.codeit.monew.domain.notification.repository;
 
+import com.codeit.monew.domain.notification.dto.request.NotificationPageRequest;
 import com.codeit.monew.domain.notification.entity.Notification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -25,5 +28,18 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
 
     List<Notification> findAllByUserId(UUID uuid);
 
-    Long countByUserId(UUID userId);
+    Long countByUserIdAndConfirmedFalse(UUID userId);
+
+
+    @Query("""
+    SELECT n
+    FROM Notification n
+    WHERE n.confirmed = false
+      AND n.userId = :userId
+    ORDER BY n.createdAt ASC, n.id DESC
+""")
+    Page<Notification> findUnconfirmedByUserId(
+            @Param("userId") UUID userId,
+            Pageable pageable
+    );
 }
