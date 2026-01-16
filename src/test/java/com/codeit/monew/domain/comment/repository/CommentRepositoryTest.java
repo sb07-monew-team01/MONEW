@@ -1,5 +1,6 @@
 package com.codeit.monew.domain.comment.repository;
 
+import com.codeit.monew.global.config.TestJpaAuditing;
 import com.codeit.monew.global.config.TestQueryDslConfig;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.entity.ArticleSource;
@@ -15,9 +16,9 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
-@ActiveProfiles("test")
 @DataJpaTest
-@Import(TestQueryDslConfig.class)
+@Import({TestQueryDslConfig.class, TestJpaAuditing.class})
+@ActiveProfiles("test")
 @DisplayName("댓글 레포지토리 테스트")
 public class CommentRepositoryTest {
     @Autowired
