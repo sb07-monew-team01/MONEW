@@ -241,8 +241,38 @@ public class ArticleServiceSearchTest {
                         .isEqualTo(ErrorCode.INTEREST_NOT_FOUND);
 
                 verify(interestRepository, times(1)).findById(request.interestId());
+            }
+        }
+
+        @Nested
+        @DisplayName("단일 기사를 조회한다.")
+        class SearchArticle{
+
+            @Test
+            @DisplayName("""
+                    기사 id를 통해 조회한다.
+                    """)
+            void searchArticleByIdAndUserId() {
+                // given
+                UUID articleId = UUID.randomUUID();
+
+                Article article = ArticleFixture.createEntity(
+                        ArticleCreateRequestFixture.createWithTitleAndSummary("a", "b"));
+                ArticleDto dto
+                        = new ArticleDto(article.getTitle(), article.getSummary(), article.getSourceUrl(), article.getPublishDate());
 
 
+                when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+                when(articleMapper.toDto(article)).thenReturn(dto);
+                // when
+                ArticleDto view = articleService.searchById(articleId);
+
+                // then
+                verify(articleRepository, times(1)).findById(articleId);
+                verify(articleMapper, times(1)).toDto(article);
+
+                assertThat(view).isNotNull();
+                assertThat(view.title()).isEqualTo("a");
             }
         }
     }
