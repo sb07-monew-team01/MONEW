@@ -7,9 +7,12 @@ import com.codeit.monew.domain.article.dto.response.ArticleDto;
 import com.codeit.monew.domain.interest.entity.Interest;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface ArticleService {
     PageResponse<ArticleDto> searchByKeyword(ArticleSearchRequest searchRequest);
 
     void createArticle(ArticleCreateRequest request, List<Interest>  interests);
+
+    ArticleDto searchById(UUID articleId);
 }

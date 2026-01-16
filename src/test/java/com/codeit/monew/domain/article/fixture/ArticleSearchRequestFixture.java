@@ -13,6 +13,12 @@ public class ArticleSearchRequestFixture {
                 .build();
     }
 
+    public static ArticleSearchRequest createWithKeyword(String keyword) {
+        return ArticleSearchRequest.builder()
+                .keyword(keyword)
+                .build();
+    }
+
     public static ArticleSearchRequest createWithInterestId(UUID interestId) {
         return ArticleSearchRequest.builder()
                 .interestId(interestId)
