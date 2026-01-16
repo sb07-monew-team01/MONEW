@@ -8,6 +8,4 @@ public record UserDto(
         String email,
         String nickname,
         LocalDateTime createdAt
-)
-{
-}
+) { }
