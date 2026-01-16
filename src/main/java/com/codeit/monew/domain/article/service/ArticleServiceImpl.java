@@ -1,7 +1,12 @@
 package com.codeit.monew.domain.article.service;
 
+import com.codeit.monew.domain.articleView.entity.ArticleView;
+import com.codeit.monew.domain.articleView.repository.ArticleViewRepository;
 import com.codeit.monew.domain.interestkeyword.InterestKeyword;
 import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
+import com.codeit.monew.domain.user.entity.User;
+import com.codeit.monew.domain.user.exception.UserNotFoundException;
+import com.codeit.monew.domain.user.repository.UserRepository;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;
 import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
@@ -30,10 +35,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ArticleServiceImpl implements ArticleService {
 
-    private ArticleRepository articleRepository;
-    private InterestRepository interestRepository;
-    private ArticleMapper articleMapper;
-    private ArticleMatcher articleMatcher;
+    private final ArticleViewRepository articleViewRepository;
+    private final ArticleRepository articleRepository;
+    private final InterestRepository interestRepository;
+    private final UserRepository userRepository;
+    private final ArticleMapper articleMapper;
+    private final ArticleMatcher articleMatcher;
 
     @Transactional
     @Override
@@ -100,10 +107,18 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Transactional(readOnly = true)
     @Override
-    public ArticleDto searchById(UUID articleId) {
+    public ArticleDto searchByUserIdAndArticleId(UUID userId, UUID articleId) {
 
-        return articleRepository.findById(articleId)
-                .map(articleMapper::toDto)
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleNotFoundException(articleId));
+
+        if (!articleViewRepository.existsByUserIdAndArticleId(userId, articleId)) {
+            articleViewRepository.save(new ArticleView(user, article));
+            article.increaseViewCount();
+        }
+
+        return articleMapper.toDto(article);
     }
 }

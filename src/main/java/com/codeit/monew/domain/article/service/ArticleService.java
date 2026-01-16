@@ -14,5 +14,5 @@ public interface ArticleService {
 
     void createArticle(ArticleCreateRequest request, List<Interest>  interests);
 
-    ArticleDto searchById(UUID articleId);
+    ArticleDto searchByUserIdAndArticleId(UUID userId, UUID articleId);
 }

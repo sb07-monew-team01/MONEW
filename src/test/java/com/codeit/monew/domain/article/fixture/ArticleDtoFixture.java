@@ -1,12 +1,11 @@
-package com.codeit.monew.domain.article.dto.mapper;
+package com.codeit.monew.domain.article.fixture;
 
+import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
 import com.codeit.monew.domain.article.dto.response.ArticleDto;
 import com.codeit.monew.domain.article.entity.Article;
-import org.springframework.stereotype.Component;
 
-@Component
-public class ArticleMapper {
-    public ArticleDto toDto(Article article) {
+public class ArticleDtoFixture {
+    public static ArticleDto createDtoEntity(Article article) {
         return new ArticleDto(
                 article.getId(),
                 article.getSource().toString(),
