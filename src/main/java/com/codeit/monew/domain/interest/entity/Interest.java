@@ -43,6 +43,11 @@ public class Interest extends BaseUpdatableEntity {
 
     //Methods
     public Interest update(List<String> keywords) {
+        if(keywords == null){
+            throw new KeywordValidException(ErrorCode.INTEREST_NULL_KEYWORD);
+        }
+        checkKeyword(keywords);
+
         super.touch();
         this.keywords.clear();
         keywords.forEach(this::addKeyword);
