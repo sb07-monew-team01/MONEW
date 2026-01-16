@@ -29,7 +29,7 @@ public enum ErrorCode {
     NOTIFICATION_NOT_FOUND("해당 알림을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
 
     // Global
-    INVALID_ARGUMENT("입력값이 올바르지 않습니다.", HttpStatus.CONFLICT);
+    INVALID_ARGUMENT("입력값이 올바르지 않습니다.", HttpStatus.BAD_REQUEST);
 
     public final String description;
     public final HttpStatus httpStatus;
