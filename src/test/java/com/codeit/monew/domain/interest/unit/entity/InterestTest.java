@@ -95,4 +95,77 @@ public class InterestTest {
                     .isEqualTo(ErrorCode.INTEREST_NULL_KEYWORD);
         }
     }
+
+    @Nested
+    @DisplayName("관심사 수정")
+    class UpdateInterestTest {
+        @Test
+        @DisplayName("성공: 관심사 수정 시 키워드가 변경된다")
+        void success_update_interest_keywords(){
+            // given
+            Interest interest = new Interest("백엔드", List.of("java", "spring"));
+
+            // when
+            interest.update(List.of("DB", "Spring boot"));
+
+            // then
+            assertThat(interest.getKeywords())
+                    .extracting(InterestKeyword::getKeyword)
+                    .containsExactly("DB", "Spring boot");
+        }
+
+        @Test
+        @DisplayName("실패: 관심사 내에서 같은 키워드가 중복되면 예외가 발생한다")
+        void fail_update_interest_duplicate_keyword(){
+            // given
+            Interest interest = new Interest("백엔드", List.of("java"));
+
+            // when & then
+            assertThatThrownBy(() -> interest.update(List.of("java", "spring", "java")))
+                    .isInstanceOf(KeywordValidException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.INTEREST_KEYWORD_DUPLICATE);
+        }
+
+        @Test
+        @DisplayName("실패: 관심사의 키워드가 없으면 예외가 발생한다")
+        void fail_update_interest_empty_keyword(){
+            // given
+            Interest interest = new Interest("백엔드", List.of("java"));
+
+            // when & then
+            assertThatThrownBy(() -> interest.update(List.of()))
+                    .isInstanceOf(KeywordValidException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.INTEREST_EMPTY_KEYWORD);
+        }
+
+        @Test
+        @DisplayName("실패: 관심사의 키워드가 10개를 초과하면 예외가 발생한다")
+        void fail_create_interest_over_keyword_limit() {
+            // given
+            Interest interest = new Interest("백엔드", List.of("java"));
+
+            // when & then
+            assertThatThrownBy(() -> interest.update(List.of(
+                    "java", "spring", "python", "C", "C++", "javascript", "typescript", "html", "css",
+                    "sql", "mongoDB")))
+                    .isInstanceOf(KeywordValidException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.TOO_MANY_KEYWORD);
+        }
+
+        @Test
+        @DisplayName("실패 : 관심사의 키워드가 null이면 예외가 발생한다")
+        void fail_create_interest_null_keyword(){
+            // given
+            Interest interest = new Interest("백엔드", List.of("java"));
+
+            // when & then
+            assertThatThrownBy(() -> interest.update(null))
+                    .isInstanceOf(KeywordValidException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.INTEREST_NULL_KEYWORD);
+        }
+    }
 }
