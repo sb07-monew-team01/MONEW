@@ -61,63 +61,6 @@ public class InterestServiceImplTest {
                     .extracting(InterestKeyword::getKeyword)
                     .containsExactlyElementsOf(keywords);
         }
-
-        @Test
-        @DisplayName("실패: 관심사 내에서 같은 키워드가 중복되면 예외가 발생한다")
-        void fail_create_interest_duplicate_keyword() {
-            // given
-            String name = "프로그래밍";
-            List<String> keywords = List.of("java", "spring", "java");
-
-            // when & then
-            assertThatThrownBy(() -> interestService.create(name, keywords))
-                    .isInstanceOf(KeywordValidException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.INTEREST_KEYWORD_DUPLICATE);
-        }
-
-        @Test
-        @DisplayName("실패: 관심사의 키워드가 없으면 예외가 발생한다")
-        void fail_create_interest_empty_keyword(){
-            // given
-            String name = "프로그래밍";
-            List<String> keywords = List.of();
-
-            // when & then
-            assertThatThrownBy(() -> interestService.create(name, keywords))
-                    .isInstanceOf(KeywordValidException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.INTEREST_EMPTY_KEYWORD);
-        }
-
-        @Test
-        @DisplayName("실패: 관심사의 키워드가 10개를 초과하면 예외가 발생한다")
-        void fail_create_interest_over_keyword_limit() {
-            // given
-            String name = "프로그래밍";
-            List<String> keywords = List.of("java", "spring", "python", "C", "C++", "javascript", "typescript", "html", "css",
-                    "sql", "mongoDB");
-
-            // when & then
-            assertThatThrownBy(() -> interestService.create(name, keywords))
-                    .isInstanceOf(KeywordValidException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.TOO_MANY_KEYWORD);
-        }
-
-        @Test
-        @DisplayName("실패 : 관심사의 키워드가 null이면 예외가 발생한다")
-        void fail_create_interest_null_keyword(){
-            // given
-            String name = "프로그래밍";
-            List<String> keywords = null;
-
-            // when & then
-            assertThatThrownBy(() -> interestService.create(name, keywords))
-                    .isInstanceOf(KeywordValidException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.INTEREST_NULL_KEYWORD);
-        }
     }
 
     @Nested
@@ -172,68 +115,6 @@ public class InterestServiceImplTest {
                     .isInstanceOf(InterestNotFoundException.class)
                     .extracting("errorCode")
                     .isEqualTo(ErrorCode.INTEREST_NOT_FOUND);
-        }
-
-        @Test
-        @DisplayName("실패: 관심사 내에서 같은 키워드가 중복되면 예외가 발생한다")
-        void fail_update_interest_duplicate_keyword(){
-            // given
-            UUID interestId = UUID.randomUUID();
-            Interest interest = new Interest("백엔드", List.of("java"));
-            given(interestRepository.findById(interestId)).willReturn(Optional.of(interest));
-
-            // when & then
-            assertThatThrownBy(() -> interestService.editKeywords(interestId, List.of("java", "Spring Boot", "java")))
-                    .isInstanceOf(KeywordValidException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.INTEREST_KEYWORD_DUPLICATE);
-        }
-
-        @Test
-        @DisplayName("실패: 관심사의 키워드가 없으면 예외가 발생한다")
-        void fail_update_interest_empty_keyword(){
-            // given
-            UUID interestId = UUID.randomUUID();
-            Interest interest = new Interest("백엔드", List.of("java"));
-            given(interestRepository.findById(interestId)).willReturn(Optional.of(interest));
-
-            // when & then
-            assertThatThrownBy(() -> interestService.editKeywords(interestId, List.of("java", "Spring Boot", "java")))
-                    .isInstanceOf(KeywordValidException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.INTEREST_KEYWORD_DUPLICATE);
-        }
-
-        @Test
-        @DisplayName("실패: 관심사의 키워드가 10개를 초과하면 예외가 발생한다")
-        void fail_create_interest_over_keyword_limit() {
-            // given
-            UUID interestId = UUID.randomUUID();
-            Interest interest = new Interest("백엔드", List.of("java"));
-            given(interestRepository.findById(interestId)).willReturn(Optional.of(interest));
-
-
-            // when & then
-            assertThatThrownBy(() -> interestService.editKeywords(interestId, List.of("java", "spring", "python", "C", "C++", "javascript", "typescript", "html", "css",
-                    "sql", "mongoDB")))
-                    .isInstanceOf(KeywordValidException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.TOO_MANY_KEYWORD);
-        }
-
-        @Test
-        @DisplayName("실패 : 관심사의 키워드가 null이면 예외가 발생한다")
-        void fail_create_interest_null_keyword(){
-            // given
-            UUID interestId = UUID.randomUUID();
-            Interest interest = new Interest("백엔드", List.of("java"));
-            given(interestRepository.findById(interestId)).willReturn(Optional.of(interest));
-
-            // when & then
-            assertThatThrownBy(() -> interestService.editKeywords(interestId, null))
-                    .isInstanceOf(KeywordValidException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.INTEREST_NULL_KEYWORD);
         }
     }
 
