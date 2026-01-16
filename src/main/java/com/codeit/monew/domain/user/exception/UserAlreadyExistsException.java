@@ -9,4 +9,8 @@ public class UserAlreadyExistsException extends UserException {
     public UserAlreadyExistsException(User user) {
         super(ErrorCode.EMAIL_ALREADY_EXISTS, Map.of("email", user.getEmail()));
     }
+
+    public UserAlreadyExistsException(String email) {
+        super(ErrorCode.EMAIL_ALREADY_EXISTS, Map.of("email", email));
+    }
 }

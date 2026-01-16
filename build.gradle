@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.9'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 group = 'com.codeit'
@@ -23,6 +24,28 @@ configurations {
 repositories {
     mavenCentral()
 }
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        html.required = true
+        xml.required = true
+        csv.required = false
+    }
+}
+
+//jacocoTestCoverageVerification {
+//    violationRules {
+//        rule {
+//            limit {
+//                minimum = 0.7
+//            }
+//        }
+//    }
+//}
+//
+//check.dependsOn jacocoTestCoverageVerification
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'

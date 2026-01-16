@@ -6,6 +6,7 @@ import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -117,7 +118,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                         .or(article.publishDate.eq(date).and(article.createdAt.gt(after)));
             } catch (Exception e) {
                 log.warn("커서 형식이 잘못됨: {}", cursor);
-                return null;
+                return Expressions.FALSE;
             }
         }
         // 조회수 정렬
@@ -151,8 +152,9 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         };
 
         OrderSpecifier<?> subSort = new OrderSpecifier<>(order, article.createdAt);
+        OrderSpecifier<?> tieBreaker = new OrderSpecifier<>(order, article.id);
 
-        return new OrderSpecifier[] { mainSort, subSort};
+        return new OrderSpecifier[] { mainSort, subSort, tieBreaker};
     }
 
     @Override
