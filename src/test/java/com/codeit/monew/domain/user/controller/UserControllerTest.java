@@ -1,5 +1,7 @@
 package com.codeit.monew.domain.user.controller;
 
+import com.codeit.monew.domain.user.dto.UserDto;
+import com.codeit.monew.domain.user.dto.request.UserLoginRequest;
 import com.codeit.monew.domain.user.dto.request.UserSignUpRequest;
 import com.codeit.monew.domain.user.exception.UserAlreadyExistsException;
 import com.codeit.monew.domain.user.service.UserServiceImpl;
@@ -12,6 +14,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -62,31 +67,61 @@ class UserControllerTest {
                     .andExpect(status().is(400));
         }
 
-        @Test
-        @DisplayName("이메일에 공백이 올 수 없다.")
-        void fail_emailNotBlank() throws Exception {
-            // given
-            UserSignUpRequest request = new UserSignUpRequest(" ","nickname", "password");
+        @Nested
+        @DisplayName("실패")
+        class failed{
+            @Test
+            @DisplayName("이메일에 공백이 올 수 없다.")
+            void fail_emailNotBlank() throws Exception {
+                // given
+                UserSignUpRequest request = new UserSignUpRequest(" ","nickname", "password");
 
-            // when & then
-            mockMvc.perform(post("/api/users")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().is(400));
+                // when & then
+                mockMvc.perform(post("/api/users")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                        .andExpect(status().is(400));
+            }
+
+            @Test
+            @DisplayName("이미 존재하는 이메일로는 가입할 수 없다.")
+            void fail_emailAlreadyExist() throws Exception {
+                // given
+                UserSignUpRequest request = new UserSignUpRequest("rmail@sadf.com","nickname", "password");
+                when(userService.signUp(any())).thenThrow(new UserAlreadyExistsException(request.email()));
+
+                // when & then
+                mockMvc.perform(post("/api/users")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                        .andExpect(status().is(409));
+            }
         }
 
-        @Test
-        @DisplayName("이미 존재하는 이메일로는 가입할 수 없다.")
-        void fail_emailAlreadyExist() throws Exception {
-            // given
-            UserSignUpRequest request = new UserSignUpRequest("rmail@sadf.com","nickname", "password");
-            when(userService.signUp(any())).thenThrow(new UserAlreadyExistsException(request.email()));
+        @Nested
+        @DisplayName("로그인")
+        class Login {
+            @Test
+            @DisplayName("올바른 이메일과 비밀번호로 로그인 할 수 있다.")
+            void success_login() throws Exception {
+                // given
+                String email = "email@asdf.com";
+                UserLoginRequest request = new UserLoginRequest(email, "request");
+                when(userService.login(request)).thenReturn(new UserDto(UUID.randomUUID(), email, "nickname", LocalDateTime.now().minusDays(1)));
 
-            // when & then
-            mockMvc.perform(post("/api/users")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().is(409));
+                // when & then
+                mockMvc.perform(post("/api/users/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                        .andExpect(status().isOk());
+            }
+
+            @Nested
+            @DisplayName("실패")
+            class fail{
+                // TODO: 입력값 급증 실패
+                // TODO: 이메일 / 비밀번호 불일치
+            }
         }
     }
 }
