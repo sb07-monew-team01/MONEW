@@ -8,10 +8,13 @@ import com.codeit.monew.domain.commentuserlike.entity.CommentUserLike;
 import com.codeit.monew.domain.commentuserlike.mapper.CommentUserLikeMapper;
 import com.codeit.monew.domain.commentuserlike.repository.CommentUserLikeRepository;
 import com.codeit.monew.domain.user.entity.User;
+import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
+import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -23,22 +26,25 @@ public class CommentUserLikeServiceImpl implements CommentUserLikeService {
 
     @Override
     public CommentUserLikeDto like(UUID userId, UUID commentId) {
+
         User user = userRepository.findById(userId)
-                .orElseThrow();
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow();
+                .orElseThrow(() -> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
 
-        if (commentUserLikeRepository.findByUserIdAndCommentId(userId, commentId).isPresent()) {
-            throw new IllegalArgumentException();
+        Optional<CommentUserLike> existingLike =
+                commentUserLikeRepository.findByUserIdAndCommentId(userId, commentId);
+
+        if (existingLike.isPresent()) {
+            commentUserLikeRepository.delete(existingLike.get());
+            return null; // 취소는 반환 없이 걍 삭제
         }
 
         CommentUserLike like = CommentUserLike.create(user, comment);
         commentUserLikeRepository.save(like);
 
-        long likeCount = commentUserLikeRepository.countByCommentId(comment.getId());
+        long likeCount = commentUserLikeRepository.countByCommentId(commentId);
         return CommentUserLikeMapper.toDto(like, likeCount);
     }
-
 }
-

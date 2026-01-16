@@ -73,7 +73,6 @@ class CommentUserLikeServiceTest {
             // given
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
             given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
-            given(comment.getId()).willReturn(commentId);
             given(commentUserLikeRepository.findByUserIdAndCommentId(userId, commentId))
                     .willReturn(Optional.empty());
             given(commentUserLikeRepository.countByCommentId(commentId))
