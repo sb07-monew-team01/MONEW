@@ -14,24 +14,27 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class InterestServiceImpl implements InterestService{
     private final InterestRepository interestRepository;
     private final InterestNamePolicy interestNamePolicy;
 
     @Override
+    @Transactional
     public Interest create(String name, List<String> keywords) {
         interestNamePolicy.apply(name, interestRepository.findAll());
         return interestRepository.save(new Interest(name, keywords));
     }
 
     @Override
+    @Transactional
     public Interest editKeywords(UUID id, List<String> keywords) {
         Interest interest = findById(id);
         return interest.update(keywords);
     }
 
+
     @Override
+    @Transactional
     public void delete(UUID id) {
         findById(id);
         interestRepository.deleteById(id);
