@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ArticleService {
-    PageResponse<ArticleDto> searchByKeyword(ArticleSearchRequest searchRequest);
+    PageResponse<ArticleDto> searchByKeyword(ArticleSearchRequest searchRequest, UUID userId);
 
     void createArticle(ArticleCreateRequest request, List<Interest>  interests);
 

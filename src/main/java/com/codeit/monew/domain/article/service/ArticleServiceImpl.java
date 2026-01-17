@@ -1,10 +1,8 @@
 package com.codeit.monew.domain.article.service;
 
-import com.codeit.monew.domain.articleView.entity.ArticleView;
 import com.codeit.monew.domain.articleView.repository.ArticleViewRepository;
 import com.codeit.monew.domain.interestkeyword.InterestKeyword;
 import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
-import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
 import com.codeit.monew.global.dto.PageResponse;
@@ -26,10 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -65,7 +60,9 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Transactional(readOnly = true)
     @Override
-    public PageResponse<ArticleDto> searchByKeyword(ArticleSearchRequest request) {
+    public PageResponse<ArticleDto> searchByKeyword(ArticleSearchRequest request, UUID userId) {
+
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
 
         List<String> keywords = new ArrayList<>();
         if (request.keyword() != null) keywords.add(request.keyword());
@@ -80,6 +77,14 @@ public class ArticleServiceImpl implements ArticleService {
 
         Slice<Article> articlePage = articleRepository.findByKeywordsAndSources(condition);
         long total = articleRepository.countTotalElements(condition);
+
+        Set<UUID> viewedArticleIds = Collections.emptySet();
+        if (!articlePage.isEmpty()) {
+            List<UUID> articleIds = articlePage.stream().map(Article::getId).toList();
+            viewedArticleIds = articleViewRepository
+                    .findViewedByUserIdAndArticleId(userId, articleIds);
+        }
+
 
         String nextCursor = null;
         LocalDateTime nextAfter = null;
@@ -98,8 +103,12 @@ public class ArticleServiceImpl implements ArticleService {
             nextAfter = lastArticle.getCreatedAt();
         }
 
-        List<ArticleDto> content = articlePage.getContent().stream()
-                .map(articleMapper::toDto)
+        Set<UUID> viewedArticleIdsSet = new HashSet<>(viewedArticleIds);
+        List<ArticleDto> content = articlePage.stream()
+                .map(article -> {
+                    boolean viewedByMe = viewedArticleIdsSet.contains(article.getId());
+                    return articleMapper.toDto(article, viewedByMe);
+                })
                 .toList();
 
         return new PageResponse<>(content, nextCursor, nextAfter, condition.limit(), total, articlePage.hasNext());
@@ -109,16 +118,12 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ArticleDto searchByUserIdAndArticleId(UUID userId, UUID articleId) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleNotFoundException(articleId));
 
-        if (!articleViewRepository.existsByUserIdAndArticleId(userId, articleId)) {
-            articleViewRepository.save(new ArticleView(user, article));
-            article.increaseViewCount();
-        }
+        boolean viewedByMe = articleViewRepository.existsByUserIdAndArticleId(userId, articleId);
 
-        return articleMapper.toDto(article);
+        return articleMapper.toDto(article, viewedByMe);
     }
 }
