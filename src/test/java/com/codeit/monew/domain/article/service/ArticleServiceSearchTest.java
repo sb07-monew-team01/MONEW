@@ -2,10 +2,14 @@ package com.codeit.monew.domain.article.service;
 
 import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
 import com.codeit.monew.domain.article.fixture.ArticleCreateRequestFixture;
+import com.codeit.monew.domain.article.fixture.ArticleDtoFixture;
 import com.codeit.monew.domain.article.fixture.ArticleFixture;
 import com.codeit.monew.domain.article.fixture.ArticleSearchRequestFixture;
+import com.codeit.monew.domain.articleView.repository.ArticleViewRepository;
 import com.codeit.monew.domain.interest.exception.InterestNotFoundException;
-import com.codeit.monew.domain.interest.exception.KeywordValidException;
+import com.codeit.monew.domain.user.entity.User;
+import com.codeit.monew.domain.user.exception.UserNotFoundException;
+import com.codeit.monew.domain.user.repository.UserRepository;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
@@ -30,10 +34,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -45,9 +46,12 @@ public class ArticleServiceSearchTest {
 
     @Mock
     private ArticleRepository articleRepository;
-
     @Mock
     private InterestRepository interestRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private ArticleViewRepository articleViewRepository;
 
     @Mock
     private ArticleMapper articleMapper;
@@ -55,239 +59,288 @@ public class ArticleServiceSearchTest {
     @InjectMocks
     private ArticleServiceImpl articleService;
 
+    UUID userId = UUID.randomUUID();
+    User user = new User("email@a.a", "nickname", "password");
+
     @Nested
-    class Search {
+    @DisplayName("검색 조건을 통해 기사 목록을 조회한다.")
+    class SearchArticlePages {
 
-        @Nested
-        @DisplayName("검색 조건을 통해 기사 목록을 조회한다.")
-        class SearchArticlePages{
-
-            @ParameterizedTest
-            @CsvSource({
-                    "publishDate",
-                    "commentCount",
-                    "viewCount"
-            })
-            @DisplayName("""
+        @ParameterizedTest
+        @CsvSource({
+                "publishDate",
+                "commentCount",
+                "viewCount"
+        })
+        @DisplayName("""
                 마지막 기사로부터 다음 페이지의 커서를 생성한다.
                 orderBy = publishDate, commentCount, viewCount
                 pageSize = 5
                 """)
-            void convertArticleCursorByOrderBy(String orderBy) {
-                // given
-                List<Article> articles = new ArrayList<>();
-                for (int i = 0; i < 6; i++) {
-                    articles.add(ArticleFixture.createWithViewAndComment(
-                            ArticleCreateRequestFixture.createDummy(0, -i), 20-i, 10-i
-                    ));
-                }
-
-                Article article = ArticleFixture.createEntity(ArticleCreateRequestFixture.createDummy(0, -6));
-                articles.add(article);
-                ArticleDto dto = new ArticleDto(article.getTitle(), article.getSummary(), "NAVER", article.getPublishDate());
-
-                LocalDateTime lastCreatedAt = article.getCreatedAt();
-                long total = 7;
-                int pageSize = 5;
-
-                Pageable pageable = PageRequest.of(0, pageSize);
-                Slice<Article> articlePage = new SliceImpl<>(articles, pageable, true);
-
-                when(articleRepository.findByKeywordsAndSources(any())).thenReturn(articlePage);
-                when(articleRepository.countTotalElements(any())).thenReturn(total);
-                when(articleMapper.toDto(any())).thenReturn(dto);
-
-                // when
-                ArticleSearchRequest request = ArticleSearchRequestFixture.createWithOrderBy(orderBy, 5);
-                PageResponse<ArticleDto> articlePages = articleService.searchByKeyword(request);
-
-                // then
-                String expectedCursor = String.valueOf(switch (orderBy) {
-                    case "viewCount" -> article.getViewCount() + "_" + article.getId();
-                    case "commentCount" -> article.getCommentCount() + "_" + article.getId();
-                    default -> article.getPublishDate() + "_" + article.getId();
-                });
-
-                assertThat(articlePages.nextCursor()).isEqualTo(expectedCursor);
-                assertThat(articlePages.nextAfter()).isEqualTo(lastCreatedAt);
-
-                assertThat(articlePages.size()).isEqualTo(pageSize);
-                assertThat(articlePages.totalElements()).isEqualTo(total);
-                assertThat(articlePages.hasNext()).isTrue();
-
-                assertThat(articlePages.content()).hasSize(7);
+        void convertArticleCursorByOrderBy(String orderBy) {
+            // given
+            List<Article> articles = new ArrayList<>();
+            for (int i = 0; i < 6; i++) {
+                articles.add(ArticleFixture.createWithViewAndComment(
+                        ArticleCreateRequestFixture.createDummy(0, -i), 20 - i, 10 - i
+                ));
             }
 
-            @Test
-            @DisplayName("검색어에 맞는 기사 목록을 조회 후, 결과를 dto로 반환한다.")
-            void searchAllByKeyword() {
-                // given
-                Article a1 = ArticleFixture.createEntity(
-                        ArticleCreateRequestFixture.createWithTitleAndSummary("안녕", "hello world!"));
-                ArticleDto dto = new ArticleDto(a1.getTitle(), a1.getSummary(), a1.getSourceUrl(), a1.getPublishDate());
+            Article article = ArticleFixture.createEntity(ArticleCreateRequestFixture.createDummy(0, -6));
+            articles.add(article);
+            ArticleDto dto = ArticleDtoFixture.createDtoEntity(article);
 
-                Slice<Article> articlePage = new SliceImpl<>(List.of(a1), Pageable.unpaged(), true);
+            LocalDateTime lastCreatedAt = article.getCreatedAt();
+            long total = 7;
+            int pageSize = 5;
 
-                when(articleRepository.findByKeywordsAndSources(any())).thenReturn(articlePage);
-                when(articleMapper.toDto(a1)).thenReturn(dto);
+            Pageable pageable = PageRequest.of(0, pageSize);
+            Slice<Article> articlePage = new SliceImpl<>(articles, pageable, true);
 
-                // when
-                ArticleSearchRequest request = ArticleSearchRequestFixture.createWithKeyword("안녕");
-                PageResponse<ArticleDto> result = articleService.searchByKeyword(request);
+            when(articleRepository.findByKeywordsAndSources(any())).thenReturn(articlePage);
+            when(articleRepository.countTotalElements(any())).thenReturn(total);
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(articleMapper.toDto(any(), anyBoolean())).thenReturn(dto);
 
-                // then
-                verify(articleRepository, times(1)).findByKeywordsAndSources(any());
-                verify(articleMapper, times(1)).toDto(a1);
+            // when
+            ArticleSearchRequest request = ArticleSearchRequestFixture.createWithOrderBy(orderBy, 5);
+            PageResponse<ArticleDto> articlePages = articleService.searchByKeyword(request, userId);
 
-                assertThat(result.content()).hasSize(1);
-                assertThat(result.content().get(0)).isEqualTo(dto);
-            }
+            // then
+            String expectedCursor = String.valueOf(switch (orderBy) {
+                case "viewCount" -> article.getViewCount() + "_" + article.getId();
+                case "commentCount" -> article.getCommentCount() + "_" + article.getId();
+                default -> article.getPublishDate() + "_" + article.getId();
+            });
 
-            @Test
-            @DisplayName("""
+            assertThat(articlePages.nextCursor()).isEqualTo(expectedCursor);
+            assertThat(articlePages.nextAfter()).isEqualTo(lastCreatedAt);
+
+            assertThat(articlePages.size()).isEqualTo(pageSize);
+            assertThat(articlePages.totalElements()).isEqualTo(total);
+            assertThat(articlePages.hasNext()).isTrue();
+
+            assertThat(articlePages.content()).hasSize(7);
+        }
+
+        @Test
+        @DisplayName("검색어에 맞는 기사 목록을 조회 후, 결과를 dto로 반환한다.")
+        void searchAllByKeyword() {
+            // given
+            UUID userId = UUID.randomUUID();
+
+            Article a1 = ArticleFixture.createEntity(
+                    ArticleCreateRequestFixture.createWithTitleAndSummary("안녕", "hello world!"));
+            ArticleDto dto = ArticleDtoFixture.createDtoEntity(a1);
+
+            Slice<Article> articlePage = new SliceImpl<>(List.of(a1), Pageable.unpaged(), true);
+
+            when(articleRepository.findByKeywordsAndSources(any())).thenReturn(articlePage);
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(articleMapper.toDto(a1, false)).thenReturn(dto);
+
+            // when
+            ArticleSearchRequest request = ArticleSearchRequestFixture.createWithKeyword("안녕");
+            PageResponse<ArticleDto> result = articleService.searchByKeyword(request, userId);
+
+            // then
+            verify(articleRepository, times(1)).findByKeywordsAndSources(any());
+            verify(articleMapper, times(1)).toDto(a1, false);
+
+            assertThat(result.content()).hasSize(1);
+            assertThat(result.content().get(0)).isEqualTo(dto);
+        }
+
+        @Test
+        @DisplayName("""
                 관심사Id를 전달하면 InterestRepository를 조회하고,
                 조건에 맞는 기사 목록 조회 후,
                 결과를 dto로 변환하다.
                 """)
-            void searchAllByInterestId() {
-                // given
-                UUID interestId = UUID.randomUUID();
-                Interest interest = new Interest("음식", List.of("냉면", "라면"));
-                when(interestRepository.findById(interestId)).thenReturn(Optional.of(interest));
+        void searchAllByInterestId() {
+            // given
+            UUID interestId = UUID.randomUUID();
+            Interest interest = new Interest("음식", List.of("냉면", "라면"));
+            when(interestRepository.findById(interestId)).thenReturn(Optional.of(interest));
 
-                Article a1 = ArticleFixture.createEntity(
-                        ArticleCreateRequestFixture.createWithTitleAndSummary("음식", "냉면, 라면"));
-                ArticleDto dto = new ArticleDto(a1.getTitle(), a1.getSummary(), a1.getSourceUrl(), a1.getPublishDate());
+            Article a1 = ArticleFixture.createEntity(
+                    ArticleCreateRequestFixture.createWithTitleAndSummary("음식", "냉면, 라면"));
+            ArticleDto dto = ArticleDtoFixture.createDtoEntity(a1);
 
-                Slice<Article> articlePage = new SliceImpl<>(List.of(a1), Pageable.unpaged(), true);
+            Slice<Article> articlePage = new SliceImpl<>(List.of(a1), Pageable.unpaged(), true);
 
-                when(articleRepository.findByKeywordsAndSources(any())).thenReturn(articlePage);
-                when(articleMapper.toDto(a1)).thenReturn(dto);
+            when(articleRepository.findByKeywordsAndSources(any())).thenReturn(articlePage);
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(articleMapper.toDto(a1, false)).thenReturn(dto);
 
-                // when
-                ArticleSearchRequest request = ArticleSearchRequestFixture.createWithInterestId(interestId);
-                PageResponse<ArticleDto> result = articleService.searchByKeyword(request);
+            // when
+            ArticleSearchRequest request = ArticleSearchRequestFixture.createWithInterestId(interestId);
+            PageResponse<ArticleDto> result = articleService.searchByKeyword(request, userId);
 
-                // then
-                verify(interestRepository, times(1)).findById(interestId);
-                verify(articleRepository, times(1)).findByKeywordsAndSources(any());
-                verify(articleMapper, times(1)).toDto(a1);
+            // then
+            verify(interestRepository, times(1)).findById(interestId);
+            verify(articleRepository, times(1)).findByKeywordsAndSources(any());
+            verify(articleMapper, times(1)).toDto(a1, false);
 
-                assertThat(result.content()).hasSize(1);
-                assertThat(result.content().get(0)).isEqualTo(dto);
-            }
-            
-            @Test
-            @DisplayName("마지막 페이 조회 후, 페이지dto를 반환하지 않는다.")
-            void searchLastPage_ReturnNoNextPage() {
-                // given
-                Article a1 = ArticleFixture.createEntity(
-                        ArticleCreateRequestFixture.createWithTitleAndSummary("안녕", "hello world!"));
-                ArticleDto dto = new ArticleDto(a1.getTitle(), a1.getSummary(), a1.getSourceUrl(), a1.getPublishDate());
-
-                Pageable pageable = PageRequest.of(0, 5);
-                Slice<Article> articlePage = new SliceImpl<>(List.of(a1), pageable, false);
-
-                when(articleRepository.findByKeywordsAndSources(any())).thenReturn(articlePage);
-                when(articleMapper.toDto(a1)).thenReturn(dto);
-                when(articleRepository.countTotalElements(any())).thenReturn(1L);
-
-                // when
-                ArticleSearchRequest request = ArticleSearchRequestFixture.createWithKeyword("안녕");
-                PageResponse<ArticleDto> result = articleService.searchByKeyword(request);
-
-                // then
-                verify(articleRepository, times(1)).findByKeywordsAndSources(any());
-                verify(articleMapper, times(1)).toDto(a1);
-
-                assertThat(result.content()).hasSize(1);
-                assertThat(result.hasNext()).isFalse();
-                assertThat(result.nextCursor()).isNull();
-                assertThat(result.nextAfter()).isNull();
-            }
-            
-            @Test
-            @DisplayName("검색 결과가 없으면 nextCursor와 nextAfter가 null을 반환한다.")
-            void searchEmptyResult_ReturnNullCursorAndAfter() {
-                // given
-                Slice<Article> articlePage = new SliceImpl<>(List.of(), Pageable.unpaged(), true);
-
-                when(articleRepository.findByKeywordsAndSources(any())).thenReturn(articlePage);
-                when(articleRepository.countTotalElements(any())).thenReturn(0L);
-
-                // when
-                ArticleSearchRequest request = ArticleSearchRequestFixture.createWithKeyword("안녕");
-                PageResponse<ArticleDto> result = articleService.searchByKeyword(request);
-                
-                // then
-                verify(articleRepository, times(1)).findByKeywordsAndSources(any());
-
-                assertThat(result.content()).isEmpty();
-                assertThat(result.nextCursor()).isNull();
-                assertThat(result.nextAfter()).isNull();
-            }
-
-            @Test
-            @DisplayName("잘못된 관심사id를 받으면 예외를 반환한다.")
-            void searchAllByInterestId_ThrowException_WhenNotFound() {
-                // given
-                UUID interestId = UUID.randomUUID();
-                ArticleSearchRequest request = ArticleSearchRequestFixture.createWithInterestId(interestId);
-                when(interestRepository.findById(interestId)).thenReturn(Optional.empty());
-                // when & then
-                assertThatThrownBy(() -> articleService.searchByKeyword(request))
-                        .isInstanceOf(InterestNotFoundException.class)
-                        .extracting("errorCode")
-                        .isEqualTo(ErrorCode.INTEREST_NOT_FOUND);
-
-                verify(interestRepository, times(1)).findById(request.interestId());
-            }
+            assertThat(result.content()).hasSize(1);
+            assertThat(result.content().get(0)).isEqualTo(dto);
         }
 
-        @Nested
-        @DisplayName("단일 기사를 조회한다.")
-        class SearchArticle{
+        @Test
+        @DisplayName("마지막 페이지 조회 후, 페이지dto를 반환하지 않는다.")
+        void searchLastPage_ReturnNoNextPage() {
+            // given
+            Article a1 = ArticleFixture.createEntity(
+                    ArticleCreateRequestFixture.createWithTitleAndSummary("안녕", "hello world!"));
+            ArticleDto dto = ArticleDtoFixture.createDtoEntity(a1);
 
-            @Test
-            @DisplayName("""
-                    기사 id를 통해 조회한다.
-                    """)
-            void searchArticleByIdAndUserId() {
-                // given
-                UUID articleId = UUID.randomUUID();
+            Pageable pageable = PageRequest.of(0, 5);
+            Slice<Article> articlePage = new SliceImpl<>(List.of(a1), pageable, false);
 
-                Article article = ArticleFixture.createEntity(
-                        ArticleCreateRequestFixture.createWithTitleAndSummary("a", "b"));
-                ArticleDto dto
-                        = new ArticleDto(article.getTitle(), article.getSummary(), article.getSourceUrl(), article.getPublishDate());
+            when(articleRepository.findByKeywordsAndSources(any())).thenReturn(articlePage);
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(articleMapper.toDto(a1, false)).thenReturn(dto);
+            when(articleRepository.countTotalElements(any())).thenReturn(1L);
 
+            // when
+            ArticleSearchRequest request = ArticleSearchRequestFixture.createWithKeyword("안녕");
+            PageResponse<ArticleDto> result = articleService.searchByKeyword(request, userId);
 
-                when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
-                when(articleMapper.toDto(article)).thenReturn(dto);
-                // when
-                ArticleDto view = articleService.searchById(articleId);
+            // then
+            verify(articleRepository, times(1)).findByKeywordsAndSources(any());
+            verify(articleMapper, times(1)).toDto(a1, false);
 
-                // then
-                verify(articleRepository, times(1)).findById(articleId);
-                verify(articleMapper, times(1)).toDto(article);
-
-                assertThat(view).isNotNull();
-                assertThat(view.title()).isEqualTo("a");
-            }
+            assertThat(result.content()).hasSize(1);
+            assertThat(result.hasNext()).isFalse();
+            assertThat(result.nextCursor()).isNull();
+            assertThat(result.nextAfter()).isNull();
         }
+
+        @Test
+        @DisplayName("검색 결과가 없으면 nextCursor와 nextAfter가 null을 반환한다.")
+        void searchEmptyResult_ReturnNullCursorAndAfter() {
+            // given
+            Slice<Article> articlePage = new SliceImpl<>(List.of(), Pageable.unpaged(), true);
+
+            when(articleRepository.findByKeywordsAndSources(any())).thenReturn(articlePage);
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(articleRepository.countTotalElements(any())).thenReturn(0L);
+
+            // when
+            ArticleSearchRequest request = ArticleSearchRequestFixture.createWithKeyword("안녕");
+            PageResponse<ArticleDto> result = articleService.searchByKeyword(request, userId);
+
+            // then
+            verify(articleRepository, times(1)).findByKeywordsAndSources(any());
+
+            assertThat(result.content()).isEmpty();
+            assertThat(result.nextCursor()).isNull();
+            assertThat(result.nextAfter()).isNull();
+        }
+
+        @Test
+        @DisplayName("잘못된 관심사id를 받으면 예외를 반환한다.")
+        void searchAllByInterestId_ThrowException_WhenNotFound() {
+            // given
+            UUID interestId = UUID.randomUUID();
+            ArticleSearchRequest request = ArticleSearchRequestFixture.createWithInterestId(interestId);
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(interestRepository.findById(interestId)).thenReturn(Optional.empty());
+            // when & then
+            assertThatThrownBy(() -> articleService.searchByKeyword(request, userId))
+                    .isInstanceOf(InterestNotFoundException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.INTEREST_NOT_FOUND);
+
+            verify(interestRepository, times(1)).findById(request.interestId());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 유저id를 받으면 예외를 반환한다.")
+        void searchAll_ThrowException_WhenNotFoundUser() {
+            // given
+            UUID interestId = UUID.randomUUID();
+            ArticleSearchRequest request = ArticleSearchRequestFixture.createWithInterestId(interestId);
+
+            when(userRepository.findById(userId)).thenReturn(Optional.empty());
+            // when & then
+            assertThatThrownBy(() -> articleService.searchByKeyword(request, userId))
+                    .isInstanceOf(UserNotFoundException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.USER_NOT_FOUND);
+        }
+    }
+
+    @Nested
+    @DisplayName("단일 기사를 조회한다.")
+    class SearchArticle {
+
+        UUID articleId = UUID.randomUUID();
+        Article article = ArticleFixture.createWithViewAndComment(
+                ArticleCreateRequestFixture.createDefault(), 5, 5);
+
+        @ParameterizedTest
+        @CsvSource({
+                "false",
+                "true"
+        })
+        @DisplayName("""
+                유저id와 기사id를 통해 조회한다.
+                처음 조회라면 viewedByMe = false,
+                조회해봤다면 true 이다.
+                """)
+        void searchArticleByIdAndUserId_Success(boolean alreadyRead) {
+            // given
+
+            ArticleDto dto = ArticleDtoFixture.createDtoEntity(article);
+
+            when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(articleViewRepository.existsByUserIdAndArticleId(userId, articleId)).thenReturn(alreadyRead);
+            when(articleMapper.toDto(article, alreadyRead)).thenReturn(dto);
+
+            // when
+            articleService.searchByUserIdAndArticleId(userId, articleId);
+
+            // then
+            verify(articleRepository, times(1)).findById(articleId);
+            verify(userRepository, times(1)).findById(userId);
+            verify(articleMapper, times(1)).toDto(article, alreadyRead);
+
+            assertThat(dto).isNotNull();
+        }
+
+        @Test
+        @DisplayName("잘못된 유저id를 받으면 예외를 반환한다.")
+        void searchArticle_ThrowException_WhenUserIdNotFound() {
+            // given
+
+            when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> articleService.searchByUserIdAndArticleId(userId, articleId))
+                    .isInstanceOf(UserNotFoundException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.USER_NOT_FOUND);
+
+            verify(userRepository, times(1)).findById(userId);
+        }
+
         @Test
         @DisplayName("잘못된 기사id를 받으면 예외를 반환한다.")
-        void searchArticle_ThrowException_WhenNotFound() {
+        void searchArticle_ThrowException_WhenArticleIdNotFound() {
             // given
-            UUID articleId = UUID.randomUUID();
 
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             when(articleRepository.findById(articleId)).thenReturn(Optional.empty());
+
             // when & then
-            assertThatThrownBy(() -> articleService.searchById(articleId))
+            assertThatThrownBy(() -> articleService.searchByUserIdAndArticleId(userId, articleId))
                     .isInstanceOf(ArticleNotFoundException.class)
                     .extracting("errorCode")
                     .isEqualTo(ErrorCode.ARTICLE_NOT_FOUND);
 
+            verify(userRepository, times(1)).findById(userId);
             verify(articleRepository, times(1)).findById(articleId);
         }
     }
