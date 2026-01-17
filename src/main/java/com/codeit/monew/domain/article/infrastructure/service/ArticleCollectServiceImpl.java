@@ -9,9 +9,11 @@ import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,29 +24,38 @@ public class ArticleCollectServiceImpl implements ArticleCollectService {
     private final InterestRepository interestRepository;
     private final CollectedArticleMapper collectedArticleMapper;
 
+    @Transactional
     @Override
     public void collectAndSave() {
         List<Interest> interests = interestRepository.findAll();
 
-        List<ArticleCreateRequest> collectedArticles = new ArrayList<>();
-        for (ArticleCollector articleCollector : articleCollectors) {
-            collectedArticles.addAll(articleCollector.collect(interests));
+        // 관심사가 없다면 종료
+        if(interests.isEmpty()){
+            return;
         }
+
+        List<ArticleCreateRequest> collectedArticles =
+                articleCollectors.stream()
+                        .flatMap(c -> c.collect(interests).stream())
+                        .toList();
 
         List<String> collectedUrls = collectedArticles.stream()
                 .map(ArticleCreateRequest::sourceUrl)
                 .toList();
 
-        List<String> existingUrls = articleRepository.findAllBySourceUrlIn(collectedUrls).stream()
+        // 수집된 기사가 없다면 종료
+        if(collectedUrls.isEmpty()){
+            return;
+        }
 
+        Set<String> existingUrlSet = articleRepository.findAllBySourceUrlIn(collectedUrls).stream()
                 .map(Article::getSourceUrl)
-                .toList();
+                .collect(Collectors.toSet());
 
         List<Article> newArticles = collectedArticles.stream()
-                .filter(request -> !existingUrls.contains(request.sourceUrl()))
+                .filter(request -> !existingUrlSet.contains(request.sourceUrl()))
                 .map(collectedArticleMapper::toEntity)
                 .toList();
-
 
         articleRepository.saveAll(newArticles);
 
