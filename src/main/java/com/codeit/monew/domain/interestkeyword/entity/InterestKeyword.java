@@ -1,10 +1,8 @@
-package com.codeit.monew.domain.interestkeyword;
+package com.codeit.monew.domain.interestkeyword.entity;
 
-import com.codeit.monew.domain.BaseEntity;
 import com.codeit.monew.domain.interest.entity.Interest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
