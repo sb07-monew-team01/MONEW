@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,7 +35,7 @@ public class ArticleCollectServiceImpl implements ArticleCollectService {
             return;
         }
 
-        // 수집된 기사들 중,
+        // 수집된 기사들 중, 중복이 있다면, 중복을 제거하고 리스트로 생성
         List<ArticleCreateRequest> collectedArticles =
                 articleCollectors.stream()
                         .flatMap(c -> c.collect(interests).stream())
@@ -55,15 +56,23 @@ public class ArticleCollectServiceImpl implements ArticleCollectService {
             return;
         }
 
-        Set<String> existingUrlSet = articleRepository.findAllBySourceUrlIn(collectedUrls).stream()
-                .map(Article::getSourceUrl)
-                .collect(Collectors.toSet());
+        // 1000개씩 끊어서 존재하는 데이터인지 판단.
+        // 존재하는 데이터라면, existingUrlSet 추가
+        Set<String> existingUrlSet = new HashSet<>();
+        int batchSize = 1000;
+        for (int i = 0; i < collectedUrls.size(); i += batchSize) {
+            List<String> batch = collectedUrls.subList(i, Math.min(i + batchSize, collectedUrls.size()));
+            existingUrlSet.addAll(articleRepository.findExistingUrlsIn(batch));
+        }
 
+        // ExsistingUrlSet과 collectArtilce를 비교하여, 존재하지 않는 URL만 리스트화 -> newArticles
         List<Article> newArticles = collectedArticles.stream()
                 .filter(request -> !existingUrlSet.contains(request.sourceUrl()))
                 .map(collectedArticleMapper::toEntity)
                 .toList();
 
+
+        // saveAll(10만건)을 호출해도, 내부 설정에 따라 JPA가 알아서 1,000개 단위로 쪼개서 DB에 Insert 명령을 보냄
         articleRepository.saveAll(newArticles);
 
     }

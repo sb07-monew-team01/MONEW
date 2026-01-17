@@ -111,10 +111,10 @@ public class ArticleCollectServiceTest {
         given(articleCollector1.collect(interests)).willReturn(List.of(request));
         given(articleCollector2.collect(interests)).willReturn(List.of(duplicatedRequest));
 
-        Article existingArticle = ArticleFixture.createEntityWithSourceUrl(duplicatedUrl);
+        String existingArticleUrl = ArticleFixture.createEntityWithSourceUrl(duplicatedUrl).getSourceUrl();
         // 수집된 기사들을 인자로 넣어, 중복되는 기사들을 모두 가져옴
         // 하나씩 검사하는 것보다, 중복된 기사를 가져와, 그것을 제외한 기사들을 save하기 위함
-        given(articleRepository.findAllBySourceUrlIn(anyList())).willReturn(List.of(existingArticle));
+        given(articleRepository.findExistingUrlsIn(anyList())).willReturn(List.of(existingArticleUrl));
 
         Article newArticle = ArticleFixture.createEntity(request);
         given(collectedArticleMapper.toEntity(request)).willReturn(newArticle);
