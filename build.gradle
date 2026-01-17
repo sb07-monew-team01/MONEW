@@ -34,18 +34,20 @@ jacocoTestReport {
         csv.required = false
     }
 }
+// 나중에 추가 예정 (테스트 커버리지 70% 이상으로 제한)
+/*
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.7
+            }
+        }
+    }
+}
+*/
 
-//jacocoTestCoverageVerification {
-//    violationRules {
-//        rule {
-//            limit {
-//                minimum = 0.7
-//            }
-//        }
-//    }
-//}
-//
-//check.dependsOn jacocoTestCoverageVerification
+check.dependsOn jacocoTestCoverageVerification
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -74,8 +76,8 @@ dependencies {
     implementation 'com.rometools:rome:2.1.0'
     // jsoup 라이브러리
     implementation 'org.jsoup:jsoup:1.17.2'
-
-
+    // instancio
+    testImplementation 'org.instancio:instancio-junit:5.5.1'
 
 }
 
