@@ -34,9 +34,16 @@ public class ArticleCollectServiceImpl implements ArticleCollectService {
             return;
         }
 
+        // 수집된 기사들 중,
         List<ArticleCreateRequest> collectedArticles =
                 articleCollectors.stream()
                         .flatMap(c -> c.collect(interests).stream())
+                        .collect(Collectors.toMap(
+                                ArticleCreateRequest::sourceUrl,
+                                request -> request,
+                                (oldRequest, newRequest) -> oldRequest
+                        ))
+                        .values().stream()
                         .toList();
 
         List<String> collectedUrls = collectedArticles.stream()
