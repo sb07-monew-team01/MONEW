@@ -202,7 +202,7 @@ class UserControllerTest {
         }
 
         @Nested
-        @DisplayName("실패 - 유효성")
+        @DisplayName("실패 - 유효성 검증")
         class ValidationFailure {
 
             // TODO : 닉네임 유효성 검사 (400) (최대 몇 자?)
@@ -268,7 +268,7 @@ class UserControllerTest {
             mockMvc.perform(delete("/api/users/" + UUID.randomUUID())
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("MoNew-Request-User-ID", UUID.randomUUID().toString())
-            ).andExpect(status().isOk());
+            ).andExpect(status().is(204));
 
         }
 
@@ -279,7 +279,7 @@ class UserControllerTest {
             mockMvc.perform(delete("/api/users/" + UUID.randomUUID() + "/hard")
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("MoNew-Request-User-ID", UUID.randomUUID().toString())
-            ).andExpect(status().isOk());
+            ).andExpect(status().is(204));
         }
     }
 }

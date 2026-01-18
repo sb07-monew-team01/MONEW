@@ -30,8 +30,20 @@ public class UserController {
         return ResponseEntity.ok(userService.login(request));
     }
 
-    @PatchMapping("/{loginId}")
-    public ResponseEntity<UserDto> update(@Valid @PathVariable UUID loginId, @Valid @RequestBody UserUpdateRequest request){
+    @PatchMapping("/{userId}")
+    public ResponseEntity<UserDto> update(@RequestHeader(name = "MoNew-Request-User-ID") UUID loginId, @Valid @RequestBody UserUpdateRequest request){
         return ResponseEntity.ok(userService.update(loginId, request));
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> deleteSoft(@RequestHeader(name = "MoNew-Request-User-ID") UUID loginId, @PathVariable UUID userId){
+        userService.delete(loginId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{userId}/hard")
+    public ResponseEntity<?> deleteHard(@RequestHeader(name = "MoNew-Request-User-ID") UUID loginId, @PathVariable UUID userId){
+        userService.deleteHard(loginId, userId);
+        return ResponseEntity.noContent().build();
     }
 }
