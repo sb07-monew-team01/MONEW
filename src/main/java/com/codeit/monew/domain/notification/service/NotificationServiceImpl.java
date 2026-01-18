@@ -1,6 +1,5 @@
 package com.codeit.monew.domain.notification.service;
 
-import com.codeit.monew.domain.notification.dto.response.NotificationPageResponse;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.domain.notification.dto.request.*;
 import com.codeit.monew.domain.notification.dto.response.NotificationDto;
@@ -131,7 +130,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Transactional(readOnly = true)
     @Override
-    public NotificationPageResponse<NotificationDto> findUnconfirmedCustom(NotificationPageRequest request) {
+    public PageResponse<NotificationDto> findUnconfirmedCustom(NotificationPageRequest request) {
 
         Slice<Notification> search = notificationRepository.search(request);
 
@@ -144,15 +143,15 @@ public class NotificationServiceImpl implements NotificationService {
 
         List<Notification> content = search.getContent();
         String nextCursor = null;
-        UUID nextAfter = null;
+        LocalDateTime nextAfter = null;
 
         if (search.hasNext() && !content.isEmpty()) {
             Notification last = content.get(content.size() - 1);
-            nextCursor = last.getCreatedAt().toString();
-            nextAfter = last.getId();
+            nextCursor = last.getCreatedAt().toString() + "_" + last.getId().toString();
+            nextAfter = last.getCreatedAt();
         }
 
-        return new NotificationPageResponse<>(pageDtoList, nextCursor, nextAfter, search.getSize(), totalElements, search.hasNext());
+        return new PageResponse<>(pageDtoList, nextCursor, nextAfter, search.getSize(), totalElements, search.hasNext());
     }
 
 

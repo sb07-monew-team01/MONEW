@@ -10,6 +10,7 @@ import org.springframework.data.domain.SliceImpl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static com.codeit.monew.domain.notification.entity.QNotification.notification;
 
@@ -46,16 +47,14 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
             return null;
         }
 
-        LocalDateTime cursorTime = LocalDateTime.parse(request.cursor());
+        int idx = request.cursor().lastIndexOf('_');
 
-        // 보조 커서(UUID)가 없으면 시간 기준만
-        if (request.after() == null) {
-            return notification.createdAt.gt(cursorTime);
-        }
+        LocalDateTime cursorTime = LocalDateTime.parse(request.cursor().substring(0, idx));
+        UUID cursorId = UUID.fromString(request.cursor().substring(idx + 1));
 
         return notification.createdAt.gt(cursorTime).or(
                 notification.createdAt.eq(cursorTime)
-                        .and(notification.id.gt(request.after()))
+                        .and(notification.id.gt(cursorId))
         );
     }
 

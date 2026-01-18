@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public record NotificationPageRequest(
     String cursor,
-    UUID after,
+    LocalDateTime after,
     int limit,
     UUID userid
 ) {

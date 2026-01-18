@@ -77,13 +77,16 @@ public class NotificationServicePaginationTest {
             when(notificationRepository.countByUserIdAndConfirmedFalse(userId)).thenReturn(21L);
 
              // when
-            NotificationPageResponse<NotificationDto> res =
+            PageResponse<NotificationDto> res =
                      notificationService.findUnconfirmedCustom(request);
 
             // then
             Notification last = content.get(limit - 1);
-            assertThat(res.nextCursor()).isEqualTo(last.getCreatedAt().toString());
-            assertThat(res.nextAfter()).isEqualTo(last.getId());
+            assertThat(res.nextCursor())
+                    .isEqualTo(
+                            last.getCreatedAt().toString() + "_" + last.getId().toString()
+                    );
+            assertThat(res.nextAfter()).isEqualTo(last.getCreatedAt());
             }
 
         @Test
@@ -97,7 +100,7 @@ public class NotificationServicePaginationTest {
             when(notificationRepository.countByUserIdAndConfirmedFalse(userId)).thenReturn(10L);
 
             // when
-            NotificationPageResponse<NotificationDto> res =
+            PageResponse<NotificationDto> res =
                     notificationService.findUnconfirmedCustom(request);
 
             // then
