@@ -92,7 +92,7 @@ public class InterestRepositoryTest {
     @DisplayName("관심사 구독")
     class SubscribeInterestTest {
         @Test
-        @DisplayName("성공: 사용자가 관심사를 구독한다")
+        @DisplayName("성공: InterestUser 엔티티가 정상적으로 영속화된다")
         void subscribe_success() {
             // given
             User user = userRepository.save(new User("tester@test.com", "tester", "test"));
