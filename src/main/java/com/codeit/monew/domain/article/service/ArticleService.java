@@ -7,7 +7,8 @@ import com.codeit.monew.global.dto.PageResponse;
 import java.util.UUID;
 
 public interface ArticleService {
-    PageResponse<ArticleDto> searchByKeyword(ArticleSearchRequest searchRequest);
+    PageResponse<ArticleDto> searchByKeyword(ArticleSearchRequest searchRequest, UUID userId);
 
-    ArticleDto searchById(UUID articleId);
+    ArticleDto searchByUserIdAndArticleId(UUID userId, UUID articleId);
+
 }

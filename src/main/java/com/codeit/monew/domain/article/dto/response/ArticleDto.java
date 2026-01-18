@@ -1,11 +1,17 @@
 package com.codeit.monew.domain.article.dto.response;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public record ArticleDto (
-        String title,
-        String summary,
+        UUID id,
         String source,
-        LocalDateTime publishDate
+        String sourceUrl,
+        String title,
+        LocalDateTime publishDate,
+        String summary,
+        Long commentCount,
+        Long viewCount,
+        Boolean viewedByMe
 ){
 }
