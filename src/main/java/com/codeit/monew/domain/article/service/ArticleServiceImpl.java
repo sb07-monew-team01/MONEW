@@ -97,4 +97,10 @@ public class ArticleServiceImpl implements ArticleService {
 
         article.softDelete();
     }
+
+    @Override
+    @Transactional
+    public void hardDelete(UUID articleId) {
+        articleRepository.deleteById(articleId);
+    }
 }

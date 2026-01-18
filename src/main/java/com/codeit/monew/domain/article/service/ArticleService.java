@@ -12,4 +12,6 @@ public interface ArticleService {
     ArticleDto searchById(UUID articleId);
 
     void softDelete(UUID articleId);
+
+    void hardDelete(UUID articleId);
 }
