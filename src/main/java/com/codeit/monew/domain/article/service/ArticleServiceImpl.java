@@ -89,7 +89,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public void softDelete(UUID articleId) {
         Article article = articleRepository.findById(articleId)
-                .orElseThrow();
+                .orElseThrow(() -> new ArticleNotFoundException(articleId));
 
         article.softDelete();
     }
