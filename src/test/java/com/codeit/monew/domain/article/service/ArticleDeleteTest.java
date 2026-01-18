@@ -1,6 +1,7 @@
 package com.codeit.monew.domain.article.service;
 
 import com.codeit.monew.domain.article.entity.Article;
+import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
 import com.codeit.monew.domain.article.fixture.ArticleFixture;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 
 
@@ -43,6 +45,20 @@ public class ArticleDeleteTest {
 
             //then
             assertThat(article.isDeleted()).isTrue();
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 기사면 예외가 발생한다.")
+        void softDelete_nullArticle_fail() {
+            // given
+            UUID articleId = UUID.randomUUID();
+            given(articleRepository.findById(articleId)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> articleService.softDelete(articleId))
+                    .isInstanceOf(ArticleNotFoundException.class);
+
+
         }
     }
 }
