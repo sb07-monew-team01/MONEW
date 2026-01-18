@@ -2,6 +2,7 @@ package com.codeit.monew.domain.user.service;
 
 import com.codeit.monew.domain.user.dto.UserDto;
 import com.codeit.monew.domain.user.dto.request.UserLoginRequest;
+import com.codeit.monew.domain.user.dto.request.UserNicknameUpdateRequest;
 import com.codeit.monew.domain.user.dto.request.UserSignUpRequest;
 import com.codeit.monew.domain.user.dto.request.UserUpdateRequest;
 
@@ -19,5 +20,5 @@ public interface UserService {
 
     void deleteHard(UUID userId);
 
-    UserDto modify(UUID userId, String newNickname);
+    UserDto update(UUID userId, UserNicknameUpdateRequest request);
 }

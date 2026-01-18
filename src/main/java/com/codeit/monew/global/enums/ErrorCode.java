@@ -10,6 +10,7 @@ public enum ErrorCode {
     EMAIL_ALREADY_EXISTS("이미 가입된 이메일입니다.", HttpStatus.CONFLICT),
     USER_NOT_FOUND("존재하지 않는 유저입니다.", HttpStatus.NOT_FOUND),
     USER_ALREADY_DELETED("이미 삭제된 유저입니다.", HttpStatus.BAD_REQUEST),
+    USER_NOT_AUTHORIZED("사용자 권한이 없습니다.", HttpStatus.FORBIDDEN),
 
     // Interest
     INTEREST_NOT_FOUND("해당 관심사를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
@@ -32,7 +33,11 @@ public enum ErrorCode {
     ARTICLE_NOT_FOUND("해당 기사를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     // Global
-    INVALID_ARGUMENT("입력값이 올바르지 않습니다.", HttpStatus.BAD_REQUEST);
+    INVALID_ARGUMENT("입력값이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
+
+    // 500
+    // Global
+    INTERNAL_SERVER_ERROR("서버 내부 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     public final String description;
     public final HttpStatus httpStatus;

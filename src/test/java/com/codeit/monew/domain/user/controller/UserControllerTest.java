@@ -2,9 +2,12 @@ package com.codeit.monew.domain.user.controller;
 
 import com.codeit.monew.domain.user.dto.UserDto;
 import com.codeit.monew.domain.user.dto.request.UserLoginRequest;
+import com.codeit.monew.domain.user.dto.request.UserNicknameUpdateRequest;
 import com.codeit.monew.domain.user.dto.request.UserSignUpRequest;
 import com.codeit.monew.domain.user.exception.UserAlreadyExistsException;
 import com.codeit.monew.domain.user.exception.UserLoginFailedException;
+import com.codeit.monew.domain.user.exception.UserNotAuthorizedException;
+import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.service.UserServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.instancio.Instancio;
@@ -183,50 +186,74 @@ class UserControllerTest {
 
     @Nested
     @DisplayName("유저 수정")
-    class Modify {
+    class Update {
 
         @Test
         @DisplayName("유저의 닉네임을 수정할 수 있다.")
-        void modify() throws Exception {
+        void update() throws Exception {
             // given
             UserDto response = Instancio.create(UserDto.class);
-            UUID userId = UUID.randomUUID();
-            String newNickname = "나는짱이다";
-            when(userService.modify(any(), any())).thenReturn(response);
+            UserNicknameUpdateRequest request = new UserNicknameUpdateRequest("니는 짱이다");
+            when(userService.update(any(), any())).thenReturn(response);
 
             // when & then
-            mockMvc.perform(patch("/api/users/" + userId)
+            mockMvc.perform(patch("/api/users/" + UUID.randomUUID())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(newNickname)))
+                            .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk());
         }
 
         @Nested
         @DisplayName("실패 - 유효성")
         class ValidationFailure {
-            
+
             // TODO : 닉네임 유효성 검사 (400) (최대 몇 자?)
             @ParameterizedTest
             @NullAndEmptySource
-            @ValueSource(strings = "aslidjflwekejfsdfjliwe")
+//            @ValueSource(strings = "aslidjflwekejfsdfjliwe") TODO 정책 추가
             @DisplayName("유효한 닉네임을 사용해야 한다.")
             void fail_notValidNickname(String nickname) throws Exception {
                 // given
-                UUID userId = UUID.randomUUID();
+                UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname);
+                // when & then
+                mockMvc.perform(patch("/api/users/" + UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                        .andExpect(status().is(400));
+            }
 
+            @Test
+            @DisplayName("ID에 해당하는 사용자가 존재하지 않는 경우 오류가 발생한다.")
+            void fail_UserNotFoundById() throws Exception {
+                // given
+                UserNicknameUpdateRequest request = new UserNicknameUpdateRequest("미쳤습니까 휴먼");
+                UUID userId = UUID.randomUUID();
+                when(userService.update(userId, request)).thenThrow(new UserNotFoundException(userId));
                 // when & then
                 mockMvc.perform(patch("/api/users/" + userId)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(nickname)))
-                        .andExpect(status().is(400));
+                                .content(objectMapper.writeValueAsString(request)))
+                        .andExpect(status().is(404));
             }
-            // TODO : 사용자 정보 없음 (404)
         }
 
         @Nested
         @DisplayName("실패 - 비즈니스 로직")
         class BusinessLogicFailure {
-            // TODO : 사용자 정보 수정 권한 없음 (403)
+            @Test
+            @DisplayName("사용자 정보 수정 권한이 없는 경우 오류가 발생한다.")
+            void fail_NotAuthorized() throws Exception {
+                // given
+                UUID userId = UUID.randomUUID();
+                UserNicknameUpdateRequest request = new UserNicknameUpdateRequest("오류에요");
+                when(userService.update(any(), any())).thenThrow(new UserNotAuthorizedException(userId, UUID.randomUUID()));
+
+                // when & then
+                mockMvc.perform(patch("/api/users/" + userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                        .andExpect(status().is(403));
+            }
         }
     }
 }

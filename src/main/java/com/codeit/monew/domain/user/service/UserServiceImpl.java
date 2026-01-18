@@ -2,6 +2,7 @@ package com.codeit.monew.domain.user.service;
 
 import com.codeit.monew.domain.user.dto.UserDto;
 import com.codeit.monew.domain.user.dto.request.UserLoginRequest;
+import com.codeit.monew.domain.user.dto.request.UserNicknameUpdateRequest;
 import com.codeit.monew.domain.user.dto.request.UserSignUpRequest;
 import com.codeit.monew.domain.user.dto.request.UserUpdateRequest;
 import com.codeit.monew.domain.user.entity.User;
@@ -85,10 +86,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto modify(UUID userId, String newNickname) {
+    public UserDto update(UUID userId, UserNicknameUpdateRequest request) {
         User user = userRepository.findById(userId)
                 .orElse(null);
-        user.updateNickname(newNickname);
+        user.updateNickname(request.nickname());
         return userMapper.toDto(user);
     }
 }
