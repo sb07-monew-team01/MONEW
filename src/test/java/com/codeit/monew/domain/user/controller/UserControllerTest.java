@@ -183,7 +183,7 @@ class UserControllerTest {
 
     @Nested
     @DisplayName("유저 수정")
-    class Modify{
+    class Modify {
 
         @Test
         @DisplayName("유저의 닉네임을 수정할 수 있다.")
@@ -196,20 +196,36 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/users/" + userId)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(newNickname))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(newNickname))
                     .andExpect(status().isOk());
         }
 
-        // TODO : 이메일 유효성 검사 (400)
-        // TODO : 사용자 정보 수정 권한 없음 (403)
-        // TODO : 사용자 정보 없음 (404)
+        @Nested
+        @DisplayName("실패 - 유효성")
+        class ValidationFailure {
+            // TODO : 닉네임 유효성 검사 (400) (최대 몇 자?)
+            @ParameterizedTest
+            @NullAndEmptySource
+            @ValueSource(strings = "aslidjflwekejfsdfjliwe")
+            @DisplayName("유효한 닉네임을 사용해야 한다.")
+            void fail_notValidNickname(String nickname) throws Exception {
+                // given
+                UUID userId = UUID.randomUUID();
+
+                // when & then
+                mockMvc.perform(patch("/api/users/" + userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(nickname))
+                        .andExpect(status().is(400));
+            }
+            // TODO : 사용자 정보 없음 (404)
+        }
 
         @Nested
-        @DisplayName("예외 - ")
-        class failure
-        {
-
+        @DisplayName("실패 - 비즈니스 로직")
+        class BusinessLogicFailure {
+            // TODO : 사용자 정보 수정 권한 없음 (403)
         }
     }
 }
