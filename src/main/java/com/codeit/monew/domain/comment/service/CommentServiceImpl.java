@@ -10,6 +10,7 @@ import com.codeit.monew.domain.comment.exception.CommentAlreadyDeleteException;
 import com.codeit.monew.domain.comment.exception.CommentContentEmptyException;
 import com.codeit.monew.domain.comment.exception.CommentContentTooLongException;
 import com.codeit.monew.domain.comment.exception.CommentNotFoundException;
+import com.codeit.monew.domain.comment.mapper.CommentMapper;
 import com.codeit.monew.domain.comment.repository.CommentRepository;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
@@ -85,7 +86,7 @@ public class CommentServiceImpl implements CommentService {
 
         comment.updateContent(request.content());
 
-        return CommentDto.toDto(comment);
+        return CommentMapper.toDto(comment);
 
 
     }

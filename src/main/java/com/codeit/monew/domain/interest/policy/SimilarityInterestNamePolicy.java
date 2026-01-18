@@ -1,7 +1,7 @@
 package com.codeit.monew.domain.interest.policy;
 
 import com.codeit.monew.domain.interest.entity.Interest;
-import com.codeit.monew.domain.interest.exception.InterestNameTooSimilarException;
+import com.codeit.monew.domain.interest.exception.web.InterestNameTooSimilarException;
 import com.codeit.monew.global.enums.ErrorCode;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.springframework.stereotype.Component;

@@ -36,7 +36,7 @@ public class NaverArticleMapper {
         List<String> tags = new ArrayList<>();
 
         tags.add("#" + interest.getName());
-        interest.getKeywords().forEach(keyword -> tags.add("#"+ keyword));
+        interest.getKeywords().forEach(keyword -> tags.add("#"+ keyword.getKeyword()));
 
         return description + "<br>" + String.join(" ", tags);
     }

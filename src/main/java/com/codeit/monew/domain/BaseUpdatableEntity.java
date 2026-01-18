@@ -14,4 +14,8 @@ public abstract class BaseUpdatableEntity extends BaseEntity {
     @LastModifiedDate
     @Column(nullable = true)
     private LocalDateTime updatedAt;
+
+    protected void touch(){
+        this.updatedAt = LocalDateTime.now();
+    }
 }

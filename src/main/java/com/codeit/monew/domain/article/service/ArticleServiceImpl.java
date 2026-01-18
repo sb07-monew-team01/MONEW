@@ -1,18 +1,20 @@
 package com.codeit.monew.domain.article.service;
 
+import com.codeit.monew.domain.interestkeyword.entity.InterestKeyword;
 import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;
-import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchCondition;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
 import com.codeit.monew.domain.article.dto.response.ArticleDto;
 import com.codeit.monew.domain.article.entity.Article;
+import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
 import com.codeit.monew.domain.article.matcher.ArticleMatcher;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.interest.entity.Interest;
-import com.codeit.monew.domain.interest.exception.InterestNotFoundException;
+import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
+import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
@@ -34,27 +36,6 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticleMapper articleMapper;
     private ArticleMatcher articleMatcher;
 
-    @Transactional
-    @Override
-    public void createArticle(ArticleCreateRequest request, List<Interest> interests) {
-        if(articleRepository.existsBySourceUrl(request.sourceUrl()))
-            return;
-
-        if(!articleMatcher.match(request, interests)){
-            return;
-        }
-
-        Article article = Article.builder()
-                .source(request.source())
-                .sourceUrl(request.sourceUrl())
-                .title(request.title())
-                .publishDate(request.publishDate())
-                .summary(request.summary())
-                .build();
-
-        articleRepository.save(article);
-    }
-
     @Transactional(readOnly = true)
     @Override
     public PageResponse<ArticleDto> searchByKeyword(ArticleSearchRequest request) {
@@ -65,7 +46,7 @@ public class ArticleServiceImpl implements ArticleService {
             Interest interest = interestRepository.findById(request.interestId()).orElseThrow(
                     () -> new InterestNotFoundException(ErrorCode.INTEREST_NOT_FOUND, Map.of("interestId", request.interestId())));
             keywords.add(interest.getName());
-            keywords.addAll(interest.getKeywords());
+            keywords.addAll(interest.getKeywords().stream().map(InterestKeyword::getKeyword).toList());
         }
 
         ArticleSearchCondition condition = ArticleSearchCondition.of(request, keywords);
