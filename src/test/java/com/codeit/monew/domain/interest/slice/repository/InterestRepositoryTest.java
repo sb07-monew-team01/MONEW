@@ -3,6 +3,10 @@ package com.codeit.monew.domain.interest.slice.repository;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interestkeyword.entity.InterestKeyword;
+import com.codeit.monew.domain.interestuser.entity.InterestUser;
+import com.codeit.monew.domain.interestuser.repository.InterestUserRepository;
+import com.codeit.monew.domain.user.entity.User;
+import com.codeit.monew.domain.user.repository.UserRepository;
 import com.codeit.monew.global.config.TestJpaAuditing;
 import com.codeit.monew.global.config.TestQueryDslConfig;
 import jakarta.persistence.EntityManager;
@@ -27,6 +31,12 @@ public class InterestRepositoryTest {
 
     @Autowired
     private InterestRepository interestRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private InterestUserRepository interestUserRepository;
 
     @Nested
     @DisplayName("관심사 저장")
@@ -75,6 +85,25 @@ public class InterestRepositoryTest {
                     .extracting(InterestKeyword::getKeyword)
                     .containsExactly("java");
 
+        }
+    }
+
+    @Nested
+    @DisplayName("관심사 구독")
+    class SubscribeInterestTest {
+        @Test
+        @DisplayName("성공: 사용자가 관심사를 구독한다")
+        void subscribe_success() {
+            // given
+            User user = userRepository.save(new User("tester@test.com", "tester", "test"));
+            Interest interest = interestRepository.save(new Interest("백엔드", List.of("Java", "Spring")));
+            InterestUser interestUser = new InterestUser(interest, user);
+
+            // when
+            InterestUser saved = interestUserRepository.save(interestUser);
+
+            // then
+            assertThat(saved.getId()).isNotNull();
         }
     }
 }
