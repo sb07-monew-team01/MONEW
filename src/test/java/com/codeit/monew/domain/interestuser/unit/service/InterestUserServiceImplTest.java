@@ -1,12 +1,15 @@
 package com.codeit.monew.domain.interestuser.unit.service;
 
 import com.codeit.monew.domain.interest.entity.Interest;
+import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interestuser.entity.InterestUser;
 import com.codeit.monew.domain.interestuser.repository.InterestUserRepository;
 import com.codeit.monew.domain.interestuser.service.InterestUserServiceImpl;
 import com.codeit.monew.domain.user.entity.User;
+import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
+import com.codeit.monew.global.enums.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -20,6 +23,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -61,6 +65,21 @@ public class InterestUserServiceImplTest {
             // then
             assertThat(result).isNotNull();
         }
+
+        @Test
+        @DisplayName("실패: 유저를 id 로 찾을 수 없을 때 예외가 발생한다")
+        void fail_subscribe_interest_not_found_user() {
+            // given
+            UUID userId = UUID.randomUUID();
+            UUID interestId = UUID.randomUUID();
+            given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> interestUserService.subscribe(userId, interestId))
+                    .isInstanceOf(UserNotFoundException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.USER_NOT_FOUND);
+        }
     }
 
     @Nested
@@ -79,7 +98,7 @@ public class InterestUserServiceImplTest {
             given(interestRepository.findById(interestId)).willReturn(Optional.of(interest));
 
             // when
-            InterestUser result = interestUserService.subscribe(userId, interestId);
+            interestUserService.subscribe(userId, interestId);
 
             // then
             then(interestUserRepository).should().save(any(InterestUser.class));
