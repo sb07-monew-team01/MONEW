@@ -1,0 +1,9 @@
+package com.codeit.monew.domain.interestuser.service;
+
+import com.codeit.monew.domain.interestuser.entity.InterestUser;
+
+import java.util.UUID;
+
+public interface InterestUserService {
+    InterestUser subscribe(UUID userId, UUID interestId);
+}
