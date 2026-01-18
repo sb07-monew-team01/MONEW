@@ -2,10 +2,12 @@ package com.codeit.monew.global.exception;
 
 import com.codeit.monew.global.dto.ErrorResponse;
 import com.codeit.monew.global.enums.ErrorCode;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +22,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse<?>> handleMonewException(MonewException e) {
         return ResponseEntity.status(e.getErrorCode().httpStatus)
                 .body(new ErrorResponse<>(e));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse<?>> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e){
+        ErrorCode errorCode = INVALID_ARGUMENT;
+        Map<String, Object> details = new HashMap<>();
+        details.put("field", e.getName());
+        details.put("message", e.getMessage());
+        details.put("value", e.getValue());
+        details.put("requiredType", e.getRequiredType() != null ? e.getRequiredType().getSimpleName() : null);
+        return ResponseEntity.status(HttpStatusCode.valueOf(errorCode.httpStatus.value()))
+                .body(new ErrorResponse<>(e, "올바른 형식이 아닙니다.", details, errorCode));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
