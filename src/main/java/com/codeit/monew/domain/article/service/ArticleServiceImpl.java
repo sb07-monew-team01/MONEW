@@ -123,6 +123,9 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional
     public void hardDelete(UUID articleId) {
+        articleRepository.findById(articleId)
+                .orElseThrow(() -> new ArticleNotFoundException (articleId));
+
         articleRepository.deleteById(articleId);
     }
 }
