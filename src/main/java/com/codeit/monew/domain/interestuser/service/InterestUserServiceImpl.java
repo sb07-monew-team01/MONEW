@@ -24,6 +24,7 @@ public class InterestUserServiceImpl implements InterestUserService{
     private final InterestRepository interestRepository;
     private final InterestUserRepository interestUserRepository;
 
+
     @Override
     @Transactional
     public InterestUser subscribe(UUID userId, UUID interestId) {
@@ -35,8 +36,10 @@ public class InterestUserServiceImpl implements InterestUserService{
         if(interestUserRepository.existsByUserIdAndInterestId(userId, interestId)){
             throw new AlreadySubscribedException(ErrorCode.ALREADY_SUBSCRIBED);
         }
+        InterestUser saved = interestUserRepository.save(new InterestUser(user, interest));
+        interestRepository.save(interest.increaseSubscriberCount());
 
-        return interestUserRepository.save(new InterestUser(user, interest));
+        return saved;
     }
 
     @Override
@@ -46,5 +49,6 @@ public class InterestUserServiceImpl implements InterestUserService{
                 () -> new InterestUserNotFoundException(ErrorCode.INTERESTUSER_NOT_FOUND)
         );
         interestUserRepository.delete(interestUser);
+        interestRepository.save(interestUser.getInterest().decreaseSubscriberCount());
     }
 }

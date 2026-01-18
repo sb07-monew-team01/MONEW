@@ -141,6 +141,7 @@ public class InterestUserServiceImplTest {
 
             // then
             then(interestUserRepository).should().save(any(InterestUser.class));
+            then(interestRepository).should().save(any(Interest.class));
         }
     }
 
@@ -165,6 +166,7 @@ public class InterestUserServiceImplTest {
             interestUserService.unSubscribe(userId, interestId);
 
             // then
+            then(interestRepository).should().save(any(Interest.class));
             then(interestUserRepository).should().delete(interestUser);
         }
 
