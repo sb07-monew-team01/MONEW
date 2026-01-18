@@ -34,5 +34,5 @@ management:
 
 naver:
   api:
-    client-id: Ljz_9TNPGyKCYIeLPxry
-    client-secret: mMrAN_q7J3
+    client-id:
+    client-secret: 
