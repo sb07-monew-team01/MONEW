@@ -1,6 +1,6 @@
 package com.codeit.monew.domain.article.service;
 
-import com.codeit.monew.domain.interestkeyword.InterestKeyword;
+import com.codeit.monew.domain.interestkeyword.entity.InterestKeyword;
 import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;
@@ -12,7 +12,7 @@ import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
 import com.codeit.monew.domain.article.matcher.ArticleMatcher;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.interest.entity.Interest;
-import com.codeit.monew.domain.interest.exception.InterestNotFoundException;
+import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.global.enums.ErrorCode;
