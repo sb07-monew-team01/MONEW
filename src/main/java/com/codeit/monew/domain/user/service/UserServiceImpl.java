@@ -73,14 +73,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto update(UUID loginId, UserUpdateRequest request) {
-        if (!loginId.equals(request.userId()))
-            throw new UserNotAuthorizedException(loginId, request.userId());
-        User user = userRepository.findById(request.userId())
-                .orElseThrow(() -> new UserNotFoundException(request.userId()));
+    public UserDto update(UUID loginId, UUID requestId, UserUpdateRequest request) {
+        if (!loginId.equals(requestId))
+            throw new UserNotAuthorizedException(loginId, requestId);
+        User user = userRepository.findById(requestId)
+                .orElseThrow(() -> new UserNotFoundException(requestId));
         if (user.isDeleted())
             throw new UserAlreadyDeletedException(user);
-        user.updateNickname(request.newNickname());
+        user.updateNickname(request.nickname());
         return userMapper.toDto(user);
     }
 }

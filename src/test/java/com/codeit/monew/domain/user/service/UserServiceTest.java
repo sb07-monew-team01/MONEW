@@ -71,7 +71,7 @@ public class UserServiceTest {
             when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
             // when & then
-            assertThatThrownBy(() -> userService.signUp(new UserSignUpRequest(user.getEmail(), "newNickname", "password2")))
+            assertThatThrownBy(() -> userService.signUp(new UserSignUpRequest(user.getEmail(), "nickname", "password2")))
                     .isInstanceOf(UserAlreadyDeletedException.class);
             verify(userMapper, never()).toDto(any(User.class));
         }
@@ -247,13 +247,12 @@ public class UserServiceTest {
             when(userMapper.toDto(any(User.class)))
                     .thenReturn(new UserDto(UUID.randomUUID(), email, nickname, LocalDateTime.now()));
             String newNickname = "itsMe";
-            UserUpdateRequest dto = new UserUpdateRequest(userId, newNickname);
+            UserUpdateRequest dto = new UserUpdateRequest(newNickname);
 
             // when
-            userService.update(userId, dto);
+            userService.update(userId, userId, dto);
 
             //then
-            verify(userRepository).findById(userId);
             assertThat(user.getNickname()).isEqualTo(newNickname);
         }
 
@@ -264,10 +263,10 @@ public class UserServiceTest {
             @DisplayName("수정 권한이 없는 경우 오류가 발생한다.")
             void fail_unAuthorized() {
                 // given
-                UserUpdateRequest request = new UserUpdateRequest(UUID.randomUUID(), "newNickname");
+                UserUpdateRequest request = new UserUpdateRequest("nickname");
 
                 // when & then
-                assertThatThrownBy(() -> userService.update(UUID.randomUUID(), request))
+                assertThatThrownBy(() -> userService.update(UUID.randomUUID(), UUID.randomUUID(), request))
                         .isInstanceOf(UserNotAuthorizedException.class);
             }
 
@@ -279,7 +278,7 @@ public class UserServiceTest {
                 when(userRepository.findById(wrongUserId)).thenReturn(Optional.empty());
 
                 // when & then
-                assertThatThrownBy(() -> userService.update(wrongUserId, new UserUpdateRequest(wrongUserId, "newNickname")))
+                assertThatThrownBy(() -> userService.update(wrongUserId, wrongUserId, new UserUpdateRequest("nickname")))
                         .isInstanceOf(UserNotFoundException.class);
             }
 
@@ -288,11 +287,12 @@ public class UserServiceTest {
             void deletedUserUpdate() {
                 // given
                 User user = Instancio.create(User.class);
-                UserUpdateRequest dto = new UserUpdateRequest(user.getId(), "newNickname");
-                when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+                UserUpdateRequest dto = new UserUpdateRequest("nickname");
+                UUID userId = user.getId();
+                when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
                 // when & then
-                assertThatThrownBy(() -> userService.update(user.getId(), dto))
+                assertThatThrownBy(() -> userService.update(userId, userId, dto))
                         .isInstanceOf(UserAlreadyDeletedException.class);
             }
 

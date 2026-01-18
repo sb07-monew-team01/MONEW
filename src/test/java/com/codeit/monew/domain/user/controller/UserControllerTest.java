@@ -191,13 +191,13 @@ class UserControllerTest {
         void update() throws Exception {
             // given
             UserDto response = Instancio.create(UserDto.class);
-            UserUpdateRequest request = new UserUpdateRequest(response.id(), "니는 짱이다");
-            when(userService.update(any(), any())).thenReturn(response);
+            UserUpdateRequest request = new UserUpdateRequest("나는 짱이다");
+            when(userService.update(any(), any(), any())).thenReturn(response);
 
             // when & then
             mockMvc.perform(patch("/api/users/" + response.id())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .header("MoNew-Request-User-ID", request.userId())
+                            .header("MoNew-Request-User-ID", response.id())
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk());
         }
@@ -213,11 +213,13 @@ class UserControllerTest {
             @DisplayName("유효한 닉네임을 사용해야 한다.")
             void fail_notValidNickname(String nickname) throws Exception {
                 // given
-                UserUpdateRequest request = new UserUpdateRequest(UUID.randomUUID(), nickname);
+                UUID userId = UUID.randomUUID();
+                UserUpdateRequest request = new UserUpdateRequest(nickname);
+
                 // when & then
-                mockMvc.perform(patch("/api/users/" + request.userId())
+                mockMvc.perform(patch("/api/users/" + userId)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .header("MoNew-Request-User-ID", request.userId().toString())
+                                .header("MoNew-Request-User-ID", userId)
                                 .content(objectMapper.writeValueAsString(request)))
                         .andExpect(status().is(400));
             }
@@ -227,12 +229,12 @@ class UserControllerTest {
             void fail_UserNotFoundById() throws Exception {
                 // given
                 UUID userId = UUID.randomUUID();
-                UserUpdateRequest request = new UserUpdateRequest(userId, "솔쳤습니까 휴먼");
-                when(userService.update(userId, request)).thenThrow(new UserNotFoundException(userId));
+                UserUpdateRequest request = new UserUpdateRequest("솔쳤습니까 휴먼");
+                when(userService.update(userId, userId, request)).thenThrow(new UserNotFoundException(userId));
                 // when & then
                 mockMvc.perform(patch("/api/users/" + userId)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .header("MoNew-Request-User-ID", request.userId())
+                                .header("MoNew-Request-User-ID", userId)
                                 .content(objectMapper.writeValueAsString(request)))
                         .andExpect(status().is(404));
             }
@@ -246,8 +248,8 @@ class UserControllerTest {
             void fail_NotAuthorized() throws Exception {
                 // given
                 UUID userId = UUID.randomUUID();
-                UserUpdateRequest request = new UserUpdateRequest(userId, "오류에요");
-                when(userService.update(any(), any())).thenThrow(new UserNotAuthorizedException(userId, UUID.randomUUID()));
+                UserUpdateRequest request = new UserUpdateRequest("오류에요");
+                when(userService.update(any(),any() , any())).thenThrow(new UserNotAuthorizedException(userId, UUID.randomUUID()));
 
                 // when & then
                 mockMvc.perform(patch("/api/users/" + userId)

@@ -31,8 +31,8 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<UserDto> update(@RequestHeader(name = "MoNew-Request-User-ID") UUID loginId, @Valid @RequestBody UserUpdateRequest request){
-        return ResponseEntity.ok(userService.update(loginId, request));
+    public ResponseEntity<UserDto> update(@RequestHeader(name = "MoNew-Request-User-ID") UUID loginId, @PathVariable UUID userId, @Valid @RequestBody UserUpdateRequest request){
+        return ResponseEntity.ok(userService.update(loginId, userId, request));
     }
 
     @DeleteMapping("/{userId}")
