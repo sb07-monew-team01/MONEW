@@ -2,8 +2,8 @@ package com.codeit.monew.domain.user.controller;
 
 import com.codeit.monew.domain.user.dto.UserDto;
 import com.codeit.monew.domain.user.dto.request.UserLoginRequest;
-import com.codeit.monew.domain.user.dto.request.UserNicknameUpdateRequest;
 import com.codeit.monew.domain.user.dto.request.UserSignUpRequest;
+import com.codeit.monew.domain.user.dto.request.UserUpdateRequest;
 import com.codeit.monew.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +30,8 @@ public class UserController {
         return ResponseEntity.ok(userService.login(request));
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<UserDto> modify(@Valid @PathVariable UUID id, @Valid @RequestBody UserNicknameUpdateRequest request){
-        return ResponseEntity.ok(userService.update(id, request));
+    @PatchMapping("/{loginId}")
+    public ResponseEntity<UserDto> update(@Valid @PathVariable UUID loginId, @Valid @RequestBody UserUpdateRequest request){
+        return ResponseEntity.ok(userService.update(loginId, request));
     }
 }

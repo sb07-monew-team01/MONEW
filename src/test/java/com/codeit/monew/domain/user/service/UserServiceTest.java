@@ -5,13 +5,10 @@ import com.codeit.monew.domain.user.dto.request.UserLoginRequest;
 import com.codeit.monew.domain.user.dto.request.UserSignUpRequest;
 import com.codeit.monew.domain.user.dto.request.UserUpdateRequest;
 import com.codeit.monew.domain.user.entity.User;
-import com.codeit.monew.domain.user.exception.UserAlreadyDeletedException;
-import com.codeit.monew.domain.user.exception.UserAlreadyExistsException;
-import com.codeit.monew.domain.user.exception.UserLoginFailedException;
-import com.codeit.monew.domain.user.exception.UserNotFoundException;
+import com.codeit.monew.domain.user.exception.*;
 import com.codeit.monew.domain.user.repository.UserRepository;
-import com.codeit.monew.domain.user.service.UserServiceImpl;
 import com.codeit.monew.domain.user.util.UserMapper;
+import org.instancio.Instancio;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -27,9 +24,9 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -70,19 +67,13 @@ public class UserServiceTest {
         @DisplayName("물리 삭제 이전 같은 이메일로 가입이 불가능하다.")
         void cantSignUp() {
             // given
-            String userEmail = "test@asdf.com";
-            String userNickname = "delete";
-            String userPassword = "password";
-            User user = new User(userEmail, userNickname, userPassword);
-
-            UUID userId = UUID.randomUUID();
-            ReflectionTestUtils.setField(user, "id", userId);
-            user.updateDeletedAt();
-            when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
+            User user = Instancio.create(User.class);
+            when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
             // when & then
-            assertThatThrownBy(() -> userService.signUp(new UserSignUpRequest(userEmail, "newNickname", "password2")))
+            assertThatThrownBy(() -> userService.signUp(new UserSignUpRequest(user.getEmail(), "newNickname", "password2")))
                     .isInstanceOf(UserAlreadyDeletedException.class);
+            verify(userMapper, never()).toDto(any(User.class));
         }
 
 
@@ -90,18 +81,16 @@ public class UserServiceTest {
         @DisplayName("중복 이메일로는 가입할 수 없다")
         void fail_duplicatedEmail() {
             // given
-            String email = "dsfm@email.com";
-            String nickname = "나야";
-            String password = "비밀번호야";
-            User user = new User(email, nickname, password);
-            ReflectionTestUtils.setField(user, "id", UUID.randomUUID());
-            when(userRepository.findByEmail(email))
+            User user = Instancio.of(User.class)
+                    .set(field("deletedAt"), null)
+                    .create();
+            when(userRepository.findByEmail(user.getEmail()))
                     .thenReturn(Optional.of(user));
 
             //then
-            assertThatThrownBy(() -> userService.signUp(new UserSignUpRequest(email, "다른닉네임이야", "다른비밀번호야")))
+            assertThatThrownBy(() -> userService.signUp(new UserSignUpRequest(user.getEmail(), "다른닉네임이야", "다른비밀번호야")))
                     .isInstanceOf(UserAlreadyExistsException.class);
-
+            verify(userMapper, never()).toDto(any(User.class));
         }
     }
 
@@ -137,10 +126,10 @@ public class UserServiceTest {
             String wrongPassword = "wrongPassword";
             when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
-
             // when & then
             assertThatThrownBy(() -> userService.login(new UserLoginRequest(email, wrongPassword)))
                     .isInstanceOf(UserLoginFailedException.class);
+            verify(userMapper, never()).toDto(any(User.class));
         }
 
         @Test
@@ -160,7 +149,7 @@ public class UserServiceTest {
             // when & then
             assertThatThrownBy(() -> userService.login(new UserLoginRequest(userEmail, userPassword)))
                     .isInstanceOf(UserAlreadyDeletedException.class);
-            verify(userRepository).findByEmail(userEmail);
+            verify(userMapper, never()).toDto(any(User.class));
         }
 
         @Test
@@ -173,8 +162,7 @@ public class UserServiceTest {
             // when & then
             assertThatThrownBy(() -> userService.login(new UserLoginRequest(email, "password")))
                     .isInstanceOf(UserNotFoundException.class);
-
-
+            verify(userMapper, never()).toDto(any(User.class));
         }
     }
 
@@ -185,40 +173,61 @@ public class UserServiceTest {
         @DisplayName("유저 삭제 요청을 통해 논리 삭제가 가능하다.")
         void userDelete() {
             // given
-            String userEmail = "test@asdf.com";
-            String userNickname = "delete";
-            String userPassword = "password";
-            User user = new User(userEmail, userNickname, userPassword);
-
             UUID userId = UUID.randomUUID();
-            ReflectionTestUtils.setField(user, "id", userId);
+            User user = Instancio.of(User.class)
+                    .set(field("deletedAt"), null)
+                    .create();
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
             // when
-            userService.delete(userId);
+            userService.delete(userId, userId);
 
             // when & then
-            verify(userRepository).findById(userId);
             assertThat(user.getDeletedAt()).isNotNull();
         }
 
         @Test
-        @DisplayName("논리 삭제가 된 경우 삭제가 불가능하다.")
-        void deletedUserCantDeleteAgain() {
+        @DisplayName("유저 물리 삭제가 가능하다.")
+        void deleteHard() {
             // given
-            String userEmail = "test@asdf.com";
-            String userNickname = "delete";
-            String userPassword = "password";
-            User user = new User(userEmail, userNickname, userPassword);
+            User user = Instancio.of(User.class)
+                    .set(field("deletedAt"), null)
+                    .create();
+            when(userRepository.findById(any())).thenReturn(Optional.of(user));
 
-            UUID userId = UUID.randomUUID();
-            ReflectionTestUtils.setField(user, "id", userId);
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-            user.updateDeletedAt();
+            // when
+            userService.deleteHard(user.getId(), user.getId());
 
-            // when & then
-            assertThatThrownBy(() -> userService.delete(userId))
-                    .isInstanceOf(UserAlreadyDeletedException.class);
+            // then
+            verify(userRepository).delete(user);
+        }
+
+        @Nested
+        @DisplayName("실패 - 비즈니스 로직")
+        class Failure {
+            @Test
+            @DisplayName("존재하지 않는 아이디는 삭제가 불가능하다")
+            void fail_userNotExist() {
+                // given
+                when(userRepository.findById(any())).thenReturn(Optional.empty());
+
+                // when & then
+                UUID loginId = UUID.randomUUID();
+                assertThatThrownBy(() -> userService.delete(loginId, loginId))
+                        .isInstanceOf(UserNotFoundException.class);
+            }
+
+            @Test
+            @DisplayName("논리 삭제가 된 경우 삭제가 불가능하다.")
+            void deletedUserCantDeleteAgain() {
+                // given
+                User user = Instancio.create(User.class);
+                when(userRepository.findById(any())).thenReturn(Optional.of(user));
+
+                // when & then
+                assertThatThrownBy(() -> userService.delete(user.getId(), user.getId()))
+                        .isInstanceOf(UserAlreadyDeletedException.class);
+            }
         }
     }
 
@@ -241,41 +250,52 @@ public class UserServiceTest {
             UserUpdateRequest dto = new UserUpdateRequest(userId, newNickname);
 
             // when
-            userService.updateUser(dto);
+            userService.update(userId, dto);
 
             //then
             verify(userRepository).findById(userId);
             assertThat(user.getNickname()).isEqualTo(newNickname);
         }
 
-        @Test
-        @DisplayName("수정 요청 uuid가 존재하지 않으면 예외가 발생한다.")
-        void notValidUserUuid() {
-            // given
-            User user = new User("email@ma.com", "nickname", "password");
-            UUID validId = UUID.randomUUID();
-            UUID wrongUserId = UUID.randomUUID();
-            ReflectionTestUtils.setField(user, "id", validId);
-            when(userRepository.findById(wrongUserId)).thenReturn(Optional.empty());
+        @Nested
+        @DisplayName("실패 - 비즈니스 로직")
+        class BusinessLogicFailure {
+            @Test
+            @DisplayName("수정 권한이 없는 경우 오류가 발생한다.")
+            void fail_unAuthorized() {
+                // given
+                UserUpdateRequest request = new UserUpdateRequest(UUID.randomUUID(), "newNickname");
 
-            // when & then
-            assertThatThrownBy(() -> userService.updateUser(new UserUpdateRequest(wrongUserId, "newNickname")))
-                    .isInstanceOf(UserNotFoundException.class);
-        }
+                // when & then
+                assertThatThrownBy(() -> userService.update(UUID.randomUUID(), request))
+                        .isInstanceOf(UserNotAuthorizedException.class);
+            }
 
-        @Test
-        @DisplayName("논리 삭제된 유저 수정시 예외가 발생한다.")
-        void deletedUserUpdate() {
-            // given
-            User user = new User("email@sdsd@com", "nickname", "password");
-            ReflectionTestUtils.setField(user, "id", UUID.randomUUID());
-            user.updateDeletedAt();
-            UserUpdateRequest dto = new UserUpdateRequest(user.getId(), "newNickname");
-            when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+            @Test
+            @DisplayName("요청 uuid가 존재하지 않으면 예외가 발생한다.")
+            void notValidUserUuid() {
+                // given
+                UUID wrongUserId = UUID.randomUUID();
+                when(userRepository.findById(wrongUserId)).thenReturn(Optional.empty());
 
-            // when & then
-            assertThatThrownBy(() -> userService.updateUser(dto))
-                    .isInstanceOf(UserAlreadyDeletedException.class);
+                // when & then
+                assertThatThrownBy(() -> userService.update(wrongUserId, new UserUpdateRequest(wrongUserId, "newNickname")))
+                        .isInstanceOf(UserNotFoundException.class);
+            }
+
+            @Test
+            @DisplayName("논리 삭제된 유저 수정시 예외가 발생한다.")
+            void deletedUserUpdate() {
+                // given
+                User user = Instancio.create(User.class);
+                UserUpdateRequest dto = new UserUpdateRequest(user.getId(), "newNickname");
+                when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+                // when & then
+                assertThatThrownBy(() -> userService.update(user.getId(), dto))
+                        .isInstanceOf(UserAlreadyDeletedException.class);
+            }
+
         }
     }
 }

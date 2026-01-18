@@ -1,10 +1,7 @@
 package com.codeit.monew.domain.user.service;
 
 import com.codeit.monew.domain.user.dto.UserDto;
-import com.codeit.monew.domain.user.dto.request.UserLoginRequest;
-import com.codeit.monew.domain.user.dto.request.UserNicknameUpdateRequest;
-import com.codeit.monew.domain.user.dto.request.UserSignUpRequest;
-import com.codeit.monew.domain.user.dto.request.UserUpdateRequest;
+import com.codeit.monew.domain.user.dto.request.*;
 
 import java.util.UUID;
 
@@ -14,11 +11,9 @@ public interface UserService {
 
     UserDto login(UserLoginRequest dto);
 
-    UserDto updateUser(UserUpdateRequest dto);
+    UserDto update(UUID loginId, UserUpdateRequest request);
 
-    void delete(UUID userId);
+    void delete(UUID loginId, UUID deleteId);
 
-    void deleteHard(UUID userId);
-
-    UserDto update(UUID userId, UserNicknameUpdateRequest request);
+    void deleteHard(UUID loginId, UUID deleteId);
 }
