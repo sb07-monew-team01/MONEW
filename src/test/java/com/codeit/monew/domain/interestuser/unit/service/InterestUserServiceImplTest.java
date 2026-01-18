@@ -28,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 public class InterestUserServiceImplTest {
@@ -166,6 +165,23 @@ public class InterestUserServiceImplTest {
 
             // then
             then(interestUserRepository).should().delete(interestUser);
+        }
+
+        @Test
+        @DisplayName("실패: 사용자가 구독하지 않은 관심사를 취소하면 예외가 발생한다")
+        void fail_unsubscribe_not_subscribed(){
+            // given
+            UUID userId = UUID.randomUUID();
+            UUID interestId = UUID.randomUUID();
+
+            given(interestUserRepository.findByUserIdAndInterestId(userId, interestId))
+                    .willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> interestUserService.unSubscribe(userId, interestId))
+                    .isInstanceOf(InterestUserNotFoundException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.INTERESTUSER_NOT_FOUND);
         }
     }
 }
