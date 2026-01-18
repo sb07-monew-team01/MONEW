@@ -76,4 +76,51 @@ class ArticleViewServiceImplTest {
 
         assertThat(response).isNotNull();
     }
+
+    @Test
+    @DisplayName("기사 뷰가 이미 있다면 만들지 않는다.")
+    void createArticleView_AlreadyExists() {
+        // given
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+        when(articleViewRepository.existsByUserIdAndArticleId(userId, articleId)).thenReturn(true);
+
+        // when
+        ArticleViewDto response = articleViewService.createArticleView(articleId, userId);
+
+        // then
+        verify(articleViewRepository, times(0)).save(any(ArticleView.class));
+        verify(articleViewMapper, times(0)).toDto(any(ArticleView.class));
+        assertThat(response).isNull();
+    }
+
+    @Test
+    @DisplayName("사용자id가 존재하지 않으면 예외를 반환한다.")
+    void createArticleView_ThrowException_WhenNotFoundUser() {
+        // given
+
+        when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> articleViewService.createArticleView(articleId, userId))
+                .isInstanceOf(UserNotFoundException.class)
+                .extracting("errorCode")
+                .isEqualTo(ErrorCode.USER_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("기사id가 존재하지 않으면 예외를 반환한다.")
+    void createArticleView_ThrowException_WhenNotFoundArticle() {
+        // given
+
+        when(articleRepository.findById(articleId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> articleViewService.createArticleView(articleId, userId))
+                .isInstanceOf(ArticleNotFoundException.class)
+                .extracting("errorCode")
+                .isEqualTo(ErrorCode.ARTICLE_NOT_FOUND);
+    }
 }
