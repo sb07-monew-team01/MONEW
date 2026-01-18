@@ -8,10 +8,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,5 +27,10 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<UserDto> login(@Valid @RequestBody UserLoginRequest request){
         return ResponseEntity.ok(userService.login(request));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<UserDto> modify(@Valid @PathVariable UUID id, @RequestBody String newNickname){
+        return ResponseEntity.ok(userService.modify(id, newNickname));
     }
 }

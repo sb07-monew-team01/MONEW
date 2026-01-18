@@ -83,4 +83,12 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException(userId));
         userRepository.delete(user);
     }
+
+    @Override
+    public UserDto modify(UUID userId, String newNickname) {
+        User user = userRepository.findById(userId)
+                .orElse(null);
+        user.updateNickname(newNickname);
+        return userMapper.toDto(user);
+    }
 }

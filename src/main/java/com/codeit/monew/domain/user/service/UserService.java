@@ -18,4 +18,6 @@ public interface UserService {
     void delete(UUID userId);
 
     void deleteHard(UUID userId);
+
+    UserDto modify(UUID userId, String newNickname);
 }
