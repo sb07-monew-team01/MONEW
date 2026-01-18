@@ -21,7 +21,12 @@ spring:
     properties:
       hibernate:
         format_sql: true # SQL ??? ?? ?? ??
+        jdbc:
+          batch_size: 1000       # 1000개씩 모아서 DB에 보냄
+          order_inserts: true      # 같은 테이블 insert끼리 묶어서 속도 향상
+          order_updates: true      # 같은 테이블 update끼리 묶음
     open-in-view: false # ????? Controller?? ?? ?? ??. N+1 ??? ????? ???? ? (?? ??)
+
 
 logging:
   level:
