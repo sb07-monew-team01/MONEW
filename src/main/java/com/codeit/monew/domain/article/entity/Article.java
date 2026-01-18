@@ -1,11 +1,17 @@
 package com.codeit.monew.domain.article.entity;
 
 import com.codeit.monew.domain.BaseUpdatableEntity;
+import com.codeit.monew.domain.comment.entity.Comment;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Table(name = "articles")
 @Entity
@@ -39,6 +45,9 @@ public class Article extends BaseUpdatableEntity {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    @OneToMany(mappedBy = "article", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
     // 테스트용
     @Builder
