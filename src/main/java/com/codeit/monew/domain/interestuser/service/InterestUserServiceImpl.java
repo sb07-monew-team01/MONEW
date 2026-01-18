@@ -5,6 +5,7 @@ import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interestuser.entity.InterestUser;
 import com.codeit.monew.domain.interestuser.exception.AlreadySubscribedException;
+import com.codeit.monew.domain.interestuser.exception.InterestUserNotFoundException;
 import com.codeit.monew.domain.interestuser.repository.InterestUserRepository;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
@@ -41,7 +42,9 @@ public class InterestUserServiceImpl implements InterestUserService{
     @Override
     @Transactional
     public void unSubscribe(UUID userId, UUID interestId) {
-        InterestUser interestUser = interestUserRepository.findByUserIdAndInterestId(userId, interestId).get();
+        InterestUser interestUser = interestUserRepository.findByUserIdAndInterestId(userId, interestId).orElseThrow(
+                () -> new InterestUserNotFoundException(ErrorCode.INTERESTUSER_NOT_FOUND)
+        );
         interestUserRepository.delete(interestUser);
     }
 }

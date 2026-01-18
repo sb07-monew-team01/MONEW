@@ -20,6 +20,7 @@ public enum ErrorCode {
     TOO_MANY_KEYWORD("키워드가 10개를 초과합니다.", HttpStatus.BAD_REQUEST),
 
     // InterestUser
+    INTERESTUSER_NOT_FOUND("해당 구독을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     ALREADY_SUBSCRIBED("이미 구독 상태입니다.", HttpStatus.CONFLICT),
 
     // Comment

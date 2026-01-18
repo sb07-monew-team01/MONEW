@@ -5,6 +5,7 @@ import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interestuser.entity.InterestUser;
 import com.codeit.monew.domain.interestuser.exception.AlreadySubscribedException;
+import com.codeit.monew.domain.interestuser.exception.InterestUserNotFoundException;
 import com.codeit.monew.domain.interestuser.repository.InterestUserRepository;
 import com.codeit.monew.domain.interestuser.service.InterestUserServiceImpl;
 import com.codeit.monew.domain.user.entity.User;
