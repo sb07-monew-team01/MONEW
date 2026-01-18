@@ -197,13 +197,14 @@ class UserControllerTest {
             // when & then
             mockMvc.perform(patch("/api/users/" + userId)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(newNickname))
+                            .content(objectMapper.writeValueAsString(newNickname)))
                     .andExpect(status().isOk());
         }
 
         @Nested
         @DisplayName("실패 - 유효성")
         class ValidationFailure {
+            
             // TODO : 닉네임 유효성 검사 (400) (최대 몇 자?)
             @ParameterizedTest
             @NullAndEmptySource
@@ -216,7 +217,7 @@ class UserControllerTest {
                 // when & then
                 mockMvc.perform(patch("/api/users/" + userId)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(nickname))
+                                .content(objectMapper.writeValueAsString(nickname)))
                         .andExpect(status().is(400));
             }
             // TODO : 사용자 정보 없음 (404)
