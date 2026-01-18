@@ -4,6 +4,7 @@ import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interestuser.entity.InterestUser;
+import com.codeit.monew.domain.interestuser.exception.AlreadySubscribedException;
 import com.codeit.monew.domain.interestuser.repository.InterestUserRepository;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
@@ -30,6 +31,10 @@ public class InterestUserServiceImpl implements InterestUserService{
         Interest interest = interestRepository.findById(interestId).orElseThrow(
                 () -> new InterestNotFoundException(ErrorCode.INTEREST_NOT_FOUND)
         );
+        if(interestUserRepository.existsByUserIdAndInterestId(userId, interestId)){
+            throw new AlreadySubscribedException(ErrorCode.ALREADY_SUBSCRIBED);
+        }
+
         return interestUserRepository.save(new InterestUser(user, interest));
     }
 }

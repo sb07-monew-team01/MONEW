@@ -19,6 +19,9 @@ public enum ErrorCode {
     INTEREST_NULL_KEYWORD("키워드가 null일 수 없습니다.", HttpStatus.BAD_REQUEST),
     TOO_MANY_KEYWORD("키워드가 10개를 초과합니다.", HttpStatus.BAD_REQUEST),
 
+    // InterestUser
+    ALREADY_SUBSCRIBED("이미 구독 상태입니다.", HttpStatus.CONFLICT),
+
     // Comment
     COMMENT_EMPTY_CONTENT("댓글 내용이 null일 수 없습니다.", HttpStatus.BAD_REQUEST),
     COMMENT_TOO_LONG("댓글 내용은 500자 이하여야 합니다.", HttpStatus.BAD_REQUEST),
