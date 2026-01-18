@@ -9,8 +9,6 @@ import java.util.UUID;
 public interface ArticleService {
     PageResponse<ArticleDto> searchByKeyword(ArticleSearchRequest searchRequest, UUID userId);
 
-    void createArticle(ArticleCreateRequest request, List<Interest>  interests);
-
     ArticleDto searchByUserIdAndArticleId(UUID userId, UUID articleId);
 
 }

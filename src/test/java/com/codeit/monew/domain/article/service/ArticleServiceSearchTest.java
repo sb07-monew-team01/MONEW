@@ -6,7 +6,7 @@ import com.codeit.monew.domain.article.fixture.ArticleDtoFixture;
 import com.codeit.monew.domain.article.fixture.ArticleFixture;
 import com.codeit.monew.domain.article.fixture.ArticleSearchRequestFixture;
 import com.codeit.monew.domain.articleView.repository.ArticleViewRepository;
-import com.codeit.monew.domain.interest.exception.InterestNotFoundException;
+import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;

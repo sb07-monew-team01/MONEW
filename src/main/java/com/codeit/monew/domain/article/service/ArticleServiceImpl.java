@@ -1,8 +1,8 @@
 package com.codeit.monew.domain.article.service;
 
 import com.codeit.monew.domain.articleView.repository.ArticleViewRepository;
-import com.codeit.monew.domain.interestkeyword.InterestKeyword;
 import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
+import com.codeit.monew.domain.interestkeyword.entity.InterestKeyword;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
 import com.codeit.monew.global.dto.PageResponse;
@@ -11,13 +11,11 @@ import com.codeit.monew.domain.article.dto.request.ArticleSearchCondition;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
 import com.codeit.monew.domain.article.dto.response.ArticleDto;
 import com.codeit.monew.domain.article.entity.Article;
-import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
 import com.codeit.monew.domain.article.matcher.ArticleMatcher;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
-import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
