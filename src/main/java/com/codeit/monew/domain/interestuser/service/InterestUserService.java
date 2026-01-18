@@ -6,4 +6,5 @@ import java.util.UUID;
 
 public interface InterestUserService {
     InterestUser subscribe(UUID userId, UUID interestId);
+    void unSubscribe(UUID userId, UUID interestId);
 }

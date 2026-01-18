@@ -145,7 +145,7 @@ public class InterestUserServiceImplTest {
     }
 
     @Nested
-    @DisplayName("관심사 구독 취소 - 행위 검증")
+    @DisplayName("관심사 구독 취소")
     class UnsubscribeInterestTest {
         @Test
         @DisplayName("성공: 사용자가 관심사 구독을 취소하면 delete가 호출된다")
@@ -153,7 +153,13 @@ public class InterestUserServiceImplTest {
             // given
             UUID userId = UUID.randomUUID();
             UUID interestId = UUID.randomUUID();
-            InterestUser interestUser = mock(InterestUser.class);
+            User user = new User("tester@test.com", "tester", "test");
+            Interest interest = new Interest("백엔드", List.of("java", "spring"));
+            InterestUser interestUser = new InterestUser(user, interest);
+
+            given(interestUserRepository
+                    .findByUserIdAndInterestId(userId, interestId))
+                    .willReturn(Optional.of(interestUser));
 
             // when
             interestUserService.unSubscribe(userId, interestId);

@@ -37,4 +37,11 @@ public class InterestUserServiceImpl implements InterestUserService{
 
         return interestUserRepository.save(new InterestUser(user, interest));
     }
+
+    @Override
+    @Transactional
+    public void unSubscribe(UUID userId, UUID interestId) {
+        InterestUser interestUser = interestUserRepository.findByUserIdAndInterestId(userId, interestId).get();
+        interestUserRepository.delete(interestUser);
+    }
 }
