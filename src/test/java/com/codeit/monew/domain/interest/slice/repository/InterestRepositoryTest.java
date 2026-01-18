@@ -99,7 +99,7 @@ public class InterestRepositoryTest {
             // given
             User user = userRepository.save(new User("tester@test.com", "tester", "test"));
             Interest interest = interestRepository.save(new Interest("백엔드", List.of("Java", "Spring")));
-            InterestUser interestUser = new InterestUser(interest, user);
+            InterestUser interestUser = new InterestUser(user, interest);
 
             // when
             InterestUser saved = interestUserRepository.save(interestUser);
@@ -116,13 +116,13 @@ public class InterestRepositoryTest {
             // given
             User user = userRepository.save(new User("tester@test.com", "tester", "test"));
             Interest interest = interestRepository.save(new Interest("백엔드", List.of("Java", "Spring")));
-            interestUserRepository.save(new InterestUser(interest, user));
+            interestUserRepository.save(new InterestUser(user, interest));
             em.flush();
             em.clear();
 
             // when / then
             assertThatThrownBy(() -> {
-                interestUserRepository.save(new InterestUser(interest, user));
+                interestUserRepository.save(new InterestUser(user, interest));
                 em.flush();
                 em.clear();
             }).isInstanceOf(ConstraintViolationException.class);

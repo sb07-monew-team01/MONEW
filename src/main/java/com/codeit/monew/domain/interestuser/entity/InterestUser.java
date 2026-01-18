@@ -20,10 +20,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class InterestUser extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "interest_id", nullable = false)
-    private Interest interest;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "interest_id", nullable = false)
+    private Interest interest;
 }
