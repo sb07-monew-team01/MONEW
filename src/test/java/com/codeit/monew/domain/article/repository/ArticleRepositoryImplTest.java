@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Slice;
 import org.springframework.test.context.ActiveProfiles;
@@ -27,6 +28,8 @@ class ArticleRepositoryImplTest {
 
     @Autowired
     private ArticleRepository articleRepository;
+    @Autowired
+    private TestEntityManager entityManager;
 
     @Test
     @DisplayName("""
@@ -50,6 +53,9 @@ class ArticleRepositoryImplTest {
                 .direction("DESC")
                 .limit(3)
                 .build();
+
+        entityManager.flush();
+        entityManager.clear();
 
         // when 첫 번째 페이지
         Slice<Article> pages1 = articleRepository.findByKeywordsAndSources(searchCondition);
