@@ -18,6 +18,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -45,6 +46,8 @@ public class ArticleDeleteTest {
 
             //then
             assertThat(article.isDeleted()).isTrue();
+
+            then(articleRepository).should().findById(articleId);
         }
 
         @Test
@@ -57,11 +60,13 @@ public class ArticleDeleteTest {
             // when & then
             assertThatThrownBy(() -> articleService.softDelete(articleId))
                     .isInstanceOf(ArticleNotFoundException.class);
+
+            then(articleRepository).should().findById(articleId);
         }
 
         @Test
-        @DisplayName("이미 삭제된 기사면 예외가 발생한다. 예외명은 UserNotFoundException")
-        void softDelete_userNotFounException() {
+        @DisplayName("이미 삭제된 기사면 예외가 발생한다. 예외명은 ArticleNotFoundException")
+        void softDelete_alreadySoftDeletedArticle_fail() {
             // given
             UUID articleId = UUID.randomUUID();
             Article article = ArticleFixture.createDefaultEntity();
@@ -72,6 +77,8 @@ public class ArticleDeleteTest {
             // Swagger 문서에서 이미 논리 삭제된 기사는 "기사를 찾을 수 없습니다"
             assertThatThrownBy(() -> articleService.softDelete(articleId))
                     .isInstanceOf(ArticleNotFoundException.class);
+
+            then(articleRepository).should().findById(articleId);
         }
     }
 }
