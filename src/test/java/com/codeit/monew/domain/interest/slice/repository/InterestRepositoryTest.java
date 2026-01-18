@@ -10,6 +10,7 @@ import com.codeit.monew.domain.user.repository.UserRepository;
 import com.codeit.monew.global.config.TestJpaAuditing;
 import com.codeit.monew.global.config.TestQueryDslConfig;
 import jakarta.persistence.EntityManager;
+import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @Import({TestQueryDslConfig.class, TestJpaAuditing.class})
@@ -101,9 +103,29 @@ public class InterestRepositoryTest {
 
             // when
             InterestUser saved = interestUserRepository.save(interestUser);
+            em.flush();
+            em.clear();
 
             // then
             assertThat(saved.getId()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("실패: User-Interest가 이미 존재하면 unique 제약으로 저장이 실패한다")
+        void subscribe_fail_already_exist(){
+            // given
+            User user = userRepository.save(new User("tester@test.com", "tester", "test"));
+            Interest interest = interestRepository.save(new Interest("백엔드", List.of("Java", "Spring")));
+            interestUserRepository.save(new InterestUser(interest, user));
+            em.flush();
+            em.clear();
+
+            // when / then
+            assertThatThrownBy(() -> {
+                interestUserRepository.save(new InterestUser(interest, user));
+                em.flush();
+                em.clear();
+            }).isInstanceOf(ConstraintViolationException.class);
         }
     }
 }
