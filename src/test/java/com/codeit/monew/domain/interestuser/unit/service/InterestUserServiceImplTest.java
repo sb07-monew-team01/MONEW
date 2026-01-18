@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 public class InterestUserServiceImplTest {
@@ -47,7 +48,7 @@ public class InterestUserServiceImplTest {
     @DisplayName("관심사 구독 - 상태 검증")
     class SubscribeInterestStateTest {
         @Test
-        @DisplayName("성공: 유효한 사용자와 관심사가 주어지면 구독이 생성된다")
+        @DisplayName("성공: 사용자는 관심사를 구독할 수 있다")
         void success_subscribe_interest() {
             // given
             UUID userId = UUID.randomUUID();
@@ -140,6 +141,25 @@ public class InterestUserServiceImplTest {
 
             // then
             then(interestUserRepository).should().save(any(InterestUser.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("관심사 구독 취소 - 행위 검증")
+    class UnsubscribeInterestTest {
+        @Test
+        @DisplayName("성공: 사용자가 관심사 구독을 취소하면 delete가 호출된다")
+        void success_unsubscribe_interest() {
+            // given
+            UUID userId = UUID.randomUUID();
+            UUID interestId = UUID.randomUUID();
+            InterestUser interestUser = mock(InterestUser.class);
+
+            // when
+            interestUserService.unSubscribe(userId, interestId);
+
+            // then
+            then(interestUserRepository).should().delete(interestUser);
         }
     }
 }
