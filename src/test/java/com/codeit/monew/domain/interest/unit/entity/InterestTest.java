@@ -1,9 +1,9 @@
 package com.codeit.monew.domain.interest.unit.entity;
 
 import com.codeit.monew.domain.interest.entity.Interest;
-import com.codeit.monew.domain.interest.exception.web.KeywordValidException;
+import com.codeit.monew.domain.interest.exception.domain.InterestDomainException;
+import com.codeit.monew.domain.interest.exception.domain.InterestErrorCode;
 import com.codeit.monew.domain.interestkeyword.entity.InterestKeyword;
-import com.codeit.monew.global.enums.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -45,9 +45,9 @@ public class InterestTest {
 
             // when & then
             assertThatThrownBy(() -> new Interest(name, keywords))
-                    .isInstanceOf(KeywordValidException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.INTEREST_KEYWORD_DUPLICATE);
+                    .isInstanceOf(InterestDomainException.class)
+                    .extracting("InterestErrorCode")
+                    .isEqualTo(InterestErrorCode.KEYWORD_DUPLICATE);
         }
 
         @Test
@@ -59,9 +59,9 @@ public class InterestTest {
 
             // when & then
             assertThatThrownBy(() -> new Interest(name, keywords))
-                    .isInstanceOf(KeywordValidException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.INTEREST_EMPTY_KEYWORD);
+                    .isInstanceOf(InterestDomainException.class)
+                    .extracting("InterestErrorCode")
+                    .isEqualTo(InterestErrorCode.EMPTY_KEYWORD);
         }
 
         @Test
@@ -74,9 +74,9 @@ public class InterestTest {
 
             // when & then
             assertThatThrownBy(() -> new Interest(name, keywords))
-                    .isInstanceOf(KeywordValidException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.TOO_MANY_KEYWORD);
+                    .isInstanceOf(InterestDomainException.class)
+                    .extracting("InterestErrorCode")
+                    .isEqualTo(InterestErrorCode.TOO_MANY_KEYWORD);
         }
 
         @Test
@@ -88,9 +88,9 @@ public class InterestTest {
 
             // when & then
             assertThatThrownBy(() -> new Interest(name, keywords))
-                    .isInstanceOf(KeywordValidException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.INTEREST_NULL_KEYWORD);
+                    .isInstanceOf(InterestDomainException.class)
+                    .extracting("InterestErrorCode")
+                    .isEqualTo(InterestErrorCode.NULL_KEYWORD);
         }
     }
 
@@ -120,9 +120,9 @@ public class InterestTest {
 
             // when & then
             assertThatThrownBy(() -> interest.update(List.of("java", "spring", "java")))
-                    .isInstanceOf(KeywordValidException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.INTEREST_KEYWORD_DUPLICATE);
+                    .isInstanceOf(InterestDomainException.class)
+                    .extracting("InterestErrorCode")
+                    .isEqualTo(InterestErrorCode.KEYWORD_DUPLICATE);
         }
 
         @Test
@@ -133,9 +133,9 @@ public class InterestTest {
 
             // when & then
             assertThatThrownBy(() -> interest.update(List.of()))
-                    .isInstanceOf(KeywordValidException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.INTEREST_EMPTY_KEYWORD);
+                    .isInstanceOf(InterestDomainException.class)
+                    .extracting("InterestErrorCode")
+                    .isEqualTo(InterestErrorCode.EMPTY_KEYWORD);
         }
 
         @Test
@@ -148,9 +148,9 @@ public class InterestTest {
             assertThatThrownBy(() -> interest.update(List.of(
                     "java", "spring", "python", "C", "C++", "javascript", "typescript", "html", "css",
                     "sql", "mongoDB")))
-                    .isInstanceOf(KeywordValidException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.TOO_MANY_KEYWORD);
+                    .isInstanceOf(InterestDomainException.class)
+                    .extracting("InterestErrorCode")
+                    .isEqualTo(InterestErrorCode.TOO_MANY_KEYWORD);
         }
 
         @Test
@@ -161,9 +161,9 @@ public class InterestTest {
 
             // when & then
             assertThatThrownBy(() -> interest.update(null))
-                    .isInstanceOf(KeywordValidException.class)
-                    .extracting("errorCode")
-                    .isEqualTo(ErrorCode.INTEREST_NULL_KEYWORD);
+                    .isInstanceOf(InterestDomainException.class)
+                    .extracting("InterestErrorCode")
+                    .isEqualTo(InterestErrorCode.NULL_KEYWORD);
         }
     }
 }
