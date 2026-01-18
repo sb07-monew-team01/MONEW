@@ -32,7 +32,7 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
                         notification.confirmed.isFalse(),
                         Cursor(request)
                 )
-                .orderBy(notification.createdAt.asc())
+                .orderBy(notification.createdAt.asc(),notification.id.asc())
                 .limit(request.limit() + 1)
                 .fetch();
 
@@ -41,14 +41,22 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
 
     private BooleanExpression Cursor(NotificationPageRequest request) {
 
-        if (request.cursor() == null || request.after() == null) {
+        // 첫 페이지: 커서가 없으면 조건 없음
+        if (request.cursor() == null) {
             return null;
         }
 
-        LocalDateTime cursorTime =
-                LocalDateTime.parse(request.cursor());
+        LocalDateTime cursorTime = LocalDateTime.parse(request.cursor());
 
-        return notification.createdAt.gt(cursorTime);
+        // 보조 커서(UUID)가 없으면 시간 기준만
+        if (request.after() == null) {
+            return notification.createdAt.gt(cursorTime);
+        }
+
+        return notification.createdAt.gt(cursorTime).or(
+                notification.createdAt.eq(cursorTime)
+                        .and(notification.id.gt(request.after()))
+        );
     }
 
 

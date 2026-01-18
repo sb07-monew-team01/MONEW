@@ -1,5 +1,6 @@
 package com.codeit.monew.domain.notification;
 
+import com.codeit.monew.domain.notification.dto.response.NotificationPageResponse;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.domain.notification.dto.request.NotificationPageRequest;
 import com.codeit.monew.domain.notification.dto.response.NotificationDto;
@@ -76,13 +77,13 @@ public class NotificationServicePaginationTest {
             when(notificationRepository.countByUserIdAndConfirmedFalse(userId)).thenReturn(21L);
 
              // when
-             PageResponse<NotificationDto> res =
+            NotificationPageResponse<NotificationDto> res =
                      notificationService.findUnconfirmedCustom(request);
 
             // then
             Notification last = content.get(limit - 1);
             assertThat(res.nextCursor()).isEqualTo(last.getCreatedAt().toString());
-            assertThat(res.nextAfter()).isEqualTo(last.getCreatedAt());
+            assertThat(res.nextAfter()).isEqualTo(last.getId());
             }
 
         @Test
@@ -96,7 +97,7 @@ public class NotificationServicePaginationTest {
             when(notificationRepository.countByUserIdAndConfirmedFalse(userId)).thenReturn(10L);
 
             // when
-            PageResponse<NotificationDto> res =
+            NotificationPageResponse<NotificationDto> res =
                     notificationService.findUnconfirmedCustom(request);
 
             // then

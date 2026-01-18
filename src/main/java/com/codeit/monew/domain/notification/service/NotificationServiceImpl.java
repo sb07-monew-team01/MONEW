@@ -1,5 +1,6 @@
 package com.codeit.monew.domain.notification.service;
 
+import com.codeit.monew.domain.notification.dto.response.NotificationPageResponse;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.domain.notification.dto.request.*;
 import com.codeit.monew.domain.notification.dto.response.NotificationDto;
@@ -104,7 +105,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     @Override
     public void deleteAll() {
-        //7일지나면삭제니 작동시간 7일이전이면 삭제
+
         LocalDateTime date = LocalDateTime.now().minusDays(7);
 
         notificationRepository.deleteConfirmedBefore(date);
@@ -130,7 +131,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Transactional(readOnly = true)
     @Override
-    public PageResponse<NotificationDto> findUnconfirmedCustom(NotificationPageRequest request) {
+    public NotificationPageResponse<NotificationDto> findUnconfirmedCustom(NotificationPageRequest request) {
 
         Slice<Notification> search = notificationRepository.search(request);
 
@@ -141,13 +142,17 @@ public class NotificationServiceImpl implements NotificationService {
                  .map(NotificationMapper::toDto)
                  .toList();
 
-         String nextCursor = search.hasNext() ?
-                 search.getContent().get(search.getContent().size()-1).getCreatedAt().toString() : null;
+        List<Notification> content = search.getContent();
+        String nextCursor = null;
+        UUID nextAfter = null;
 
-         LocalDateTime nextAfter =  nextCursor != null ?
-                 LocalDateTime.parse(nextCursor) : null;
+        if (search.hasNext() && !content.isEmpty()) {
+            Notification last = content.get(content.size() - 1);
+            nextCursor = last.getCreatedAt().toString();
+            nextAfter = last.getId();
+        }
 
-        return new PageResponse<>(pageDtoList, nextCursor, nextAfter, search.getSize(), totalElements, search.hasNext());
+        return new NotificationPageResponse<>(pageDtoList, nextCursor, nextAfter, search.getSize(), totalElements, search.hasNext());
     }
 
 

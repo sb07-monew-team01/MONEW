@@ -69,8 +69,6 @@ public class NotificationRepositorySearchCustomTest {
 
                 UUID id = notifications.get(i).getId();
                 LocalDateTime t = LocalDateTime.now()
-                        .plusDays(i * 2)
-                        .plusMinutes(i * 10)
                         .truncatedTo(ChronoUnit.MICROS);
 
                 em.createQuery("update Notification n set n.createdAt = :t where n.id = :id")
