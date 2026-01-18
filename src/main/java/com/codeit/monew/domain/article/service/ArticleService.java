@@ -1,12 +1,9 @@
 package com.codeit.monew.domain.article.service;
 
-import com.codeit.monew.global.dto.PageResponse;
-import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
 import com.codeit.monew.domain.article.dto.response.ArticleDto;
-import com.codeit.monew.domain.interest.entity.Interest;
+import com.codeit.monew.global.dto.PageResponse;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface ArticleService {
@@ -15,4 +12,5 @@ public interface ArticleService {
     void createArticle(ArticleCreateRequest request, List<Interest>  interests);
 
     ArticleDto searchByUserIdAndArticleId(UUID userId, UUID articleId);
+
 }

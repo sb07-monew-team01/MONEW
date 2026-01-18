@@ -1,6 +1,7 @@
 package com.codeit.monew.domain.user.controller;
 
 import com.codeit.monew.domain.user.dto.UserDto;
+import com.codeit.monew.domain.user.dto.request.UserLoginRequest;
 import com.codeit.monew.domain.user.dto.request.UserSignUpRequest;
 import com.codeit.monew.domain.user.service.UserService;
 import jakarta.validation.Valid;
@@ -24,5 +25,8 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.signUp(request));
     }
 
-
+    @PostMapping("/login")
+    public ResponseEntity<UserDto> login(@Valid @RequestBody UserLoginRequest request){
+        return ResponseEntity.ok(userService.login(request));
+    }
 }
