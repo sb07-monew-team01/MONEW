@@ -26,6 +26,7 @@ import java.util.UUID;
 import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -177,6 +178,37 @@ class UserControllerTest {
                                 .content(objectMapper.writeValueAsString(request)))
                         .andExpect(status().is(400));
             }
+        }
+    }
+
+    @Nested
+    @DisplayName("유저 수정")
+    class Modify{
+
+        @Test
+        @DisplayName("유저의 닉네임을 수정할 수 있다.")
+        void modify() throws Exception {
+            // given
+            UserDto response = Instancio.create(UserDto.class);
+            UUID userId = UUID.randomUUID();
+            String newNickname = "나는짱이다";
+            when(userService.modify(any(), any())).thenReturn(response);
+
+            // when & then
+            mockMvc.perform(patch("/api/users/" + userId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(newNickname))
+                    .andExpect(status().isOk());
+        }
+
+        // TODO : 이메일 유효성 검사 (400)
+        // TODO : 사용자 정보 수정 권한 없음 (403)
+        // TODO : 사용자 정보 없음 (404)
+
+        @Nested
+        @DisplayName("예외 - ")
+        class failure
+        {
 
         }
     }
