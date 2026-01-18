@@ -40,4 +40,15 @@ public class ArticleFixture {
                 .summary("아무 요약")
                 .build();
     }
+
+    public static Article createDefaultEntity() {
+        return Article.builder()
+                .source(ArticleSource.NAVER)
+                .sourceUrl("https://test.com")
+                .title("아무 제목")
+                .publishDate(LocalDateTime.now())
+                .summary("아무 요약")
+                .build();
+
+    }
 }
