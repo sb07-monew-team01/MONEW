@@ -91,6 +91,10 @@ public class ArticleServiceImpl implements ArticleService {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleNotFoundException(articleId));
 
+        if(article.getDeletedAt() != null){
+            throw new ArticleNotFoundException(articleId);
+        }
+
         article.softDelete();
     }
 }
