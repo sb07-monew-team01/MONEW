@@ -12,7 +12,7 @@ import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.matcher.ArticleMatcher;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.interest.entity.Interest;
-import com.codeit.monew.domain.interest.exception.InterestNotFoundException;
+import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;

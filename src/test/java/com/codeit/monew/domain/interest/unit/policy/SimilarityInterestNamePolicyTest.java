@@ -1,7 +1,7 @@
 package com.codeit.monew.domain.interest.unit.policy;
 
 import com.codeit.monew.domain.interest.entity.Interest;
-import com.codeit.monew.domain.interest.exception.InterestNameTooSimilarException;
+import com.codeit.monew.domain.interest.exception.web.InterestNameTooSimilarException;
 import com.codeit.monew.domain.interest.policy.InterestNamePolicy;
 import com.codeit.monew.domain.interest.policy.SimilarityInterestNamePolicy;
 import com.codeit.monew.global.enums.ErrorCode;

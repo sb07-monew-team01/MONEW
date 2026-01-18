@@ -1,7 +1,7 @@
 package com.codeit.monew.domain.interest.unit.entity;
 
 import com.codeit.monew.domain.interest.entity.Interest;
-import com.codeit.monew.domain.interest.exception.KeywordValidException;
+import com.codeit.monew.domain.interest.exception.web.KeywordValidException;
 import com.codeit.monew.domain.interestkeyword.entity.InterestKeyword;
 import com.codeit.monew.global.enums.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
