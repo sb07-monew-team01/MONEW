@@ -57,8 +57,21 @@ public class ArticleDeleteTest {
             // when & then
             assertThatThrownBy(() -> articleService.softDelete(articleId))
                     .isInstanceOf(ArticleNotFoundException.class);
+        }
 
+        @Test
+        @DisplayName("이미 삭제된 기사면 예외가 발생한다. 예외명은 UserNotFoundException")
+        void softDelete_userNotFounException() {
+            // given
+            UUID articleId = UUID.randomUUID();
+            Article article = ArticleFixture.createDefaultEntity();
+            article.softDelete();
+            given(articleRepository.findById(articleId)).willReturn(Optional.of(article));
 
+            // when & then
+            // Swagger 문서에서 이미 논리 삭제된 기사는 "기사를 찾을 수 없습니다"
+            assertThatThrownBy(() -> articleService.softDelete(articleId))
+                    .isInstanceOf(ArticleNotFoundException.class);
         }
     }
 }
