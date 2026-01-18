@@ -1,8 +1,5 @@
 package com.codeit.monew.domain.article.service;
 
-import com.codeit.monew.domain.interestkeyword.entity.InterestKeyword;
-import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
-import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.domain.article.dto.mapper.ArticleMapper;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchCondition;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
@@ -14,6 +11,7 @@ import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
+import com.codeit.monew.domain.interestkeyword.entity.InterestKeyword;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -85,5 +83,14 @@ public class ArticleServiceImpl implements ArticleService {
         return articleRepository.findById(articleId)
                 .map(articleMapper::toDto)
                 .orElseThrow(() -> new ArticleNotFoundException(articleId));
+    }
+
+    @Transactional
+    @Override
+    public void softDelete(UUID articleId) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow();
+
+        article.softDelete();
     }
 }

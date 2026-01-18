@@ -10,4 +10,6 @@ public interface ArticleService {
     PageResponse<ArticleDto> searchByKeyword(ArticleSearchRequest searchRequest);
 
     ArticleDto searchById(UUID articleId);
+
+    void softDelete(UUID articleId);
 }
