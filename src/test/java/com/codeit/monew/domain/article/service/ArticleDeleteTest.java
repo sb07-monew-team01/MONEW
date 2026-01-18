@@ -4,6 +4,7 @@ import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
 import com.codeit.monew.domain.article.fixture.ArticleFixture;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,8 +18,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -28,6 +28,8 @@ public class ArticleDeleteTest {
 
     @InjectMocks
     private ArticleServiceImpl articleService;
+
+    private EntityManager entityManager;
 
     @Nested
     @DisplayName("논리 삭제 테스트")
@@ -80,5 +82,27 @@ public class ArticleDeleteTest {
 
             then(articleRepository).should().findById(articleId);
         }
+    }
+
+    @Nested
+    @DisplayName("물리 삭제 테스트")
+    class HardDelete {
+        @Test
+        @DisplayName("뉴스 기사를 물리 삭제 할 수 있다.")
+        void hardDelete_success() {
+            // given
+            UUID articleId = UUID.randomUUID();
+            willDoNothing().given(articleRepository).deleteById(articleId);
+
+            // when
+            articleService.hardDelete(articleId);
+
+            // then
+            then(articleRepository).should().deleteById(articleId);
+
+        }
+
+
+
     }
 }
