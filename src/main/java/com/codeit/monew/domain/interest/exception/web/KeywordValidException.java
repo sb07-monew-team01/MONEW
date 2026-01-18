@@ -1,4 +1,4 @@
-package com.codeit.monew.domain.interest.exception;
+package com.codeit.monew.domain.interest.exception.web;
 
 import com.codeit.monew.global.enums.ErrorCode;
 

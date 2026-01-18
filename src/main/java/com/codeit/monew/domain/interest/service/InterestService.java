@@ -9,4 +9,5 @@ public interface InterestService {
     Interest create(String name, List<String> keywords);
     Interest editKeywords(UUID id, List<String> keywords);
     void delete(UUID id);
+    Interest findById(UUID id);
 }
