@@ -80,6 +80,22 @@ public class InterestUserServiceImplTest {
                     .extracting("errorCode")
                     .isEqualTo(ErrorCode.USER_NOT_FOUND);
         }
+        
+        @Test
+        @DisplayName("실패: 관심사를 id 로 찾을 수 없을 때 예외가 발생한다")
+        void fail_subscribe_interest_not_found_interest() {
+            UUID userId = UUID.randomUUID();
+            UUID interestId = UUID.randomUUID();
+            User user = new User("tester@test.com", "tester", "test");
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(interestRepository.findById(interestId)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> interestUserService.subscribe(userId, interestId))
+                    .isInstanceOf(InterestNotFoundException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.INTEREST_NOT_FOUND);
+        }
     }
 
     @Nested
