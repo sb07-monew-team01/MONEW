@@ -96,6 +96,27 @@ public class InterestUserServiceImplTest {
                     .extracting("errorCode")
                     .isEqualTo(ErrorCode.INTEREST_NOT_FOUND);
         }
+
+        @Test
+        @DisplayName("실패: 이미 구독한 관심사는 다시 구독할 수 없다")
+        void fail_subscribe_interest_already_subscribed() {
+            // given
+            UUID userId = UUID.randomUUID();
+            UUID interestId = UUID.randomUUID();
+            User user = new User("tester@test.com", "tester", "test");
+            Interest interest = new Interest("백엔드", List.of("java", "spring"));
+
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(interestRepository.findById(interestId)).willReturn(Optional.of(interest));
+            given(interestUserRepository.existsByUserIdAndInterestId(userId, interestId))
+                    .willReturn(true);
+
+            // when & then
+            assertThatThrownBy(() -> interestUserService.subscribe(userId, interestId))
+                    .isInstanceOf(AlreadySubscribedException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.ALREADY_SUBSCRIBED);
+        }
     }
 
     @Nested
