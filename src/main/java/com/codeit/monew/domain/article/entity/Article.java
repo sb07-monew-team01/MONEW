@@ -62,4 +62,12 @@ public class Article extends BaseUpdatableEntity {
     public void decreaseCommentCount() {
         this.commentCount--;
     }
+
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public boolean isDeleted() {
+        return deletedAt != null;
+    }
 }

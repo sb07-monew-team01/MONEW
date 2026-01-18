@@ -16,6 +16,8 @@ import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
+import com.codeit.monew.domain.interestkeyword.entity.InterestKeyword;
+import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
@@ -103,5 +105,14 @@ public class ArticleServiceImpl implements ArticleService {
         boolean viewedByMe = articleViewRepository.existsByUserIdAndArticleId(userId, articleId);
 
         return articleMapper.toDto(article, viewedByMe);
+    }
+
+    @Transactional
+    @Override
+    public void softDelete(UUID articleId) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow();
+
+        article.softDelete();
     }
 }
