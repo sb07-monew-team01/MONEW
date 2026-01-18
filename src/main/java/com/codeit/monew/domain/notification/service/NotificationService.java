@@ -1,11 +1,8 @@
 package com.codeit.monew.domain.notification.service;
 
-import com.codeit.monew.domain.notification.dto.request.NotificationCreateRequest;
-import com.codeit.monew.domain.notification.dto.request.NotificationCreateRequestList;
-import com.codeit.monew.domain.notification.dto.request.NotificationUpdateAllRequest;
-import com.codeit.monew.domain.notification.dto.request.NotificationUpdateRequest;
+import com.codeit.monew.domain.notification.dto.request.*;
 import com.codeit.monew.domain.notification.dto.response.NotificationDto;
-import org.springframework.transaction.annotation.Transactional;
+import com.codeit.monew.global.dto.PageResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +18,10 @@ public interface NotificationService {
     NotificationDto update(NotificationUpdateRequest request);
 
     List<NotificationDto> updateAll(NotificationUpdateAllRequest request);
+
+    PageResponse<NotificationDto> findUnconfirmed(NotificationPageRequest request);
+
+    PageResponse<NotificationDto> findUnconfirmedCustom(NotificationPageRequest request);
 
     void deleteAll();
 
