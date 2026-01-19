@@ -237,7 +237,7 @@ public class CommentServiceTest {
                     .willReturn(Optional.of(comment));
 
             // when
-            commentService.update(commentId, request);
+            commentService.update(commentId, userId, request);
 
             // then
             assertThat(comment.getContent()).isEqualTo(request.content());
@@ -255,7 +255,7 @@ public class CommentServiceTest {
                     .willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> commentService.update(invalidId, request))
+            assertThatThrownBy(() -> commentService.update(invalidId, userId, request))
                     .isInstanceOf(CommentNotFoundException.class);
 
         }
