@@ -6,6 +6,7 @@ import com.codeit.monew.domain.comment.repository.CommentRepository;
 import com.codeit.monew.domain.commentuserlike.dto.CommentUserLikeDto;
 import com.codeit.monew.domain.commentuserlike.entity.CommentUserLike;
 import com.codeit.monew.domain.commentuserlike.exception.CommentAlreadyLikedException;
+import com.codeit.monew.domain.commentuserlike.exception.CommentUserLikeNotFoundException;
 import com.codeit.monew.domain.commentuserlike.mapper.CommentUserLikeMapper;
 import com.codeit.monew.domain.commentuserlike.repository.CommentUserLikeRepository;
 import com.codeit.monew.domain.notification.service.NotificationService;
@@ -63,7 +64,7 @@ public class CommentUserLikeServiceImpl implements CommentUserLikeService {
         CommentUserLike like = commentUserLikeRepository
                 .findByUserIdAndCommentId(userId, commentId)
                 .orElseThrow(() ->
-                        new IllegalStateException("좋아요를 누르지 않은 댓글입니다.")
+                        new CommentUserLikeNotFoundException(ErrorCode.COMMENT_USER_LIKE_NOT_FOUND)
                 );
 
         commentUserLikeRepository.delete(like);

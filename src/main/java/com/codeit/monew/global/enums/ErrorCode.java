@@ -31,7 +31,7 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND("해당 댓글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     // Comment Like
     COMMENT_ALREADY_LIKED("이미 좋아요를 누른 댓글입니다.", HttpStatus.CONFLICT),
-    COMMENT_LIKE_NOT_FOUND("해당 댓글 좋아요를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    COMMENT_USER_LIKE_NOT_FOUND("취소할 좋아요가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
 
     //Notification
     NOTIFICATION_NOT_FOUND("해당 알림을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
