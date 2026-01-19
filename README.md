@@ -1,4 +1,6 @@
 # Getting Started
+![Coverage](.github/badges/jacoco.svg)
+![Branch Coverage](.github/badges/branches.svg)
 
 ### Reference Documentation
 
