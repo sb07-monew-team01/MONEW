@@ -1,5 +1,6 @@
 package com.codeit.monew.domain.notification.controller;
 
+import com.codeit.monew.domain.notification.controller.doc.NotificationDocs;
 import com.codeit.monew.domain.notification.dto.request.NotificationPageRequest;
 import com.codeit.monew.domain.notification.dto.request.NotificationPageQuery;
 import com.codeit.monew.domain.notification.dto.request.NotificationUpdateAllRequest;
@@ -18,7 +19,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/notifications")
-public class NotificationController {
+public class NotificationController implements NotificationDocs {
 
     private final NotificationService notificationService;
 
@@ -51,7 +52,7 @@ public class NotificationController {
     }
 
     @PatchMapping
-    public ResponseEntity<List<NotificationDto>> confirmALlNotification(
+    public ResponseEntity<List<NotificationDto>> confirmAllNotification(
 
             @RequestHeader(value = "Monew-Request-User-ID") UUID userid){
 
