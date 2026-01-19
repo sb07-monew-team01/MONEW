@@ -3,6 +3,7 @@ package com.codeit.monew.domain.commentuserlike.controller;
 import com.codeit.monew.domain.commentuserlike.dto.CommentUserLikeDto;
 import com.codeit.monew.domain.commentuserlike.service.CommentUserLikeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ public class CommentUserLikeController {
             @PathVariable UUID commentId,
             @RequestParam UUID userId) {
         CommentUserLikeDto response = commentUserLikeService.like(userId, commentId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping

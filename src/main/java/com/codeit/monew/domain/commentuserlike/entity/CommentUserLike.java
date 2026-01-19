@@ -24,10 +24,10 @@ public class CommentUserLike extends BaseEntity {
     @JoinColumn(name = "comment_id", nullable = false)
     private Comment comment;
 
-    private CommentUserLike(User user, Comment comment) {
+    public CommentUserLike(User user, Comment comment) {
         this.user = user;
         this.comment = comment;
-    }
+    } // repository 테스트를 위해 public으로 변경
 
     public static CommentUserLike create(User user, Comment comment) {
         return new CommentUserLike(user, comment);

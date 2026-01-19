@@ -1,9 +1,9 @@
 package com.codeit.monew.domain.comment.service;
 
 import com.codeit.monew.domain.article.entity.Article;
+import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
-import com.codeit.monew.domain.comment.dto.request.CommentRegisterRequest;
-import com.codeit.monew.domain.comment.dto.request.CommentUpdateRequest;
+import com.codeit.monew.domain.comment.dto.request.*;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
 import com.codeit.monew.domain.comment.dto.response.CommentPageResponse;
 import com.codeit.monew.domain.comment.entity.Comment;
@@ -21,9 +21,11 @@ import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,8 +45,12 @@ public class CommentServiceImpl implements CommentService {
         User user = userRepository.findById(request.userId())
                 .orElseThrow(() -> new UserNotFoundException("존재하지 않는 사용자입니다."));
 
+        UUID articleId = request.articleId();
+        if (articleId == null) {
+            throw new IllegalArgumentException("게시글 ID는 필수입니다.");
+        }
         Article article = articleRepository.findById(request.articleId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기사입니다.")); // 해당 도메인에 예외 추가되면 수정 예정
+                .orElseThrow(() -> new ArticleNotFoundException(request.articleId()));
 
         Comment comment = new Comment(user, article, request.content());
         Comment saved = commentRepository.save(comment);
@@ -84,7 +90,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentDto update(UUID commentId, CommentUpdateRequest request) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(()-> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
+                .orElseThrow(() -> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
 
         comment.updateContent(request.content());
 
@@ -97,22 +103,34 @@ public class CommentServiceImpl implements CommentService {
     public CommentPageResponse getComments(
             UUID articleId,
             UUID userId,
-            Pageable pageable
+            CommentOrderBy orderBy,
+            SortDirection direction,
+            String cursor,
+            LocalDateTime after,
+            int limit
     ) {
-        // 댓글 페이지 조회
-        Page<Comment> commentPage = commentRepository.findByArticleId(articleId, pageable);
+        // 1️⃣ QueryDSL 커스텀 조회
+        Slice<CommentWithLikeCount> slice =
+                commentRepository.findByArticleIdOrderBy(
+                        articleId,
+                        orderBy,
+                        direction,
+                        cursor,
+                        after,
+                        limit
+                );
 
-        // 댓글을 CommentDto로 변환(좋아요 정보를 포함한)
-        List<CommentDto> content = commentPage.getContent().stream()
-                .map(comment -> {
-                    long likeCount =
-                            commentUserLikeRepository.countByCommentId(comment.getId());
+        // 2️⃣ DTO 변환
+        List<CommentDto> content = slice.getContent().stream()
+                .map(it -> {
+                    Comment comment = it.comment();
+                    long likeCount = it.likeCount();
 
-                    boolean likedByMe = false;
-                    if (userId != null) {
-                        likedByMe =
-                                commentUserLikeRepository.existsByUserIdAndCommentId(userId, comment.getId());
-                    }
+                    boolean likedByMe =
+                            userId != null &&
+                                    commentUserLikeRepository
+                                            .existsByUserIdAndCommentId(userId, comment.getId());
+
                     return new CommentDto(
                             comment.getId(),
                             comment.getArticle().getId(),
@@ -126,16 +144,27 @@ public class CommentServiceImpl implements CommentService {
                 })
                 .toList();
 
-        // PageResponse 생성 및 반환
+        // 3️⃣ 커서 계산 (마지막 댓글 기준)
+        String nextCursor = null;
+        LocalDateTime nextAfter = null;
+
+        if (slice.hasNext() && !content.isEmpty()) {
+            Comment last = slice.getContent()
+                    .get(slice.getContent().size() - 1)
+                    .comment();
+
+            nextCursor = last.getId().toString();
+            nextAfter = last.getCreatedAt();
+        }
+
+        // 4️⃣ 응답
         return new CommentPageResponse(
                 content,
-                null,
-                null,
-                pageable.getPageSize(),
-                commentPage.getTotalElements(),
-                commentPage.hasNext()
+                nextCursor,
+                nextAfter,
+                limit,
+                null,               // Slice는 total 없음
+                slice.hasNext()
         );
-
     }
-
 }
