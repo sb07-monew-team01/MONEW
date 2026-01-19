@@ -16,7 +16,7 @@ public record InterestCursorQuery(
         // 기본값 처리
         if (orderBy == null) orderBy = InterestOrderBy.NAME;
         if (direction == null) direction = SortDirection.ASC;
-        if (limit == null) limit = 50;
+        if (limit == null) limit = 6;
     }
 
     public void validate() {

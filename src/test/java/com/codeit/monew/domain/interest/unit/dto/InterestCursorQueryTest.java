@@ -35,7 +35,7 @@ public class InterestCursorQueryTest {
             // then
             assertThat(query.orderBy()).isEqualTo(InterestOrderBy.NAME);
             assertThat(query.direction()).isEqualTo(SortDirection.ASC);
-            assertThat(query.limit()).isEqualTo(50);
+            assertThat(query.limit()).isEqualTo(6);
         }
     }
 
