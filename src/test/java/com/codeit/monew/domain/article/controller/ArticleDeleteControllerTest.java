@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(ArticleDeleteController.class)
+@WebMvcTest(ArticleController.class)
 @Import(GlobalExceptionHandler.class)
 class ArticleDeleteControllerTest {
     @Autowired
