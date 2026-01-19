@@ -4,6 +4,7 @@ import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
 import com.codeit.monew.domain.interest.policy.InterestNamePolicy;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
+import com.codeit.monew.domain.interest.repository.InterestRepositoryCustomImpl;
 import com.codeit.monew.domain.interest.service.InterestServiceImpl;
 import com.codeit.monew.domain.interestkeyword.entity.InterestKeyword;
 import com.codeit.monew.global.enums.ErrorCode;
@@ -14,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 public class InterestServiceImplTest {
@@ -33,6 +37,9 @@ public class InterestServiceImplTest {
 
     @Mock
     InterestNamePolicy interestNamePolicy;
+
+    @Mock
+    InterestRepositoryCustomImpl interestRepositoryCustom;
 
     @InjectMocks
     InterestServiceImpl interestService;
@@ -148,6 +155,29 @@ public class InterestServiceImplTest {
                     .isInstanceOf(InterestNotFoundException.class)
                     .extracting("errorCode")
                     .isEqualTo(ErrorCode.INTEREST_NOT_FOUND);
+        }
+    }
+
+    @Nested
+    @DisplayName("관심사 조회")
+    class FindInterest{
+        @Test
+        @DisplayName("관심사 조회를 하면 repository의 조회가 호출된다")
+        void find_interest_(){
+            // given
+            Slice<Interest> mockSlice = new SliceImpl<>(
+                List.of(new Interest("테스트", List.of("키워드")))
+            );
+            given(interestRepositoryCustom.findAllByCursor(any()))
+                    .willReturn(mockSlice);
+
+            // when
+            Slice<Interest> result = interestService.getInterests(
+                    "테스트", "NAME", "ASC", null, null, 10
+            );
+
+            // then
+            then(interestRepositoryCustom).should(times(1)).findAllByCursor(any());
         }
     }
 }
