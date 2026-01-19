@@ -1,10 +1,8 @@
-package com.codeit.monew.domain.notification;
+package com.codeit.monew.domain.notification.controller;
 
-import com.codeit.monew.domain.notification.controller.NotificationController;
 import com.codeit.monew.domain.notification.dto.request.NotificationPageRequest;
 import com.codeit.monew.domain.notification.service.NotificationService;
 import com.codeit.monew.global.dto.PageResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -34,12 +32,11 @@ public class NotificationControllerPageTest {
     @MockitoBean
     NotificationService notificationService;
 
-    @Autowired
-    ObjectMapper objectMapper;
-
     @Nested
     @DisplayName("알림조회 파라미터")
     class NotificationSearch{
+
+
         @Test
         @DisplayName("cursor가_형식이_틀리면_400")
         void bad_cursor_400() throws Exception {

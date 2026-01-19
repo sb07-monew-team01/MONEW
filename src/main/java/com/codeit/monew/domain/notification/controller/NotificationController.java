@@ -2,6 +2,8 @@ package com.codeit.monew.domain.notification.controller;
 
 import com.codeit.monew.domain.notification.dto.request.NotificationPageRequest;
 import com.codeit.monew.domain.notification.dto.request.NotificationPageQuery;
+import com.codeit.monew.domain.notification.dto.request.NotificationUpdateAllRequest;
+import com.codeit.monew.domain.notification.dto.request.NotificationUpdateRequest;
 import com.codeit.monew.domain.notification.dto.response.NotificationDto;
 import com.codeit.monew.domain.notification.service.NotificationService;
 import com.codeit.monew.global.dto.PageResponse;
@@ -10,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -33,5 +36,29 @@ public class NotificationController {
 
         return ResponseEntity.ok().body(unconfirmedCustom);
 
+    }
+
+    @PatchMapping("{notificationId}")
+        public ResponseEntity<NotificationDto> confirmNotification(
+                @PathVariable UUID notificationId,
+                @RequestHeader(value = "Monew-Request-User-ID") UUID userId){
+
+        NotificationUpdateRequest request = new NotificationUpdateRequest(userId,notificationId);
+
+        NotificationDto update = notificationService.update(request);
+
+        return ResponseEntity.ok().body(update);
+    }
+
+    @PatchMapping
+    public ResponseEntity<List<NotificationDto>> confirmALlNotification(
+
+            @RequestHeader(value = "Monew-Request-User-ID") UUID userid){
+
+        NotificationUpdateAllRequest request = new NotificationUpdateAllRequest(userid);
+
+        List<NotificationDto> notifications = notificationService.updateAll(request);
+
+        return ResponseEntity.ok().body(notifications);
     }
 }
