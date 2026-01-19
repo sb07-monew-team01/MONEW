@@ -104,4 +104,26 @@ public class ArticleServiceImpl implements ArticleService {
 
         return articleMapper.toDto(article, viewedByMe);
     }
+
+    @Transactional
+    @Override
+    public void softDelete(UUID articleId) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new ArticleNotFoundException(articleId));
+
+        if(article.getDeletedAt() != null){
+            throw new ArticleNotFoundException(articleId);
+        }
+
+        article.softDelete();
+    }
+
+    @Override
+    @Transactional
+    public void hardDelete(UUID articleId) {
+        articleRepository.findById(articleId)
+                .orElseThrow(() -> new ArticleNotFoundException (articleId));
+
+        articleRepository.deleteById(articleId);
+    }
 }

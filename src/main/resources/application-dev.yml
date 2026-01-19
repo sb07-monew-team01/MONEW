@@ -35,4 +35,4 @@ management:
 naver:
   api:
     client-id:
-    client-secret:
+    client-secret: 
