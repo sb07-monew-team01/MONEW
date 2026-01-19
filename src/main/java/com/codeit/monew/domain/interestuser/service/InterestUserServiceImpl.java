@@ -40,7 +40,7 @@ public class InterestUserServiceImpl implements InterestUserService{
             throw new AlreadySubscribedException(ErrorCode.ALREADY_SUBSCRIBED);
         }
         InterestUser saved = interestUserRepository.save(new InterestUser(user, interest));
-        interestRepository.save(interest.increaseSubscriberCount());
+        interest.increaseSubscriberCount();
 
         return interestSubScriptionMapper.toDto(interest, saved.getId());
     }
@@ -51,13 +51,13 @@ public class InterestUserServiceImpl implements InterestUserService{
         userRepository.findById(userId).orElseThrow(
                 () -> new UserNotFoundException(userId)
         );
-        interestRepository.findById(interestId).orElseThrow(
+        Interest interest = interestRepository.findById(interestId).orElseThrow(
                 () -> new InterestNotFoundException(ErrorCode.INTEREST_NOT_FOUND)
         );
         InterestUser interestUser = interestUserRepository.findByUserIdAndInterestId(userId, interestId).orElseThrow(
                 () -> new InterestUserNotFoundException(ErrorCode.INTERESTUSER_NOT_FOUND)
         );
         interestUserRepository.delete(interestUser);
-        interestRepository.save(interestUser.getInterest().decreaseSubscriberCount());
+        interest.decreaseSubscriberCount();
     }
 }

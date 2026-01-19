@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 public class InterestUserServiceImplTest {
@@ -144,18 +145,32 @@ public class InterestUserServiceImplTest {
             // given
             UUID userId = UUID.randomUUID();
             UUID interestId = UUID.randomUUID();
+            UUID interestUserId = UUID.randomUUID();
+            List<String> keywords = List.of("java", "spring");
+            String name = "백엔드";
             User user = new User("tester@test.com", "tester", "test");
-            Interest interest = new Interest("백엔드", List.of("java", "spring"));
+            Interest interest = new Interest(name, keywords);
+            InterestSubScriptionResponse response = new InterestSubScriptionResponse(
+                    interestUserId,
+                    interestId,
+                    name,
+                    keywords,
+                    1,
+                    LocalDateTime.now()
+            );
 
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
             given(interestRepository.findById(interestId)).willReturn(Optional.of(interest));
+            given(interestSubScriptionMapper.toDto(any(), any())).willReturn(response);
+            InterestUser savedInterestUser = mock(InterestUser.class);
+            given(interestUserRepository.save(any(InterestUser.class)))
+                    .willReturn(savedInterestUser);
 
             // when
             interestUserService.subscribe(userId, interestId);
 
             // then
             then(interestUserRepository).should().save(any(InterestUser.class));
-            then(interestRepository).should().save(any(Interest.class));
         }
     }
 
@@ -182,7 +197,6 @@ public class InterestUserServiceImplTest {
             interestUserService.unSubscribe(userId, interestId);
 
             // then
-            then(interestRepository).should().save(any(Interest.class));
             then(interestUserRepository).should().delete(interestUser);
         }
 
