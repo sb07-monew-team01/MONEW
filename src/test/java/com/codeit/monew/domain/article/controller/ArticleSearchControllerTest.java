@@ -11,6 +11,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(ArticleSearchController.class)
 class ArticleSearchControllerTest {
 
+    private static final Logger log = LoggerFactory.getLogger(ArticleSearchControllerTest.class);
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -132,4 +135,24 @@ class ArticleSearchControllerTest {
                     .andExpect(jsonPath("$.viewedBy").value(userId.toString()));
         }
     }
+
+    @Nested
+    @DisplayName("출처")
+    class ArticleSourceTest {
+
+        @Test
+        @DisplayName("출처 목록 조회")
+        void getSourceList() throws Exception {
+            // given
+
+            // when & then
+            mockMvc.perform(get("/api/articles/sources"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0]").value("NAVER"))
+                    .andExpect(jsonPath("$[1]").value("HANKYUNG"))
+                    .andExpect(jsonPath("$[2]").value("CHOSUN"))
+                    .andExpect(jsonPath("$[3]").value("YEONHAP"));
+        }
+    }
+
 }
