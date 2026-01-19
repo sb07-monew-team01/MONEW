@@ -7,6 +7,7 @@ import com.codeit.monew.domain.commentuserlike.dto.CommentUserLikeDto;
 import com.codeit.monew.domain.commentuserlike.entity.CommentUserLike;
 import com.codeit.monew.domain.commentuserlike.mapper.CommentUserLikeMapper;
 import com.codeit.monew.domain.commentuserlike.repository.CommentUserLikeRepository;
+import com.codeit.monew.domain.notification.service.NotificationService;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
@@ -42,6 +43,9 @@ class CommentUserLikeServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private NotificationService notificationService;
+
     @InjectMocks
     private CommentUserLikeServiceImpl commentUserLikeService;
 
@@ -69,6 +73,8 @@ class CommentUserLikeServiceTest {
             // given
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
             given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
+            given(comment.getUser()).willReturn(user);
+
             given(commentUserLikeRepository.findByUserIdAndCommentId(userId, commentId))
                     .willReturn(Optional.empty());
             given(commentUserLikeRepository.countByCommentId(commentId))
