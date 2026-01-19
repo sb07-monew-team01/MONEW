@@ -8,10 +8,9 @@ import com.codeit.monew.domain.comment.dto.request.CommentUpdateRequest;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
 import com.codeit.monew.domain.comment.entity.Comment;
 import com.codeit.monew.domain.comment.exception.CommentAlreadyDeleteException;
-import com.codeit.monew.domain.comment.exception.CommentContentEmptyException;
-import com.codeit.monew.domain.comment.exception.CommentContentTooLongException;
 import com.codeit.monew.domain.comment.exception.CommentNotFoundException;
 import com.codeit.monew.domain.comment.repository.CommentRepository;
+import com.codeit.monew.domain.commentuserlike.repository.CommentUserLikeRepository;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
@@ -23,8 +22,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,6 +50,8 @@ public class CommentServiceTest {
     private ArticleRepository articleRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private CommentUserLikeRepository commentUserLikeRepository;
 
     @InjectMocks
     private CommentServiceImpl commentService;
@@ -239,6 +246,38 @@ public class CommentServiceTest {
 
         }
 
+    }
+    @Nested
+    @DisplayName("댓글 조회")
+    class ReadComment {
+        @Test
+        @DisplayName("성공: 댓글 조회 시 좋아요 정보가 포함된다.")
+        void readComment_includeLikeInfo() {
+            // given
+            Comment comment = mock(Comment.class);
+            given(comment.getId()).willReturn(commentId);
+
+            Pageable pageable = PageRequest.of(0, 5);
+            Page<Comment> commentPage = new PageImpl<>(List.of(comment), pageable, 1);
+            
+            given(commentRepository.findByArticleId(articleId, pageable))
+                    .willReturn(commentPage);
+            
+            given(commentUserLikeRepository.countLikesByCommentIds(List.of(commentId)))
+                    .willReturn(Map.of(commentId, 10L));
+
+            given(commentUserLikeRepository.existsByUserIdAndCommentId(userId, commentId))
+                    .willReturn(true);
+
+            // when
+            CommentPageResponse response = commentService.getComments(articleId, userId, pageable);
+
+            // then
+            CommenteResponse dto = response.comments().get(0);
+            assertThat(dto.getLikeCount()).isEqualTo(10L);
+            assertThat(dto.isLikedByMe()).isTrue();
+
+        }
     }
 }
 
