@@ -35,12 +35,18 @@ public class InterestController {
         return ResponseEntity.created(URI.create(saved.interestId().toString())).body(saved);
     }
 
-    @PatchMapping
+    @PatchMapping("/{interestId}")
     public ResponseEntity<InterestCommonResponse> InterestEdit(
             @RequestHeader("Monew-Request-User-ID") UUID userId,
+            @PathVariable UUID interestId,
             @RequestBody InterestUpdateRequest request
     ){
         InterestCommonResponse updated = interestService.editKeywords(userId, request);
         return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{interestId}")
+    public void InterestDelete(@PathVariable UUID interestId){
+        interestService.delete(interestId);
     }
 }
