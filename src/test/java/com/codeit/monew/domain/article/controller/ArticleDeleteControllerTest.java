@@ -2,13 +2,12 @@ package com.codeit.monew.domain.article.controller;
 
 import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
 import com.codeit.monew.domain.article.service.ArticleService;
-import com.codeit.monew.global.exception.GlobalExceptionHandler;
+import com.codeit.monew.domain.articleView.service.ArticleViewService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -19,14 +18,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(ArticleDeleteController.class)
-@Import(GlobalExceptionHandler.class)
+@WebMvcTest(ArticleController.class)
 class ArticleDeleteControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean
     private ArticleService articleService;
+
+    @MockitoBean
+    private ArticleViewService articleViewService;
+
 
     @Nested
     @DisplayName("논리 삭제 테스트")
