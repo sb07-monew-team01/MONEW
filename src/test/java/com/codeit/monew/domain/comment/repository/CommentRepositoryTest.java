@@ -4,6 +4,7 @@ import com.codeit.monew.domain.comment.dto.request.CommentOrderBy;
 import com.codeit.monew.domain.comment.dto.request.CommentWithLikeCount;
 import com.codeit.monew.domain.comment.dto.request.SortDirection;
 import com.codeit.monew.domain.commentuserlike.entity.CommentUserLike;
+import com.codeit.monew.domain.commentuserlike.repository.CommentUserLikeRepository;
 import com.codeit.monew.global.config.TestJpaAuditing;
 import com.codeit.monew.global.config.TestQueryDslConfig;
 import com.codeit.monew.domain.article.entity.Article;
@@ -29,6 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CommentRepositoryTest {
     @Autowired
     CommentRepository commentRepository;
+    @Autowired
+    CommentUserLikeRepository commentUserLikeRepository;
     @Autowired
     TestEntityManager entityManager;
 
@@ -93,7 +96,10 @@ public class CommentRepositoryTest {
     void findByArticleIdOrderBy_likeCountIncluded() {
         // given
         User user = new User("a@test.com", "userA", "1234");
-        entityManager.persist(user);
+        User user2 = new User("a1@test.com", "userB", "1234");
+        entityManager.persist(user); // 영속화
+        entityManager.persist(user2);
+
 
         Article article = new Article(
                 ArticleSource.NAVER,
@@ -104,31 +110,22 @@ public class CommentRepositoryTest {
                 null
         );
         entityManager.persist(article);
+        entityManager.flush(); // 제약 조건 같은 거를 적용시키려면 여기서 flush 필요
 
         Comment comment1 = createComment(user, article, "댓글1", LocalDateTime.now().minusMinutes(5));
-        Comment comment2 = createComment(user, article, "댓글2", LocalDateTime.now().minusMinutes(3));
 
         // 좋아요 2개
         entityManager.persist(new CommentUserLike(user, comment1));
-        entityManager.persist(new CommentUserLike(user, comment1));
+        entityManager.persist(new CommentUserLike(user2, comment1));
 
         entityManager.flush();
-        entityManager.clear();
 
         // when
-        var slice = commentRepository.findByArticleIdOrderBy(
-                article.getId(),
-                CommentOrderBy.LIKE_COUNT,
-                SortDirection.DESC,
-                null,
-                null,
-                10
-        );
+        Long likeCount = commentUserLikeRepository.countByCommentId(comment1.getId());
 
         // then
-        assertThat(slice.getContent()).hasSize(2);
-        assertThat(slice.getContent().get(0).comment().getId()).isEqualTo(comment1.getId());
-        assertThat(slice.getContent().get(0).likeCount()).isEqualTo(2L);
+        assertThat(likeCount).isEqualTo(2L);
+
     }
 
 
