@@ -56,7 +56,6 @@ class ArticleSearchControllerTest {
             when(articleService.searchByUserIdAndArticleId(userId, articleId))
                     .thenReturn(dto);
 
-            
             // when & then
             mockMvc.perform(get("/api/articles/{articleId}", articleId)
                     .header("Monew-Request-User-ID", userId.toString()))
