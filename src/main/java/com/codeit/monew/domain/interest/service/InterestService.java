@@ -1,5 +1,6 @@
 package com.codeit.monew.domain.interest.service;
 
+import com.codeit.monew.domain.interest.dto.request.InterestCreatedRequest;
 import com.codeit.monew.domain.interest.dto.request.InterestCursorPageRequest;
 import com.codeit.monew.domain.interest.dto.response.InterestCommonResponse;
 import com.codeit.monew.domain.interest.entity.Interest;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface InterestService {
-    Interest create(String name, List<String> keywords);
+    InterestCommonResponse create(InterestCreatedRequest request);
     Interest editKeywords(UUID id, List<String> keywords);
     void delete(UUID id);
     Interest findById(UUID id);

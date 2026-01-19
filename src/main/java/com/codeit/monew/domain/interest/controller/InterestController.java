@@ -1,16 +1,15 @@
 package com.codeit.monew.domain.interest.controller;
 
+import com.codeit.monew.domain.interest.dto.request.InterestCreatedRequest;
 import com.codeit.monew.domain.interest.dto.request.InterestCursorPageRequest;
 import com.codeit.monew.domain.interest.dto.response.InterestCommonResponse;
 import com.codeit.monew.domain.interest.service.InterestService;
 import com.codeit.monew.global.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.UUID;
 
 @RestController
@@ -25,5 +24,13 @@ public class InterestController {
         InterestCursorPageRequest request
     ){
         return ResponseEntity.ok(interestService.getInterests(userId, request));
+    }
+
+    @PostMapping
+    public ResponseEntity<InterestCommonResponse> InterestCreate(
+            @RequestBody InterestCreatedRequest request
+    ){
+        InterestCommonResponse saved = interestService.create(request);
+        return ResponseEntity.created(URI.create(saved.interestId().toString())).body(saved);
     }
 }

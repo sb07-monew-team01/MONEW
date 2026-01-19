@@ -1,5 +1,6 @@
 package com.codeit.monew.domain.interest.service;
 
+import com.codeit.monew.domain.interest.dto.request.InterestCreatedRequest;
 import com.codeit.monew.domain.interest.dto.request.InterestCursorPageRequest;
 import com.codeit.monew.domain.interest.dto.response.InterestCommonResponse;
 import com.codeit.monew.domain.interest.entity.Interest;
@@ -60,9 +61,12 @@ public class InterestServiceImpl implements InterestService{
 
     @Override
     @Transactional
-    public Interest create(String name, List<String> keywords){
-        interestNamePolicy.apply(name, interestRepository.findAll());
-        return interestRepository.save(new Interest(name, keywords));
+    public InterestCommonResponse create(InterestCreatedRequest request){
+        interestNamePolicy.apply(request.name(), interestRepository.findAll());
+        return interestMapper.toDto(
+                interestRepository.save(new Interest(request.name(), request.keywords())),
+                false
+        );
     }
 
     @Override
