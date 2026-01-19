@@ -41,7 +41,7 @@ public class InterestController {
             @PathVariable UUID interestId,
             @RequestBody InterestUpdateRequest request
     ){
-        InterestCommonResponse updated = interestService.editKeywords(userId, request);
+        InterestCommonResponse updated = interestService.editKeywords(userId, interestId, request);
         return ResponseEntity.ok(updated);
     }
 

@@ -72,8 +72,8 @@ public class InterestServiceImpl implements InterestService{
 
     @Override
     @Transactional
-    public InterestCommonResponse editKeywords(UUID userId, InterestUpdateRequest request){
-        Interest interest = findById(request.interestId());
+    public InterestCommonResponse editKeywords(UUID userId, UUID interestId, InterestUpdateRequest request){
+        Interest interest = findById(interestId);
 
         return interestMapper.toDto(
                 interest.update(request.keywords()),

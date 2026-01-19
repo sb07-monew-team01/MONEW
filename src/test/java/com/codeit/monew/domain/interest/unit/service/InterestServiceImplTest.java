@@ -33,8 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -130,7 +129,7 @@ public class InterestServiceImplTest {
             List<String> oldKeywords = List.of("java", "spring");
             List<String> newKeywords = List.of("DB", "Spring boot");
 
-            InterestUpdateRequest request = new InterestUpdateRequest(interestId, newKeywords);
+            InterestUpdateRequest request = new InterestUpdateRequest(newKeywords);
             Interest interest = new Interest(name, oldKeywords);
             InterestCommonResponse response = new InterestCommonResponse(
                     UUID.randomUUID(), name, newKeywords, 0, false);
@@ -141,7 +140,7 @@ public class InterestServiceImplTest {
             given(interestMapper.toDto(any(Interest.class), eq(false))).willReturn(response);
 
             // when
-            interestService.editKeywords(userId, request);
+            interestService.editKeywords(userId, interestId, request);
 
             // then
             assertThat(interest.getKeywords())
@@ -158,12 +157,12 @@ public class InterestServiceImplTest {
             String name = "백엔드";
             List<String> oldKeywords = List.of("java", "spring");
             List<String> newKeywords = List.of("DB", "Spring boot");
-            InterestUpdateRequest request = new InterestUpdateRequest(interestId, newKeywords);
+            InterestUpdateRequest request = new InterestUpdateRequest(newKeywords);
 
             given(interestRepository.findById(interestId)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> interestService.editKeywords(userId, request))
+            assertThatThrownBy(() -> interestService.editKeywords(userId, interestId, request))
                     .isInstanceOf(InterestNotFoundException.class)
                     .extracting("errorCode")
                     .isEqualTo(ErrorCode.INTEREST_NOT_FOUND);

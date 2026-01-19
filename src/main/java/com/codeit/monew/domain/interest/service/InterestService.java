@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public interface InterestService {
     InterestCommonResponse create(InterestCreatedRequest request);
-    InterestCommonResponse editKeywords(UUID userId, InterestUpdateRequest request);
+    InterestCommonResponse editKeywords(UUID userId, UUID interestId, InterestUpdateRequest request);
     void delete(UUID id);
     Interest findById(UUID id);
     PageResponse<InterestCommonResponse> getInterests(UUID userId, InterestCursorPageRequest request);
