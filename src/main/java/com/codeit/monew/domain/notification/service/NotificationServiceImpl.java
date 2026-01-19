@@ -118,7 +118,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         Pageable pageable = Pageable.ofSize(request.limit());
 
-        Page<Notification> search = notificationRepository.findUnconfirmedByUserId(request.userid(),pageable);
+        Page<Notification> search = notificationRepository.findUnconfirmedByUserId(request.userId(),pageable);
 
         List<NotificationDto> pageDtoList = search.getContent()
                 .stream()
@@ -134,7 +134,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         Slice<Notification> search = notificationRepository.search(request);
 
-        long totalElements = notificationRepository.countByUserIdAndConfirmedFalse(request.userid());
+        long totalElements = notificationRepository.countByUserIdAndConfirmedFalse(request.userId());
 
          List<NotificationDto> pageDtoList = search.getContent()
                  .stream()

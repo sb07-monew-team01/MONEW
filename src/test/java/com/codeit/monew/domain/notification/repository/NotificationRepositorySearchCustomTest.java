@@ -1,11 +1,9 @@
-package com.codeit.monew.domain.notification;
+package com.codeit.monew.domain.notification.repository;
 
 
 
-import com.codeit.monew.domain.BaseEntity;
 import com.codeit.monew.domain.notification.dto.request.NotificationPageRequest;
 import com.codeit.monew.domain.notification.entity.Notification;
-import com.codeit.monew.domain.notification.repository.NotificationRepository;
 import com.codeit.monew.global.config.TestJpaAuditing;
 import com.codeit.monew.global.config.TestQueryDslConfig;
 import jakarta.persistence.EntityManager;
@@ -45,7 +43,7 @@ public class NotificationRepositorySearchCustomTest {
     class HardDelete {
         UUID userId = UUID.randomUUID();
         UUID resourceId = UUID.randomUUID();
-        List<Notification> notifications = new ArrayList<>();;
+        List<Notification> notifications = new ArrayList<>();
 
         @BeforeEach
         void setUp() {
