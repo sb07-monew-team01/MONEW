@@ -143,9 +143,8 @@ class ArticleSearchControllerTest {
         @Test
         @DisplayName("출처 목록 조회")
         void getSourceList() throws Exception {
-            // given
 
-            // when & then
+            // given & when & then
             mockMvc.perform(get("/api/articles/sources"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$[0]").value("NAVER"))

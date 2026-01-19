@@ -2,6 +2,7 @@ package com.codeit.monew.domain.article.controller;
 
 import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
 import com.codeit.monew.domain.article.dto.response.ArticleDto;
+import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.codeit.monew.domain.article.service.ArticleService;
 import com.codeit.monew.domain.articleView.dto.response.ArticleViewDto;
 import com.codeit.monew.domain.articleView.service.ArticleViewService;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -21,8 +23,8 @@ public class ArticleSearchController {
     private final ArticleViewService articleViewService;
 
     @GetMapping("/{articleId}")
-    public ResponseEntity<ArticleDto> ArticleDetails(@PathVariable  UUID articleId,
-                                                 @RequestHeader("Monew-Request-User-ID") UUID userId) {
+    public ResponseEntity<ArticleDto> ArticleDetails(@PathVariable UUID articleId,
+                                                     @RequestHeader("Monew-Request-User-ID") UUID userId) {
         return ResponseEntity.ok(articleService.searchByUserIdAndArticleId(userId, articleId));
     }
 
@@ -34,9 +36,14 @@ public class ArticleSearchController {
     }
 
     @PostMapping("/{articleId}/article-views")
-    public ResponseEntity<ArticleViewDto> ArticleViewAdd (@PathVariable UUID articleId,
-                                                          @RequestHeader("Monew-Request-User-ID") UUID userId) {
+    public ResponseEntity<ArticleViewDto> ArticleViewAdd(@PathVariable UUID articleId,
+                                                         @RequestHeader("Monew-Request-User-ID") UUID userId) {
         return ResponseEntity.ok(articleViewService.createArticleView(articleId, userId));
     }
 
+    @GetMapping("/sources")
+    public ResponseEntity<List<ArticleSource>> sourceList() {
+        List<ArticleSource> sources = List.of(ArticleSource.values());
+        return ResponseEntity.ok(sources);
+    }
 }
