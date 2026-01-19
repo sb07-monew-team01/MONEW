@@ -27,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
+import static com.codeit.monew.domain.comment.mapper.CommentMapper.toDto;
+
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
@@ -47,16 +49,8 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = new Comment(user, article, request.content());
         Comment saved = commentRepository.save(comment);
 
-        return new CommentDto(
-                saved.getId(),
-                saved.getArticle().getId(),
-                saved.getUser().getId(),
-                saved.getUser().getNickname(),
-                saved.getContent(),
-                0L,
-                false,
-                saved.getCreatedAt()
-        );
+        article.increaseCommentCount();
+        return toDto(saved);
     }
 
     // 논리 삭제
@@ -71,6 +65,7 @@ public class CommentServiceImpl implements CommentService {
         }
 
         comment.softDelete();
+        comment.getArticle().decreaseCommentCount();
     }
 
     // 물리 삭제
@@ -81,6 +76,7 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
 
         commentRepository.delete(comment);
+        comment.getArticle().decreaseCommentCount();
     }
 
     // 수정
@@ -92,7 +88,7 @@ public class CommentServiceImpl implements CommentService {
 
         comment.updateContent(request.content());
 
-        return CommentMapper.toDto(comment);
+        return toDto(comment);
 
 
     }
