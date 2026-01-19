@@ -3,6 +3,8 @@ package com.codeit.monew.domain.article.controller;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
 import com.codeit.monew.domain.article.dto.response.ArticleDto;
 import com.codeit.monew.domain.article.service.ArticleService;
+import com.codeit.monew.domain.articleView.dto.response.ArticleViewDto;
+import com.codeit.monew.domain.articleView.service.ArticleViewService;
 import com.codeit.monew.global.dto.PageResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +24,7 @@ import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,6 +38,8 @@ class ArticleSearchControllerTest {
 
     @MockitoBean
     private ArticleService articleService;
+    @MockitoBean
+    private ArticleViewService articleViewService;
 
     @Nested
     @DisplayName("기사 조회")
@@ -91,6 +96,40 @@ class ArticleSearchControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content[0].id").value(articleId.toString()))
                     .andExpect(jsonPath("$.content[0].summary").value("먹어보고 싶다."));
+        }
+    }
+    
+    @Nested
+    @DisplayName("기사 뷰")
+    class CreateArticleViewTest {
+
+        private UUID userId;
+        private UUID articleId;
+        private ArticleViewDto dto;
+
+        @BeforeEach
+        void setUp() {
+            userId = UUID.randomUUID();
+            articleId = UUID.randomUUID();
+            dto = new ArticleViewDto(
+                    UUID.randomUUID(), userId, LocalDateTime.now(), articleId,
+                    "NAVER", "주소", "기사 뷰 생성",
+                    LocalDateTime.now(), "완료", 0L, 0L);
+        }
+
+        @Test
+        @DisplayName("기사 뷰 등록")
+        void addArticleView() throws Exception {
+            // given
+
+            when(articleViewService.createArticleView(articleId, userId)).thenReturn(dto);
+
+            // when & then
+            mockMvc.perform(post("/api/articles/{articleId}/article-views", articleId)
+                    .header("Monew-Request-User-ID", userId.toString()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.articleId").value(articleId.toString()))
+                    .andExpect(jsonPath("$.userId").value(userId.toString()));
         }
     }
 }
