@@ -9,7 +9,8 @@ public record InterestCursorQuery(
         String nameCursor,              // 주 커서 값
         Long subscriberCountCursor,
         String after,       // 보조 커서 값
-        Integer limit       // 한 페이지 당 보이는 갯수
+        Integer limit,       // 한 페이지 당 보이는 갯수
+        String keyword      // 검색 키워드
 ) {
     public InterestCursorQuery {
         // 기본값 처리

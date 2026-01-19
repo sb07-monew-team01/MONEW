@@ -55,7 +55,14 @@ public class InterestRepositoryCustomImplTest {
             // given
             settingInterestList(0);
             InterestCursorQuery query = new InterestCursorQuery(
-                    InterestOrderBy.NAME, SortDirection.ASC, null, null, null, 10);
+                    InterestOrderBy.NAME,
+                    SortDirection.ASC,
+                    null,
+                    null,
+                    null,
+                    10,
+                    null
+            );
 
             // when
             Slice<Interest> result = interestRepositoryCustom.findAllByCursor(query);
@@ -79,7 +86,14 @@ public class InterestRepositoryCustomImplTest {
             // given
             settingInterestList(0);
             InterestCursorQuery query = new InterestCursorQuery(
-                    InterestOrderBy.SUBSCRIBER_COUNT, SortDirection.ASC, null, null, null, 10);
+                    InterestOrderBy.SUBSCRIBER_COUNT,
+                    SortDirection.ASC,
+                    null,
+                    null,
+                    null,
+                    10,
+                    null
+            );
 
             // when
             Slice<Interest> result = interestRepositoryCustom.findAllByCursor(query);
@@ -107,7 +121,14 @@ public class InterestRepositoryCustomImplTest {
             // given
             settingInterestList(0);
             InterestCursorQuery query = new InterestCursorQuery(
-                    InterestOrderBy.NAME, SortDirection.DESC, null, null, null, 10);
+                    InterestOrderBy.NAME,
+                    SortDirection.DESC,
+                    null,
+                    null,
+                    null,
+                    10,
+                    null
+            );
 
             // when
             Slice<Interest> result = interestRepositoryCustom.findAllByCursor(query);
@@ -131,7 +152,14 @@ public class InterestRepositoryCustomImplTest {
             // given
             settingInterestList(0);
             InterestCursorQuery query = new InterestCursorQuery(
-                    InterestOrderBy.SUBSCRIBER_COUNT, SortDirection.DESC, null, null, null, 10);
+                    InterestOrderBy.SUBSCRIBER_COUNT,
+                    SortDirection.DESC,
+                    null,
+                    null,
+                    null,
+                    10,
+                    null
+            );
 
             // when
             Slice<Interest> result = interestRepositoryCustom.findAllByCursor(query);
@@ -160,7 +188,13 @@ public class InterestRepositoryCustomImplTest {
             // given
             settingInterestList(10);
             InterestCursorQuery query = new InterestCursorQuery(
-                    InterestOrderBy.NAME, SortDirection.ASC,null, null, null, pageSize
+                    InterestOrderBy.NAME,
+                    SortDirection.ASC,
+                    null,
+                    null,
+                    null,
+                    pageSize,
+                    null
             );
 
             // when
@@ -189,7 +223,13 @@ public class InterestRepositoryCustomImplTest {
             // given
             settingInterestList(10);
             InterestCursorQuery query = new InterestCursorQuery(
-                    InterestOrderBy.SUBSCRIBER_COUNT, SortDirection.ASC,null, null, null, pageSize
+                    InterestOrderBy.SUBSCRIBER_COUNT,
+                    SortDirection.ASC,
+                    null,
+                    null,
+                    null,
+                    pageSize,
+                    null
             );
 
             // when
@@ -224,7 +264,13 @@ public class InterestRepositoryCustomImplTest {
             // given
             settingInterestList(10);
             InterestCursorQuery query = new InterestCursorQuery(
-                    InterestOrderBy.NAME, SortDirection.DESC,null, null, null, pageSize
+                    InterestOrderBy.NAME,
+                    SortDirection.DESC,
+                    null,
+                    null,
+                    null,
+                    pageSize,
+                    null
             );
 
             // when
@@ -253,7 +299,13 @@ public class InterestRepositoryCustomImplTest {
             // given
             settingInterestList(10);
             InterestCursorQuery query = new InterestCursorQuery(
-                    InterestOrderBy.SUBSCRIBER_COUNT, SortDirection.DESC,null, null, null, pageSize
+                    InterestOrderBy.SUBSCRIBER_COUNT,
+                    SortDirection.DESC,
+                    null,
+                    null,
+                    null,
+                    pageSize,
+                    null
             );
 
             // when
@@ -305,7 +357,8 @@ public class InterestRepositoryCustomImplTest {
                     null,
                     null,
                     null,
-                    pageSize
+                    pageSize,
+                    null
             );
 
             // when
@@ -320,7 +373,8 @@ public class InterestRepositoryCustomImplTest {
                     null,
                     page1.getContent().get(page1.getContent().size() - 1).getCreatedAt() + "_" +
                             page1.getContent().get(page1.getContent().size() - 1).getId(),
-                    pageSize
+                    pageSize,
+                    null
             );
             // when
             Slice<Interest> page2 = interestRepositoryCustom.findAllByCursor(query2);
@@ -334,7 +388,8 @@ public class InterestRepositoryCustomImplTest {
                     null,
                     page2.getContent().get(page2.getContent().size() - 1).getCreatedAt() + "_" +
                             page2.getContent().get(page2.getContent().size() - 1).getId(),
-                    pageSize
+                    pageSize,
+                    null
             );
             // when
             Slice<Interest> page3 = interestRepositoryCustom.findAllByCursor(query3);
@@ -399,7 +454,8 @@ public class InterestRepositoryCustomImplTest {
                     null,
                     null,
                     null,
-                    pageSize
+                    pageSize,
+                    null
             );
 
             // when
@@ -414,7 +470,8 @@ public class InterestRepositoryCustomImplTest {
                     page1.getContent().get(page1.getContent().size() - 1).getSubscriberCount(),
                     page1.getContent().get(page1.getContent().size() - 1).getCreatedAt() + "_" +
                             page1.getContent().get(page1.getContent().size() - 1).getId(),
-                    pageSize
+                    pageSize,
+                    null
             );
             // when
             Slice<Interest> page2 = interestRepositoryCustom.findAllByCursor(query2);
@@ -428,7 +485,8 @@ public class InterestRepositoryCustomImplTest {
                     page2.getContent().get(page2.getContent().size() - 1).getSubscriberCount(),
                     page2.getContent().get(page2.getContent().size() - 1).getCreatedAt() + "_" +
                             page2.getContent().get(page2.getContent().size() - 1).getId(),
-                    pageSize
+                    pageSize,
+                    null
             );
             // when
             Slice<Interest> page3 = interestRepositoryCustom.findAllByCursor(query3);
@@ -500,7 +558,8 @@ public class InterestRepositoryCustomImplTest {
                     null,
                     null,
                     null,
-                    pageSize
+                    pageSize,
+                    null
             );
             // when
             Slice<Interest> page1 = interestRepositoryCustom.findAllByCursor(query1);
@@ -514,7 +573,8 @@ public class InterestRepositoryCustomImplTest {
                     null,
                     page1.getContent().get(page1.getContent().size() - 1).getCreatedAt() + "_" +
                             page1.getContent().get(page1.getContent().size() - 1).getId(),
-                    pageSize
+                    pageSize,
+                    null
             );
 
             //when
@@ -529,7 +589,8 @@ public class InterestRepositoryCustomImplTest {
                     null,
                     page2.getContent().get(page2.getContent().size() - 1).getCreatedAt() + "_" +
                             page2.getContent().get(page2.getContent().size() - 1).getId(),
-                    pageSize
+                    pageSize,
+                    null
             );
             // when
             Slice<Interest> page3 = interestRepositoryCustom.findAllByCursor(query3);
@@ -594,7 +655,8 @@ public class InterestRepositoryCustomImplTest {
                     null,
                     null,
                     null,
-                    pageSize
+                    pageSize,
+                    null
             );
             // when
             Slice<Interest> page1 = interestRepositoryCustom.findAllByCursor(query1);
@@ -608,7 +670,8 @@ public class InterestRepositoryCustomImplTest {
                     page1.getContent().get(page1.getContent().size() - 1).getSubscriberCount(),
                     page1.getContent().get(page1.getContent().size() - 1).getCreatedAt() + "_" +
                             page1.getContent().get(page1.getContent().size() - 1).getId(),
-                    pageSize
+                    pageSize,
+                    null
             );
 
             //when
@@ -623,7 +686,8 @@ public class InterestRepositoryCustomImplTest {
                     page2.getContent().get(page2.getContent().size() - 1).getSubscriberCount(),
                     page2.getContent().get(page2.getContent().size() - 1).getCreatedAt() + "_" +
                             page2.getContent().get(page2.getContent().size() - 1).getId(),
-                    pageSize
+                    pageSize,
+                    null
             );
             // when
             Slice<Interest> page3 = interestRepositoryCustom.findAllByCursor(query3);
@@ -667,6 +731,60 @@ public class InterestRepositoryCustomImplTest {
         }
     }
 
+    @Nested
+    @DisplayName("관심사 이름이나 키워드로 검색할 수 있다")
+    class searchInterest{
+        @Test
+        @DisplayName("키워드가 포함된 항목만 조회된다")
+        void searchByKeyword() {
+            // given
+            settingInterestList(100);
+
+            // 예: '코딩' 키워드 포함된 항목만 조회
+            InterestCursorQuery query = new InterestCursorQuery(
+                    InterestOrderBy.NAME,
+                    SortDirection.ASC,
+                    null,
+                    null,
+                    null,
+                    100,
+                    "코딩"
+            );
+
+            // when
+            Slice<Interest> result = interestRepositoryCustom.findAllByCursor(query);
+
+            // then
+            assertThat(result).isNotNull();
+            assertThat(result.getContent()).allSatisfy(interest ->
+                    assertThat(interest.getName().contains("코딩")).isTrue()
+            );
+        }
+
+        @Test
+        @DisplayName("키워드가 없으면 전체 조회")
+        void searchWithoutKeyword() {
+            // given
+            settingInterestList(100);
+
+            InterestCursorQuery query = new InterestCursorQuery(
+                    InterestOrderBy.NAME,
+                    SortDirection.ASC,
+                    null,
+                    null,
+                    null,
+                    100,
+                    null
+            );
+
+            // when
+            Slice<Interest> result = interestRepositoryCustom.findAllByCursor(query);
+
+            // then
+            assertThat(result.getContent()).hasSize(100); // 전체가 나와야 함
+        }
+    }
+
     // 관심사 초기 랜덤 셋팅
     void settingInterestList(int num){
         interestRepository.deleteAll();
@@ -683,7 +801,13 @@ public class InterestRepositoryCustomImplTest {
                     .append(word[(int)(Math.random() * word.length)])
                     .append(i)
                     .toString();
-            Interest interest = new Interest(name, List.of("테스팅 키워드 "+i));
+            String keyword = new StringBuilder()
+                    .append(word[(int)(Math.random() * word.length)])
+                    .append(" ")
+                    .append(word[(int)(Math.random() * word.length)])
+                    .append(i)
+                    .toString();
+            Interest interest = new Interest(name, List.of(keyword));
 
             // 구독자 수 랜덤화 (0 ~ 10)
             Long subscriberCount = (long) (Math.random() * 10);
@@ -704,4 +828,6 @@ public class InterestRepositoryCustomImplTest {
             entityManager.clear();
         }
     }
+
+
 }

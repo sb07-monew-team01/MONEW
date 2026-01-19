@@ -46,43 +46,51 @@ public class InterestRepositoryCustomImpl implements InterestRepositoryCustom {
     private BooleanExpression buildCursorCondition(InterestCursorQuery query) {
         AfterCursorValue after = parseAfter(query.after());
         boolean asc = query.direction().isAsc();
+        BooleanExpression cursorCondition;
 
         if (query.orderBy() == null) {
             throw new IllegalArgumentException("정렬 기준이 없습니다.");
         }
 
-        switch (query.orderBy()) {
-            case NAME:
-                if (query.nameCursor() == null) return null;
+        cursorCondition = switch (query.orderBy()) {
+            case NAME -> {
+                if (query.nameCursor() == null) yield null;
                 if (asc) {
-                    return interest.name.gt(query.nameCursor())
-                            .or(interest.name.eq(query.nameCursor()).and(interest.createdAt.gt(after.createdAt())
-                            .or(interest.createdAt.eq(after.createdAt()).and(interest.id.gt(after.id())))));
+                    yield interest.name.gt(query.nameCursor())
+                        .or(interest.name.eq(query.nameCursor()).and(interest.createdAt.gt(after.createdAt())
+                        .or(interest.createdAt.eq(after.createdAt()).and(interest.id.gt(after.id())))));
                 } else {
-                    return interest.name.lt(query.nameCursor())
-                            .or(interest.name.eq(query.nameCursor()).and(interest.createdAt.lt(after.createdAt())
-                            .or(interest.createdAt.eq(after.createdAt()).and(interest.id.lt(after.id())))));
+                    yield interest.name.lt(query.nameCursor())
+                        .or(interest.name.eq(query.nameCursor()).and(interest.createdAt.lt(after.createdAt())
+                        .or(interest.createdAt.eq(after.createdAt()).and(interest.id.lt(after.id())))));
                 }
-
-            case SUBSCRIBER_COUNT:
-                if (query.subscriberCountCursor() == null) return null;
+            }
+            case SUBSCRIBER_COUNT -> {
+                if (query.subscriberCountCursor() == null) yield null;
                 if (asc) {
-                    return interest.subscriberCount.gt(query.subscriberCountCursor())
+                    yield interest.subscriberCount.gt(query.subscriberCountCursor())
                             .or(interest.subscriberCount.eq(query.subscriberCountCursor())
                                     .and(interest.createdAt.gt(after.createdAt())
                             .or(interest.createdAt.eq(after.createdAt())
                                     .and(interest.id.gt(after.id())))));
                 } else {
-                    return interest.subscriberCount.lt(query.subscriberCountCursor())
+                    yield interest.subscriberCount.lt(query.subscriberCountCursor())
                             .or(interest.subscriberCount.eq(query.subscriberCountCursor())
                                     .and(interest.createdAt.lt(after.createdAt())
                             .or(interest.createdAt.eq(after.createdAt())
                                     .and(interest.id.lt(after.id())))));
                 }
+            }
 
-            default:
-                throw new IllegalArgumentException("지원하지 않는 정렬 기준입니다.");
+            default -> throw new IllegalArgumentException("지원하지 않는 정렬 기준입니다.");
+        };
+
+        if (query.keyword() != null && !query.keyword().isBlank()) {
+            BooleanExpression keywordCondition = interest.name.containsIgnoreCase(query.keyword());
+            cursorCondition = cursorCondition != null ? cursorCondition.and(keywordCondition) : keywordCondition;
         }
+
+        return cursorCondition;
     }
 
     // order by 절

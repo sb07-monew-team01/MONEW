@@ -28,7 +28,8 @@ public class InterestCursorQueryTest {
                     null,
                     null,
                     null,
-                    limit
+                    limit,
+                    null
             );
 
             // then
@@ -51,7 +52,8 @@ public class InterestCursorQueryTest {
                     "cursorName",
                     null,
                     null,
-                    10
+                    10,
+                    null
             );
 
 
@@ -70,7 +72,8 @@ public class InterestCursorQueryTest {
                     null,
                     5L,
                     null,
-                    10
+                    10,
+                    null
             );
 
             // when & then
@@ -88,7 +91,8 @@ public class InterestCursorQueryTest {
                     null,
                     10L,
                     null,
-                    10
+                    10,
+                    null
             );
 
             // when & then
@@ -105,7 +109,8 @@ public class InterestCursorQueryTest {
                     "nameCursor",
                     null,
                     null,
-                    10
+                    10,
+                    null
             );
 
             // when & then
