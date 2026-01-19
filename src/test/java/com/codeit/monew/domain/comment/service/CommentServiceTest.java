@@ -2,10 +2,12 @@ package com.codeit.monew.domain.comment.service;
 
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.entity.ArticleSource;
+import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.comment.dto.request.CommentRegisterRequest;
 import com.codeit.monew.domain.comment.dto.request.CommentUpdateRequest;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
+import com.codeit.monew.domain.comment.dto.response.CommentPageResponse;
 import com.codeit.monew.domain.comment.entity.Comment;
 import com.codeit.monew.domain.comment.exception.CommentAlreadyDeleteException;
 import com.codeit.monew.domain.comment.exception.CommentNotFoundException;
@@ -108,17 +110,18 @@ public class CommentServiceTest {
         }
 
 
-//        @Test
-//        @DisplayName("실패: 기사가 존재하지 않을 경우 예외가 발생한다.")
-//        void failToCreateComment_nullArticle() {
-//            // given
-//            CommentRegisterRequest request = new CommentRegisterRequest(null, userId, content);
-//
-//            // when & then
-//            assertThatThrownBy(
-//                    () -> commentService.create(request))
-//                    .isInstanceOf(ArticleNotFoundException.class);
-//        }
+        @Test
+        @DisplayName("실패: 기사가 존재하지 않을 경우 예외가 발생한다.")
+        void failToCreateComment_nullArticle() {
+            // given
+            String content = "test";
+            CommentRegisterRequest request = new CommentRegisterRequest(null, userId, content);
+
+            // when & then
+            assertThatThrownBy(
+                    () -> commentService.create(request))
+                    .isInstanceOf(ArticleNotFoundException.class);
+        }
 
         @Test
         @DisplayName("실패: 사용자가 존재하지 않을 경우 예외가 발생한다.")
@@ -255,7 +258,17 @@ public class CommentServiceTest {
         void readComment_includeLikeInfo() {
             // given
             Comment comment = mock(Comment.class);
+            Article article = mock(Article.class);
+            User user = mock(User.class);
+
             given(comment.getId()).willReturn(commentId);
+            given(comment.getArticle()).willReturn(article);
+            given(comment.getUser()).willReturn(user);
+            given(comment.getCreatedAt()).willReturn(LocalDateTime.now());
+
+            given(article.getId()).willReturn(articleId);
+            given(user.getId()).willReturn(userId);
+            given(user.getNickname()).willReturn("테스트유저");
 
             Pageable pageable = PageRequest.of(0, 5);
             Page<Comment> commentPage = new PageImpl<>(List.of(comment), pageable, 1);
@@ -263,8 +276,8 @@ public class CommentServiceTest {
             given(commentRepository.findByArticleId(articleId, pageable))
                     .willReturn(commentPage);
             
-            given(commentUserLikeRepository.countLikesByCommentIds(List.of(commentId)))
-                    .willReturn(Map.of(commentId, 10L));
+            given(commentUserLikeRepository.countByCommentId(commentId))
+                    .willReturn( 10L);
 
             given(commentUserLikeRepository.existsByUserIdAndCommentId(userId, commentId))
                     .willReturn(true);
@@ -273,11 +286,109 @@ public class CommentServiceTest {
             CommentPageResponse response = commentService.getComments(articleId, userId, pageable);
 
             // then
-            CommenteResponse dto = response.comments().get(0);
-            assertThat(dto.getLikeCount()).isEqualTo(10L);
-            assertThat(dto.isLikedByMe()).isTrue();
+            CommentDto dto = response.contents().get(0);
+            assertThat(dto.likeCount()).isEqualTo(10L);
+            assertThat(dto.likedByMe()).isTrue();
 
         }
+
+        @Test
+        @DisplayName("성공: 댓글 조회 시 좋아요가 없으면 likeCount=0, likedByMe=false로 반환된다.")
+        void readComment_noLikes() {
+            // given
+            Comment comment = mock(Comment.class);
+            Article article = mock(Article.class);
+            User user = mock(User.class);
+
+            given(comment.getId()).willReturn(commentId);
+            given(comment.getArticle()).willReturn(article);
+            given(comment.getUser()).willReturn(user);
+            given(comment.getCreatedAt()).willReturn(LocalDateTime.now());
+            given(comment.getContent()).willReturn("테스트 댓글");
+
+            given(article.getId()).willReturn(articleId);
+            given(user.getId()).willReturn(userId);
+            given(user.getNickname()).willReturn("테스트유저");
+
+            Pageable pageable = PageRequest.of(0, 5);
+            Page<Comment> page = new PageImpl<>(List.of(comment), pageable, 1);
+
+            given(commentRepository.findByArticleId(articleId, pageable))
+                    .willReturn(page);
+            given(commentUserLikeRepository.countByCommentId(commentId))
+                    .willReturn(0L);
+            given(commentUserLikeRepository.existsByUserIdAndCommentId(userId, commentId))
+                    .willReturn(false);
+
+            // when
+            CommentPageResponse response = commentService.getComments(articleId, userId, pageable);
+
+            // then
+            CommentDto dto = response.contents().get(0);
+            assertThat(dto.likeCount()).isEqualTo(0L);
+            assertThat(dto.likedByMe()).isFalse();
+        }
+
+        @Test
+        @DisplayName("성공: 댓글 없는 경우 빈 목록 반환")
+        void readComment_noComments() {
+            // given
+            Pageable pageable = PageRequest.of(0, 5);
+            Page<Comment> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+
+            given(commentRepository.findByArticleId(articleId, pageable))
+                    .willReturn(emptyPage);
+
+            // when
+            CommentPageResponse response = commentService.getComments(articleId, userId, pageable);
+
+            // then
+            assertThat(response.contents()).isEmpty();
+            assertThat(response.hasNext()).isFalse();
+            assertThat(response.totalElements()).isEqualTo(0L);
+        }
+
+        @Test
+        @DisplayName("성공: 댓글 조회 시 다음 페이지가 있으면 hasNext가 true다")
+        void readComment_hasNext_true() {
+            // given
+            Pageable pageable = PageRequest.of(0, 5);
+
+            Comment comment = mock(Comment.class);
+            Article article = mock(Article.class);
+            User user = mock(User.class);
+
+            given(comment.getId()).willReturn(commentId);
+            given(comment.getArticle()).willReturn(article);
+            given(comment.getUser()).willReturn(user);
+            given(comment.getContent()).willReturn("댓글");
+            given(comment.getCreatedAt()).willReturn(LocalDateTime.now());
+
+            given(article.getId()).willReturn(articleId);
+            given(user.getId()).willReturn(userId);
+            given(user.getNickname()).willReturn("닉넴");
+
+            Page<Comment> page =
+                    new PageImpl<>(List.of(comment), pageable, 6);
+
+            given(commentRepository.findByArticleId(articleId, pageable))
+                    .willReturn(page);
+
+            given(commentUserLikeRepository.countByCommentId(commentId))
+                    .willReturn(0L);
+            given(commentUserLikeRepository.existsByUserIdAndCommentId(userId, commentId))
+                    .willReturn(false);
+
+            // when
+            CommentPageResponse response =
+                    commentService.getComments(articleId, userId, pageable);
+
+            // then
+            assertThat(response.hasNext()).isTrue();
+            assertThat(response.size()).isEqualTo(5);
+            assertThat(response.totalElements()).isEqualTo(6);
+        }
+
     }
 }
 
