@@ -14,6 +14,6 @@ public interface CommentService {
     CommentDto create(CommentRegisterRequest request);
     void delete(UUID commentId);
     void deleteHard(UUID commentId);
-    CommentDto update(UUID commentId, CommentUpdateRequest request);
+    CommentDto update(UUID commentId, UUID userId, CommentUpdateRequest request);
     CommentPageResponse getComments(UUID articleId, UUID userId, CommentOrderBy orderBy, SortDirection direction, String cursor, LocalDateTime afterDateTime, int limit);
 }

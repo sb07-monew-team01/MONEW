@@ -9,8 +9,6 @@ import com.codeit.monew.domain.comment.dto.response.CommentPageResponse;
 import com.codeit.monew.domain.comment.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,10 +22,10 @@ import java.util.UUID;
 public class CommentController {
     private final CommentService commentService;
 
-    @GetMapping("api/comments")
+    @GetMapping
     public CommentPageResponse getComments(
             @RequestParam UUID articleId,
-            @RequestParam(required = false) UUID userId,
+            @RequestHeader(value = "Monew-Request-User-ID") UUID userId,
             @RequestParam CommentOrderBy orderBy,
             @RequestParam SortDirection direction,
             @RequestParam(required = false) String cursor,
@@ -55,17 +53,24 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @PatchMapping("api/comments/{commentId}")
+    @PatchMapping("/{commentId}")
     public ResponseEntity<CommentDto> update(
             @PathVariable UUID commentId,
+            @RequestHeader("Monew-Request-User-ID") UUID userId,
             @Valid @RequestBody CommentUpdateRequest request) {
-        CommentDto updated = commentService.update(commentId, request);
+        CommentDto updated = commentService.update(commentId, userId, request);
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
-    @DeleteMapping("api/comments/{commentId}")
+    @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> delete(@PathVariable UUID commentId) {
         commentService.delete(commentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{commentId}/hard")
+    public ResponseEntity<Void> deleteHard(@PathVariable UUID commentId) {
+        commentService.deleteHard(commentId);
         return ResponseEntity.noContent().build();
     }
 }

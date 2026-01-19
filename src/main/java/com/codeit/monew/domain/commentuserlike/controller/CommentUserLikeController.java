@@ -18,7 +18,7 @@ public class CommentUserLikeController {
     @PostMapping
     public ResponseEntity<CommentUserLikeDto> like(
             @PathVariable UUID commentId,
-            @RequestParam UUID userId) {
+            @RequestHeader(value = "Monew-Request-User-ID") UUID userId) {
         CommentUserLikeDto response = commentUserLikeService.like(userId, commentId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -26,7 +26,7 @@ public class CommentUserLikeController {
     @DeleteMapping
     public ResponseEntity<Void> unlike(
             @PathVariable UUID commentId,
-            @RequestParam UUID userId) {
+            @RequestHeader(value = "Monew-Request-User-ID") UUID userId) {
         commentUserLikeService.like(userId, commentId);
         return ResponseEntity.noContent().build();
     }

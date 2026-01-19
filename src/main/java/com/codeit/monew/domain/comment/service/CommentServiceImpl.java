@@ -88,7 +88,7 @@ public class CommentServiceImpl implements CommentService {
     // 수정
     @Override
     @Transactional
-    public CommentDto update(UUID commentId, CommentUpdateRequest request) {
+    public CommentDto update(UUID commentId, UUID userId, CommentUpdateRequest request) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
 
@@ -109,7 +109,6 @@ public class CommentServiceImpl implements CommentService {
             LocalDateTime after,
             int limit
     ) {
-        // 1️⃣ QueryDSL 커스텀 조회
         Slice<CommentWithLikeCount> slice =
                 commentRepository.findByArticleIdOrderBy(
                         articleId,
@@ -120,7 +119,6 @@ public class CommentServiceImpl implements CommentService {
                         limit
                 );
 
-        // 2️⃣ DTO 변환
         List<CommentDto> content = slice.getContent().stream()
                 .map(it -> {
                     Comment comment = it.comment();
@@ -144,7 +142,6 @@ public class CommentServiceImpl implements CommentService {
                 })
                 .toList();
 
-        // 3️⃣ 커서 계산 (마지막 댓글 기준)
         String nextCursor = null;
         LocalDateTime nextAfter = null;
 
@@ -157,7 +154,6 @@ public class CommentServiceImpl implements CommentService {
             nextAfter = last.getCreatedAt();
         }
 
-        // 4️⃣ 응답
         return new CommentPageResponse(
                 content,
                 nextCursor,
