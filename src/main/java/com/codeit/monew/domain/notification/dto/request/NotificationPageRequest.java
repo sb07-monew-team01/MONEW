@@ -12,7 +12,7 @@ public record NotificationPageRequest(
     String cursor,
     LocalDateTime after,
     int limit,
-    UUID userid
+    UUID userId
 ) {
 
 }

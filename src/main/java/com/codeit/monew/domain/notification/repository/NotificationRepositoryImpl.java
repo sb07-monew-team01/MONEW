@@ -29,7 +29,7 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
         List<Notification> content = queryFactory
                 .selectFrom(notification)
                 .where(
-                        notification.userId.eq(request.userid()),
+                        notification.userId.eq(request.userId()),
                         notification.confirmed.isFalse(),
                         Cursor(request)
                 )
