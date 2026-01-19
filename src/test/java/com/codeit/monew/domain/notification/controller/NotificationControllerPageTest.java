@@ -46,7 +46,7 @@ public class NotificationControllerPageTest {
                     .andExpect(status().isBadRequest());
         }
         @Test
-        @DisplayName("cursor가_형식이_맞으면_400")
+        @DisplayName("cursor가_형식이_맞으면_200")
         void good_cursor_200() throws Exception {
             mockMvc.perform(get("/api/notifications")
                             .param("cursor", "2026-01-18T10:00:00_7a187ac2-87f7-44d3-a8fb-b1936b1f0000")

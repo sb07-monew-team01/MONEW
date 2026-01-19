@@ -38,7 +38,7 @@ public class NotificationController {
 
     }
 
-    @PatchMapping("{notificationId}")
+    @PatchMapping("/{notificationId}")
         public ResponseEntity<NotificationDto> confirmNotification(
                 @PathVariable UUID notificationId,
                 @RequestHeader(value = "Monew-Request-User-ID") UUID userId){
