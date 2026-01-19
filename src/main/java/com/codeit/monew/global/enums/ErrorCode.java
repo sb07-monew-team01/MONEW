@@ -24,6 +24,9 @@ public enum ErrorCode {
     COMMENT_TOO_LONG("댓글 내용은 500자 이하여야 합니다.", HttpStatus.BAD_REQUEST),
     COMMENT_ALREADY_DELETE("이미 삭제된 댓글입니다.", HttpStatus.CONFLICT),
     COMMENT_NOT_FOUND("해당 댓글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    // Comment Like
+    COMMENT_ALREADY_LIKED("이미 좋아요를 누른 댓글입니다.", HttpStatus.CONFLICT),
+    COMMENT_LIKE_NOT_FOUND("해당 댓글 좋아요를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     //Notification
     NOTIFICATION_NOT_FOUND("해당 알림을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),

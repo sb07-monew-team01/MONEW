@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/comments/{commentId}/likes")
+@RequestMapping("/api/comments/{commentId}/comment-likes")
 public class CommentUserLikeController {
     private final CommentUserLikeService commentUserLikeService;
 
@@ -20,6 +20,14 @@ public class CommentUserLikeController {
             @RequestParam UUID userId) {
         CommentUserLikeDto response = commentUserLikeService.like(userId, commentId);
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> unlike(
+            @PathVariable UUID commentId,
+            @RequestParam UUID userId) {
+        commentUserLikeService.like(userId, commentId);
+        return ResponseEntity.noContent().build();
     }
 
 

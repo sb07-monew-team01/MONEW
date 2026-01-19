@@ -36,9 +36,9 @@ public class CommentUserLikeServiceImpl implements CommentUserLikeService {
         Optional<CommentUserLike> existingLike =
                 commentUserLikeRepository.findByUserIdAndCommentId(userId, commentId);
 
-        if (existingLike.isPresent()) {
-            commentUserLikeRepository.delete(existingLike.get());
-            return null; // 취소는 반환 없이 걍 삭제
+        if (commentUserLikeRepository
+                .findByUserIdAndCommentId(userId, commentId).isPresent()) {
+            throw new IllegalStateException("이미 좋아요를 누른 댓글입니다.");
         }
 
         CommentUserLike like = CommentUserLike.create(user, comment);
@@ -47,4 +47,21 @@ public class CommentUserLikeServiceImpl implements CommentUserLikeService {
         long likeCount = commentUserLikeRepository.countByCommentId(commentId);
         return CommentUserLikeMapper.toDto(like, likeCount);
     }
+
+    @Override
+    public void unlike(UUID userId, UUID commentId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        CommentUserLike like = commentUserLikeRepository
+                .findByUserIdAndCommentId(userId, commentId)
+                .orElseThrow(() ->
+                        new IllegalStateException("좋아요를 누르지 않은 댓글입니다.")
+                );
+
+        commentUserLikeRepository.delete(like);
+    }
+
+
 }
