@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Slice;
 import org.springframework.test.context.ActiveProfiles;
@@ -27,6 +28,8 @@ class ArticleRepositoryImplTest {
 
     @Autowired
     private ArticleRepository articleRepository;
+    @Autowired
+    private TestEntityManager entityManager;
 
     @Test
     @DisplayName("""
@@ -51,6 +54,9 @@ class ArticleRepositoryImplTest {
                 .limit(3)
                 .build();
 
+        entityManager.flush();
+        entityManager.clear();
+
         // when 첫 번째 페이지
         Slice<Article> pages1 = articleRepository.findByKeywordsAndSources(searchCondition);
         List<Article> articles1 = pages1.getContent();
@@ -64,7 +70,7 @@ class ArticleRepositoryImplTest {
         assertThat(pages1.hasNext()).isTrue();
 
         // when 두 번째 페이지
-        String nextCursor = articles1.get(2).getPublishDate().toString();
+        String nextCursor = articles1.get(2).getPublishDate().toString() + "_" + articles1.get(2).getId();
         LocalDateTime nextAfter = articles1.get(2).getCreatedAt();
 
         ArticleSearchCondition searchCondition2

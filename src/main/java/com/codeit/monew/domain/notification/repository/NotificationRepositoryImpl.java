@@ -10,6 +10,7 @@ import org.springframework.data.domain.SliceImpl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static com.codeit.monew.domain.notification.entity.QNotification.notification;
 
@@ -25,8 +26,6 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
     @Override
     public Slice<Notification> search(NotificationPageRequest request) {
 
-        //쿼리 펙토리 형님
-        //유저아이디 , 확인안된 알림 ,커서
         List<Notification> content = queryFactory
                 .selectFrom(notification)
                 .where(
@@ -34,7 +33,7 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
                         notification.confirmed.isFalse(),
                         Cursor(request)
                 )
-                .orderBy(notification.createdAt.asc())
+                .orderBy(notification.createdAt.asc(),notification.id.asc())
                 .limit(request.limit() + 1)
                 .fetch();
 
@@ -42,19 +41,24 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
     }
 
     private BooleanExpression Cursor(NotificationPageRequest request) {
-       //일단 널 주면 전체조회
-        if (request.cursor() == null || request.after() == null) {
+
+        // 첫 페이지: 커서가 없으면 조건 없음
+        if (request.cursor() == null) {
             return null;
         }
-        //같은값 인데
-        //타입이 달라서 바꿔줘야한다
-        LocalDateTime cursorTime =
-                LocalDateTime.parse(request.cursor());
 
-        return notification.createdAt.gt(cursorTime);
+        int idx = request.cursor().lastIndexOf('_');
+
+        LocalDateTime cursorTime = LocalDateTime.parse(request.cursor().substring(0, idx));
+        UUID cursorId = UUID.fromString(request.cursor().substring(idx + 1));
+
+        return notification.createdAt.gt(cursorTime).or(
+                notification.createdAt.eq(cursorTime)
+                        .and(notification.id.gt(cursorId))
+        );
     }
 
-    //컨텐츠받고 넥스트확인후 11개받았으니 배열상 11번째 삭제 하고 슬라이스객체로
+
     private <T> Slice<T> Slice(List<T> content, int limit) {
 
         boolean hasNext = content.size() > limit;

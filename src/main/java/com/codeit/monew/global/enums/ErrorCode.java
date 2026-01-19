@@ -10,6 +10,7 @@ public enum ErrorCode {
     EMAIL_ALREADY_EXISTS("이미 가입된 이메일입니다.", HttpStatus.CONFLICT),
     USER_NOT_FOUND("존재하지 않는 유저입니다.", HttpStatus.NOT_FOUND),
     USER_ALREADY_DELETED("이미 삭제된 유저입니다.", HttpStatus.BAD_REQUEST),
+    USER_NOT_AUTHORIZED("사용자 권한이 없습니다.", HttpStatus.FORBIDDEN),
 
     // Interest
     INTEREST_NOT_FOUND("해당 관심사를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
@@ -18,6 +19,10 @@ public enum ErrorCode {
     INTEREST_EMPTY_KEYWORD("관심사에 등록된 키워드가 없습니다.", HttpStatus.BAD_REQUEST),
     INTEREST_NULL_KEYWORD("키워드가 null일 수 없습니다.", HttpStatus.BAD_REQUEST),
     TOO_MANY_KEYWORD("키워드가 10개를 초과합니다.", HttpStatus.BAD_REQUEST),
+
+    // InterestUser
+    INTERESTUSER_NOT_FOUND("해당 구독을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    ALREADY_SUBSCRIBED("이미 구독 상태입니다.", HttpStatus.CONFLICT),
 
     // Comment
     COMMENT_EMPTY_CONTENT("댓글 내용이 null일 수 없습니다.", HttpStatus.BAD_REQUEST),
@@ -31,8 +36,15 @@ public enum ErrorCode {
     //Notification
     NOTIFICATION_NOT_FOUND("해당 알림을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
 
+    // Article
+    ARTICLE_NOT_FOUND("해당 기사를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
     // Global
-    INVALID_ARGUMENT("입력값이 올바르지 않습니다.", HttpStatus.BAD_REQUEST);
+    INVALID_ARGUMENT("입력값이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
+
+    // 500
+    // Global
+    INTERNAL_SERVER_ERROR("서버 내부 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     public final String description;
     public final HttpStatus httpStatus;

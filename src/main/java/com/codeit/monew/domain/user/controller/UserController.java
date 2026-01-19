@@ -1,16 +1,17 @@
 package com.codeit.monew.domain.user.controller;
 
 import com.codeit.monew.domain.user.dto.UserDto;
+import com.codeit.monew.domain.user.dto.request.UserLoginRequest;
 import com.codeit.monew.domain.user.dto.request.UserSignUpRequest;
+import com.codeit.monew.domain.user.dto.request.UserUpdateRequest;
 import com.codeit.monew.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,5 +25,25 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.signUp(request));
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<UserDto> login(@Valid @RequestBody UserLoginRequest request){
+        return ResponseEntity.ok(userService.login(request));
+    }
 
+    @PatchMapping("/{userId}")
+    public ResponseEntity<UserDto> update(@RequestHeader(name = "MoNew-Request-User-ID") UUID loginId, @PathVariable UUID userId, @Valid @RequestBody UserUpdateRequest request){
+        return ResponseEntity.ok(userService.update(loginId, userId, request));
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> deleteSoft(@RequestHeader(name = "MoNew-Request-User-ID") UUID loginId, @PathVariable UUID userId){
+        userService.delete(loginId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{userId}/hard")
+    public ResponseEntity<?> deleteHard(@RequestHeader(name = "MoNew-Request-User-ID") UUID loginId, @PathVariable UUID userId){
+        userService.deleteHard(loginId, userId);
+        return ResponseEntity.noContent().build();
+    }
 }

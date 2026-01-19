@@ -6,12 +6,17 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ArticleMapper {
-    public ArticleDto toDto(Article article) {
+    public ArticleDto toDto(Article article, boolean viewedByMe) {
         return new ArticleDto(
-                article.getTitle(),
-                article.getSummary(),
+                article.getId(),
                 article.getSource().toString(),
-                article.getPublishDate()
+                article.getSourceUrl(),
+                article.getTitle(),
+                article.getPublishDate(),
+                article.getSummary(),
+                article.getCommentCount(),
+                article.getViewCount(),
+                viewedByMe
         );
     }
 }

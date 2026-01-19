@@ -3,8 +3,10 @@ package com.codeit.monew.domain.article.repository;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchCondition;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.entity.ArticleSource;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -15,10 +17,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.client.RestClient;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static com.codeit.monew.domain.article.entity.QArticle.article;
 
@@ -35,7 +39,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         int pageSize = searchCondition.limit();
         Pageable pageable = PageRequest.of(0, pageSize);
 
-        BooleanExpression cursorCondition = cursorCondition(
+        Predicate cursorCondition = cursorCondition(
                 searchCondition.orderBy(),
                 searchCondition.direction(),
                 searchCondition.cursor(),
@@ -55,7 +59,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .orderBy(
                         articleSorts(searchCondition.orderBy(), searchCondition.direction())
                 )
-                .limit(pageSize +  1)
+                .limit(pageSize + 1)
                 .fetch();
 
         boolean hasNext = false;
@@ -98,47 +102,77 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     }
 
     // 커서 페이징 (기본: 게시일, 내림차순)
-    BooleanExpression cursorCondition(String orderBy,
-                                      String direction,
-                                      String cursor,
-                                      LocalDateTime after) {
+    Predicate cursorCondition(String orderBy,
+                              String direction,
+                              String cursor,
+                              LocalDateTime after) {
 
         if (cursor == null || after == null) return null;
+        String[] parts = cursor.split("_");
+        if (parts.length != 2) return Expressions.FALSE;
+
+        String cursorPart = parts[0];
+        UUID cursorId = UUID.fromString(parts[1]);
 
         boolean isDesc = "DESC".equalsIgnoreCase(direction);
+
+        BooleanBuilder builder = new BooleanBuilder();
 
         // 게시일 정렬
         if ("publishDate".equalsIgnoreCase(orderBy)) {
             try {
-                LocalDateTime date = LocalDateTime.parse(cursor);
-                return isDesc
-                        ? article.publishDate.lt(date)
-                        .or(article.publishDate.eq(date).and(article.createdAt.lt(after)))
-                        : article.publishDate.gt(date)
-                        .or(article.publishDate.eq(date).and(article.createdAt.gt(after)));
+                LocalDateTime date = LocalDateTime.parse(cursorPart);
+                if (isDesc) {
+                    builder.or(article.publishDate.lt(date));
+                    builder.or(article.publishDate.eq(date).and(article.createdAt.lt(after)));
+                    builder.or(article.publishDate.eq(date).and(article.createdAt.eq(after)).and(article.id.lt(cursorId)));
+                } else {
+                    builder.or(article.publishDate.gt(date));
+                    builder.or(article.publishDate.eq(date).and(article.createdAt.gt(after)));
+                    builder.or(article.publishDate.eq(date).and(article.createdAt.eq(after)).and(article.id.gt(cursorId)));
+                }
             } catch (Exception e) {
-                log.warn("커서 형식이 잘못됨: {}", cursor);
+                log.warn("커서 형식이 잘못됨: {}", cursorPart);
                 return Expressions.FALSE;
             }
         }
         // 조회수 정렬
         else if ("viewCount".equalsIgnoreCase(orderBy)) {
-            long count = Long.parseLong(cursor);
-            return isDesc
-                    ? article.viewCount.lt(count)
-                    .or(article.viewCount.eq(count).and(article.createdAt.lt(after)))
-                    : article.viewCount.gt(count)
-                    .or(article.viewCount.eq(count).and(article.createdAt.gt(after)));
+            try {
+                long count = Long.parseLong(cursorPart);
+                if (isDesc) {
+                    builder.or(article.viewCount.lt(count));
+                    builder.or(article.viewCount.eq(count).and(article.createdAt.lt(after)));
+                    builder.or(article.viewCount.eq(count).and(article.createdAt.eq(after)).and(article.id.lt(cursorId)));
+                } else {
+                    builder.or(article.viewCount.gt(count));
+                    builder.or(article.viewCount.eq(count).and(article.createdAt.gt(after)));
+                    builder.or(article.viewCount.eq(count).and(article.createdAt.eq(after)).and(article.id.gt(cursorId)));
+                }
+            } catch (NumberFormatException e) {
+                log.warn("커서 형식이 잘못됨: {}", cursorPart);
+                return Expressions.FALSE;
+            }
         }
         // 댓글수 정렬
         else {
-            long count = Long.parseLong(cursor);
-            return isDesc
-                    ? article.commentCount.lt(count)
-                    .or(article.commentCount.eq(count).and(article.createdAt.lt(after)))
-                    : article.commentCount.gt(count)
-                    .or(article.commentCount.eq(count).and(article.createdAt.gt(after)));
+            try {
+                long count = Long.parseLong(cursorPart);
+                if (isDesc) {
+                    builder.or(article.commentCount.lt(count));
+                    builder.or(article.commentCount.eq(count).and(article.createdAt.lt(after)));
+                    builder.or(article.commentCount.eq(count).and(article.createdAt.eq(after)).and(article.id.lt(cursorId)));
+                } else {
+                    builder.or(article.commentCount.gt(count));
+                    builder.or(article.commentCount.eq(count).and(article.createdAt.gt(after)));
+                    builder.or(article.commentCount.eq(count).and(article.createdAt.eq(after)).and(article.id.gt(cursorId)));
+                }
+            } catch (NumberFormatException e) {
+                log.warn("커서 형식이 잘못됨: {}", cursorPart);
+                return Expressions.FALSE;
+            }
         }
+        return builder;
     }
 
     private OrderSpecifier<?>[] articleSorts(String orderBy, String direction) {
@@ -154,13 +188,13 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         OrderSpecifier<?> subSort = new OrderSpecifier<>(order, article.createdAt);
         OrderSpecifier<?> tieBreaker = new OrderSpecifier<>(order, article.id);
 
-        return new OrderSpecifier[] { mainSort, subSort, tieBreaker};
+        return new OrderSpecifier[]{mainSort, subSort, tieBreaker};
     }
 
     @Override
     public long countTotalElements(ArticleSearchCondition searchCondition) {
 
-        Long total =  queryFactory
+        Long total = queryFactory
                 .select(article.count())
                 .from(article)
                 .where(

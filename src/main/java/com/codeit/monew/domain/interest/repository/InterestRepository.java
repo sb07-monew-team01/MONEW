@@ -7,5 +7,4 @@ import java.util.List;
 import java.util.UUID;
 
 public interface InterestRepository extends JpaRepository<Interest, UUID> {
-    List<Interest> findAll();
 }

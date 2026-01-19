@@ -56,4 +56,14 @@ public class ArticleCreateRequestFixture {
                 summary
         );
     }
+
+    public static ArticleCreateRequest createWithTitleAndSummaryWithURL(String title, String summary, String sourceUrl) {
+        return new ArticleCreateRequest(
+                ArticleSource.NAVER,
+                sourceUrl,
+                title,
+                LocalDateTime.now(),
+                summary
+        );
+    }
 }
