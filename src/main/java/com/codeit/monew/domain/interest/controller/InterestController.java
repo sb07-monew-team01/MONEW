@@ -8,6 +8,7 @@ import com.codeit.monew.domain.interest.dto.response.InterestSubScriptionRespons
 import com.codeit.monew.domain.interest.service.InterestService;
 import com.codeit.monew.domain.interestuser.service.InterestUserService;
 import com.codeit.monew.global.dto.PageResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +33,7 @@ public class InterestController {
 
     @PostMapping
     public ResponseEntity<InterestCommonResponse> InterestCreate(
-            @RequestBody InterestCreatedRequest request
+            @RequestBody @Valid InterestCreatedRequest request
     ){
         InterestCommonResponse saved = interestService.create(request);
         return ResponseEntity.created(URI.create(saved.interestId().toString())).body(saved);
@@ -42,7 +43,7 @@ public class InterestController {
     public ResponseEntity<InterestCommonResponse> InterestEdit(
             @RequestHeader("Monew-Request-User-ID") UUID userId,
             @PathVariable UUID interestId,
-            @RequestBody InterestUpdateRequest request
+            @RequestBody @Valid InterestUpdateRequest request
     ){
         InterestCommonResponse updated = interestService.editKeywords(userId, interestId, request);
         return ResponseEntity.ok(updated);
