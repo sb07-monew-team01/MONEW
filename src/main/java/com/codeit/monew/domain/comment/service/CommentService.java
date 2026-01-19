@@ -6,7 +6,6 @@ import com.codeit.monew.domain.comment.dto.request.CommentUpdateRequest;
 import com.codeit.monew.domain.comment.dto.request.SortDirection;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
 import com.codeit.monew.domain.comment.dto.response.CommentPageResponse;
-import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
