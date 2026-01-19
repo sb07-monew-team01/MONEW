@@ -1,8 +1,7 @@
-package com.codeit.monew.domain.notification;
+package com.codeit.monew.domain.notification.repository;
 
+import com.codeit.monew.domain.notification.NotificationDeleteTestFixture;
 import com.codeit.monew.domain.notification.entity.Notification;
-
-import com.codeit.monew.domain.notification.repository.NotificationRepository;
 
 
 import com.codeit.monew.global.config.TestJpaAuditing;
@@ -18,12 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.persistence.EntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.LocalDateTime;
 
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;

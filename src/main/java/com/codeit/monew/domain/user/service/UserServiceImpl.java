@@ -1,14 +1,9 @@
 package com.codeit.monew.domain.user.service;
 
 import com.codeit.monew.domain.user.dto.UserDto;
-import com.codeit.monew.domain.user.dto.request.UserLoginRequest;
-import com.codeit.monew.domain.user.dto.request.UserSignUpRequest;
-import com.codeit.monew.domain.user.dto.request.UserUpdateRequest;
+import com.codeit.monew.domain.user.dto.request.*;
 import com.codeit.monew.domain.user.entity.User;
-import com.codeit.monew.domain.user.exception.UserAlreadyDeletedException;
-import com.codeit.monew.domain.user.exception.UserAlreadyExistsException;
-import com.codeit.monew.domain.user.exception.UserLoginFailedException;
-import com.codeit.monew.domain.user.exception.UserNotFoundException;
+import com.codeit.monew.domain.user.exception.*;
 import com.codeit.monew.domain.user.repository.UserRepository;
 import com.codeit.monew.domain.user.util.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +24,10 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public UserDto signUp(UserSignUpRequest dto) {
-        Optional<User> byEmail = userRepository.findByEmail(dto.email());
+    public UserDto signUp(UserSignUpRequest request) {
+        Optional<User> byEmail = userRepository.findByEmail(request.email());
         if (byEmail.isEmpty()) {
-            User user = new User(dto.email(), dto.nickname(), dto.password());
+            User user = new User(request.email(), request.nickname(), request.password());
             User saved = userRepository.save(user);
             return userMapper.toDto(saved);
         }
@@ -44,21 +39,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto login(UserLoginRequest dto) {
-        User byEmail = userRepository.findByEmail(dto.email())
-                .orElseThrow(() -> new UserNotFoundException(dto.email()));
+    public UserDto login(UserLoginRequest request) {
+        User byEmail = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new UserNotFoundException(request.email()));
         if (byEmail.isDeleted())
             throw new UserAlreadyDeletedException(byEmail);
-        if (byEmail.getPassword().equals(dto.password()))
+        if (byEmail.getPassword().equals(request.password()))
             return userMapper.toDto(byEmail);
-        throw new UserLoginFailedException(dto.email());
+        throw new UserLoginFailedException(request.email());
     }
 
     @Transactional
     @Override
-    public void delete(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+    public void delete(UUID loginId, UUID deleteId) {
+        if (!loginId.equals(deleteId))
+            throw new UserNotAuthorizedException(loginId, deleteId);
+        User user = userRepository.findById(loginId)
+                .orElseThrow(() -> new UserNotFoundException(loginId));
         if (user.isDeleted()) {
             throw new UserAlreadyDeletedException(user);
         }
@@ -67,20 +64,23 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public UserDto updateUser(UserUpdateRequest dto) {
-        User user = userRepository.findById(dto.userId())
-                .orElseThrow(() -> new UserNotFoundException(dto.userId()));
-        if (user.isDeleted())
-            throw new UserAlreadyDeletedException(user);
-        user.updateNickname(dto.newNickname());
-        return userMapper.toDto(user);
+    public void deleteHard(UUID loginId, UUID deleteId) {
+        if (!loginId.equals(deleteId))
+            throw new UserNotAuthorizedException(loginId, deleteId);
+        User user = userRepository.findById(deleteId)
+                .orElseThrow(() -> new UserNotFoundException(deleteId));
+        userRepository.delete(user);
     }
 
-    @Transactional
     @Override
-    public void deleteHard(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-        userRepository.delete(user);
+    public UserDto update(UUID loginId, UUID requestId, UserUpdateRequest request) {
+        if (!loginId.equals(requestId))
+            throw new UserNotAuthorizedException(loginId, requestId);
+        User user = userRepository.findById(requestId)
+                .orElseThrow(() -> new UserNotFoundException(requestId));
+        if (user.isDeleted())
+            throw new UserAlreadyDeletedException(user);
+        user.updateNickname(request.nickname());
+        return userMapper.toDto(user);
     }
 }

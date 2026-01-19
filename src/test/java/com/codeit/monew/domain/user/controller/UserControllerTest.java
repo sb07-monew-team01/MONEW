@@ -3,8 +3,11 @@ package com.codeit.monew.domain.user.controller;
 import com.codeit.monew.domain.user.dto.UserDto;
 import com.codeit.monew.domain.user.dto.request.UserLoginRequest;
 import com.codeit.monew.domain.user.dto.request.UserSignUpRequest;
+import com.codeit.monew.domain.user.dto.request.UserUpdateRequest;
 import com.codeit.monew.domain.user.exception.UserAlreadyExistsException;
 import com.codeit.monew.domain.user.exception.UserLoginFailedException;
+import com.codeit.monew.domain.user.exception.UserNotAuthorizedException;
+import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.service.UserServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.instancio.Instancio;
@@ -25,8 +28,9 @@ import java.util.UUID;
 
 import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
@@ -44,7 +48,6 @@ class UserControllerTest {
     @Nested
     @DisplayName("회원가입")
     class SignUp {
-
         @Test
         @DisplayName("사용자가 회원가입 할 수 있다.")
         void signUp() throws Exception {
@@ -177,8 +180,206 @@ class UserControllerTest {
                                 .content(objectMapper.writeValueAsString(request)))
                         .andExpect(status().is(400));
             }
+        }
+    }
 
+    @Nested
+    @DisplayName("유저 수정")
+    class Update {
+        @Test
+        @DisplayName("유저의 닉네임을 수정할 수 있다.")
+        void update() throws Exception {
+            // given
+            UserDto response = Instancio.create(UserDto.class);
+            UserUpdateRequest request = new UserUpdateRequest("나는 짱이다");
+            when(userService.update(any(), any(), any())).thenReturn(response);
+
+            // when & then
+            mockMvc.perform(patch("/api/users/" + response.id())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .header("MoNew-Request-User-ID", response.id())
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isOk());
+        }
+
+        @Nested
+        @DisplayName("실패 - 유효성 검증")
+        class ValidationFailure {
+
+            // TODO : 닉네임 유효성 검사 (400) (최대 몇 자?)
+            @ParameterizedTest
+            @NullAndEmptySource
+//            @ValueSource(strings = "aslidjflwekejfsdfjliwe") TODO 정책 추가
+            @DisplayName("유효한 닉네임을 사용해야 한다.")
+            void fail_notValidNickname(String nickname) throws Exception {
+                // given
+                UUID userId = UUID.randomUUID();
+                UserUpdateRequest request = new UserUpdateRequest(nickname);
+
+                // when & then
+                mockMvc.perform(patch("/api/users/" + userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("MoNew-Request-User-ID", userId)
+                                .content(objectMapper.writeValueAsString(request)))
+                        .andExpect(status().is(400));
+            }
+
+            @Test
+            @DisplayName("ID에 해당하는 사용자가 존재하지 않는 경우 오류가 발생한다.")
+            void fail_UserNotFoundById() throws Exception {
+                // given
+                UUID userId = UUID.randomUUID();
+                UserUpdateRequest request = new UserUpdateRequest("솔쳤습니까 휴먼");
+                when(userService.update(userId, userId, request)).thenThrow(new UserNotFoundException(userId));
+                // when & then
+                mockMvc.perform(patch("/api/users/" + userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("MoNew-Request-User-ID", userId)
+                                .content(objectMapper.writeValueAsString(request)))
+                        .andExpect(status().is(404));
+            }
+        }
+
+        @Nested
+        @DisplayName("실패 - 비즈니스 로직")
+        class BusinessLogicFailure {
+            @Test
+            @DisplayName("사용자 정보 수정 권한이 없는 경우 오류가 발생한다.")
+            void fail_NotAuthorized() throws Exception {
+                // given
+                UUID userId = UUID.randomUUID();
+                UserUpdateRequest request = new UserUpdateRequest("오류에요");
+                when(userService.update(any(),any() , any())).thenThrow(new UserNotAuthorizedException(userId, UUID.randomUUID()));
+
+                // when & then
+                mockMvc.perform(patch("/api/users/" + userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("MoNew-Request-User-ID", userId)
+                                .content(objectMapper.writeValueAsString(request)))
+                        .andExpect(status().is(403));
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("유저 논리 삭제")
+    class SoftDelete {
+        @Test
+        @DisplayName("유저 논리 삭제 요청을 처리할 수 있다.")
+        void delete_soft() throws Exception {
+            // when & then
+            mockMvc.perform(delete("/api/users/" + UUID.randomUUID())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("MoNew-Request-User-ID", UUID.randomUUID().toString())
+            ).andExpect(status().is(204));
+
+        }
+
+        @Nested
+        @DisplayName("실패 - 유효성 검증")
+        class ValidationFailure {
+            @Test
+            @DisplayName("올바른 아이디 형식이 들어와야한다.")
+            void fail_notValidId() throws Exception {
+                // when & then
+                mockMvc.perform(delete("/api/users/lsaidmf")
+                                .header("MoNew-Request-User-ID", UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().is4xxClientError());
+            }
+        }
+
+        @Nested
+        @DisplayName("실패 - 비즈니스 로직")
+        class BusinessLogicFailure {
+            @Test
+            @DisplayName("사용자 삭제 권한 없음")
+            void fail_notAuthorized() throws Exception {
+                // given
+                doThrow(new UserNotAuthorizedException(UUID.randomUUID(), UUID.randomUUID())).when(userService).delete(any(), any());
+
+                // when & then
+                mockMvc.perform(delete("/api/users/" + UUID.randomUUID())
+                                .header("MoNew-Request-User-ID", UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().is(403));
+            }
+
+            @Test
+            @DisplayName("사용자 정보 없음")
+            void fail_userNotFound() throws Exception {
+                // given
+                doThrow(new UserNotFoundException(UUID.randomUUID())).when(userService).delete(any(), any());
+
+                // when & then
+                mockMvc.perform(delete("/api/users/" + UUID.randomUUID())
+                                .header("MoNew-Request-User-ID", UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().is(404));
+            }
+        }
+
+    }
+
+    @Nested
+    @DisplayName("유저 물리 삭제")
+    class HardDelete {
+        @Test
+        @DisplayName("유저 물리 삭제 요청을 처리할 수 있다.")
+        void deleteHard() throws Exception {
+            // when & then
+            mockMvc.perform(delete("/api/users/" + UUID.randomUUID() + "/hard")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("MoNew-Request-User-ID", UUID.randomUUID().toString())
+            ).andExpect(status().is(204));
+
+        }
+
+        @Nested
+        @DisplayName("실패 - 유효성 검증")
+        class ValidationFailure {
+            @Test
+            @DisplayName("올바른 아이디 형식이 들어와야한다.")
+            void fail_notValidId() throws Exception {
+                // when & then
+                mockMvc.perform(delete("/api/users/lsaidmf/hard")
+                                .header("MoNew-Request-User-ID", UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().is4xxClientError());
+            }
+        }
+
+        @Nested
+        @DisplayName("실패 - 비즈니스 로직")
+        class BusinessLogicFailure {
+            @Test
+            @DisplayName("사용자 삭제 권한 없음")
+            void fail_notAuthorized() throws Exception {
+                // given
+                doThrow(new UserNotAuthorizedException(UUID.randomUUID(), UUID.randomUUID())).when(userService).deleteHard(any(), any());
+
+                // when & then
+                mockMvc.perform(delete("/api/users/" + UUID.randomUUID() + "/hard")
+                                .header("MoNew-Request-User-ID", UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().is(403));
+            }
+
+            @Test
+            @DisplayName("사용자 정보 없음")
+            void fail_userNotFound() throws Exception {
+                // given
+                doThrow(new UserNotFoundException(UUID.randomUUID())).when(userService).deleteHard(any(), any());
+
+                // when & then
+                mockMvc.perform(delete("/api/users/" + UUID.randomUUID() + "/hard")
+                                .header("MoNew-Request-User-ID", UUID.randomUUID())
+                                .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().is(404));
+            }
         }
     }
 }
+
+
 

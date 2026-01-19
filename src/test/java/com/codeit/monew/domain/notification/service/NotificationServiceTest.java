@@ -1,4 +1,4 @@
-package com.codeit.monew.domain.notification;
+package com.codeit.monew.domain.notification.service;
 
 
 
@@ -10,7 +10,6 @@ import com.codeit.monew.domain.notification.dto.response.NotificationDto;
 import com.codeit.monew.domain.notification.entity.ResourceType;
 import com.codeit.monew.domain.notification.exception.NotificationNotFoundException;
 import com.codeit.monew.domain.notification.repository.NotificationRepository;
-import com.codeit.monew.domain.notification.service.NotificationServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
