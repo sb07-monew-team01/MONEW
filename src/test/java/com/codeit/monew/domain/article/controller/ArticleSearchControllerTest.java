@@ -76,12 +76,11 @@ class ArticleSearchControllerTest {
         @DisplayName("기사 기사 목록 조회")
         void getArticlesCursorPaging() throws Exception {
             // given
-            ArticleSearchRequest request = ArticleSearchRequest.builder().build();
 
             List<ArticleDto> articles = List.of(dto);
             PageResponse<ArticleDto> pages = new PageResponse<>(articles, null, null, 10, 1, false);
 
-            when(articleService.searchByKeyword(request, userId))
+            when(articleService.searchByKeyword(any(ArticleSearchRequest.class), eq(userId)))
                     .thenReturn(pages);
 
             // when & then
