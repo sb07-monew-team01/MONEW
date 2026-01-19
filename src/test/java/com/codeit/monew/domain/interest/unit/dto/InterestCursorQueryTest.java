@@ -1,6 +1,6 @@
 package com.codeit.monew.domain.interest.unit.dto;
 
-import com.codeit.monew.domain.interest.dto.InterestCursorQuery;
+import com.codeit.monew.domain.interest.dto.query.InterestCursorQuery;
 import com.codeit.monew.domain.interest.vo.InterestOrderBy;
 import com.codeit.monew.domain.interest.vo.SortDirection;
 import org.junit.jupiter.api.DisplayName;
@@ -10,35 +10,6 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.*;
 
 public class InterestCursorQueryTest {
-    @Nested
-    @DisplayName("기본값 셋팅")
-    class DefaultValueTest{
-        @Test
-        @DisplayName("성공: null 입력 시 기본값 설정이 잘 된다")
-        void defaultValues(){
-            // given
-            InterestOrderBy orderBy = null;
-            SortDirection direction = null;
-            Integer limit = null;
-
-            // when
-            InterestCursorQuery query = new InterestCursorQuery(
-                    orderBy,
-                    direction,
-                    null,
-                    null,
-                    null,
-                    limit,
-                    null
-            );
-
-            // then
-            assertThat(query.orderBy()).isEqualTo(InterestOrderBy.NAME);
-            assertThat(query.direction()).isEqualTo(SortDirection.ASC);
-            assertThat(query.limit()).isEqualTo(6);
-        }
-    }
-
     @Nested
     @DisplayName("정렬 validate 테스트")
     class ValidateTest{

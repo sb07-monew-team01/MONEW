@@ -1,8 +1,7 @@
 package com.codeit.monew.domain.interest.repository;
 
-import com.codeit.monew.domain.interest.dto.InterestCursorQuery;
+import com.codeit.monew.domain.interest.dto.query.InterestCursorQuery;
 import com.codeit.monew.domain.interest.entity.Interest;
-import com.codeit.monew.domain.interest.vo.AfterCursorValue;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -12,9 +11,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 import static com.codeit.monew.domain.interest.entity.QInterest.interest;
 
@@ -25,7 +22,6 @@ public class InterestRepositoryCustomImpl implements InterestRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     public Slice<Interest> findAllByCursor(InterestCursorQuery query) {
-
         List<Interest> result = queryFactory
                 .selectFrom(interest)
                 .where(buildCursorCondition(query))
@@ -44,7 +40,6 @@ public class InterestRepositoryCustomImpl implements InterestRepositoryCustom {
 
     // 현재 커서 이후(또는 이전) 범위 조건: where 절
     private BooleanExpression buildCursorCondition(InterestCursorQuery query) {
-        AfterCursorValue after = parseAfter(query.after());
         boolean asc = query.direction().isAsc();
         BooleanExpression cursorCondition;
 
@@ -57,28 +52,26 @@ public class InterestRepositoryCustomImpl implements InterestRepositoryCustom {
                 if (query.nameCursor() == null) yield null;
                 if (asc) {
                     yield interest.name.gt(query.nameCursor())
-                        .or(interest.name.eq(query.nameCursor()).and(interest.createdAt.gt(after.createdAt())
-                        .or(interest.createdAt.eq(after.createdAt()).and(interest.id.gt(after.id())))));
+                        .or(interest.name.eq(query.nameCursor()).and(interest.createdAt.gt(query.after())
+                    ));
                 } else {
                     yield interest.name.lt(query.nameCursor())
-                        .or(interest.name.eq(query.nameCursor()).and(interest.createdAt.lt(after.createdAt())
-                        .or(interest.createdAt.eq(after.createdAt()).and(interest.id.lt(after.id())))));
+                        .or(interest.name.eq(query.nameCursor()).and(interest.createdAt.lt(query.after())
+                    ));
                 }
             }
             case SUBSCRIBER_COUNT -> {
                 if (query.subscriberCountCursor() == null) yield null;
                 if (asc) {
                     yield interest.subscriberCount.gt(query.subscriberCountCursor())
-                            .or(interest.subscriberCount.eq(query.subscriberCountCursor())
-                                    .and(interest.createdAt.gt(after.createdAt())
-                            .or(interest.createdAt.eq(after.createdAt())
-                                    .and(interest.id.gt(after.id())))));
+                        .or(interest.subscriberCount.eq(query.subscriberCountCursor())
+                                .and(interest.createdAt.gt(query.after())
+                        ));
                 } else {
                     yield interest.subscriberCount.lt(query.subscriberCountCursor())
-                            .or(interest.subscriberCount.eq(query.subscriberCountCursor())
-                                    .and(interest.createdAt.lt(after.createdAt())
-                            .or(interest.createdAt.eq(after.createdAt())
-                                    .and(interest.id.lt(after.id())))));
+                        .or(interest.subscriberCount.eq(query.subscriberCountCursor())
+                                .and(interest.createdAt.lt(query.after())
+                        ));
                 }
             }
 
@@ -109,14 +102,5 @@ public class InterestRepositoryCustomImpl implements InterestRepositoryCustom {
         } else {
             return new OrderSpecifier[]{primary, interest.createdAt.desc(), interest.id.desc()};
         }
-    }
-
-    // after(createdAt_id) 파싱만 담당
-    private AfterCursorValue parseAfter(String after) {
-        if (after == null || after.isBlank()) return null;
-        String[] parts = after.split("_");
-        if (parts.length != 2) throw new IllegalArgumentException("잘못된 after 커서 형식입니다.");
-
-        return new AfterCursorValue(LocalDateTime.parse(parts[0]), UUID.fromString(parts[1]));
     }
 }

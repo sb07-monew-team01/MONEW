@@ -1,12 +1,20 @@
 package com.codeit.monew.domain.interest.unit.service;
 
+import com.codeit.monew.domain.interest.dto.query.InterestCursorQuery;
+import com.codeit.monew.domain.interest.dto.request.InterestCursorPageRequest;
+import com.codeit.monew.domain.interest.dto.response.InterestCommonResponse;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
+import com.codeit.monew.domain.interest.mapper.InterestMapper;
+import com.codeit.monew.domain.interest.mapper.InterestQueryMapper;
 import com.codeit.monew.domain.interest.policy.InterestNamePolicy;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interest.repository.InterestRepositoryCustomImpl;
 import com.codeit.monew.domain.interest.service.InterestServiceImpl;
+import com.codeit.monew.domain.interest.vo.InterestOrderBy;
+import com.codeit.monew.domain.interest.vo.SortDirection;
 import com.codeit.monew.domain.interestkeyword.entity.InterestKeyword;
+import com.codeit.monew.domain.interestuser.repository.InterestUserRepository;
 import com.codeit.monew.global.enums.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -40,6 +48,15 @@ public class InterestServiceImplTest {
 
     @Mock
     InterestRepositoryCustomImpl interestRepositoryCustom;
+
+    @Mock
+    InterestUserRepository interestUserRepository;
+
+    @Mock
+    InterestQueryMapper interestQueryMapper;
+
+    @Mock
+    InterestMapper interestMapper;
 
     @InjectMocks
     InterestServiceImpl interestService;
@@ -165,16 +182,28 @@ public class InterestServiceImplTest {
         @DisplayName("관심사 조회를 하면 repository의 조회가 호출된다")
         void find_interest_(){
             // given
-            Slice<Interest> mockSlice = new SliceImpl<>(
-                List.of(new Interest("테스트", List.of("키워드")))
+            UUID userId = UUID.randomUUID();
+            UUID interestId = UUID.randomUUID();
+
+            String name = "관심사이름";
+            List<String> keywords = List.of("java", "spring");
+            Interest interest = new Interest(name, keywords);
+            InterestCommonResponse response = new InterestCommonResponse(
+                    interestId, name, keywords, 0, false
             );
-            given(interestRepositoryCustom.findAllByCursor(any()))
-                    .willReturn(mockSlice);
+            Slice<Interest> interestSlice = new SliceImpl<>(List.of(interest));
+            InterestCursorPageRequest request = new InterestCursorPageRequest(
+                    InterestOrderBy.NAME, SortDirection.DESC,null,null,10,null);
+            InterestCursorQuery query = new InterestCursorQuery(
+                    request.orderBy(), request.direction(),null,null,null,10,null);
+
+            given(interestQueryMapper.toQuery(request)).willReturn(query);
+            given(interestUserRepository.existsByUserIdAndInterestId(any(),any())).willReturn(false);
+            given(interestRepositoryCustom.findAllByCursor(any())).willReturn(interestSlice);
+            given(interestMapper.toDto(interest, false)).willReturn(response);
 
             // when
-            Slice<Interest> result = interestService.getInterests(
-                    "테스트", "NAME", "ASC", null, null, 10
-            );
+            interestService.getInterests(userId,request);
 
             // then
             then(interestRepositoryCustom).should(times(1)).findAllByCursor(any());

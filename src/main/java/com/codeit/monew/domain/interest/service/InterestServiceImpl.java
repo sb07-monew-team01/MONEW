@@ -1,20 +1,23 @@
 package com.codeit.monew.domain.interest.service;
 
-import com.codeit.monew.domain.interest.dto.InterestCursorQuery;
+import com.codeit.monew.domain.interest.dto.request.InterestCursorPageRequest;
+import com.codeit.monew.domain.interest.dto.response.InterestCommonResponse;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
+import com.codeit.monew.domain.interest.mapper.InterestMapper;
+import com.codeit.monew.domain.interest.mapper.InterestQueryMapper;
 import com.codeit.monew.domain.interest.policy.InterestNamePolicy;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interest.repository.InterestRepositoryCustomImpl;
-import com.codeit.monew.domain.interest.vo.InterestOrderBy;
-import com.codeit.monew.domain.interest.vo.SortDirection;
+import com.codeit.monew.domain.interestuser.repository.InterestUserRepository;
+import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,44 +27,35 @@ public class InterestServiceImpl implements InterestService{
     private final InterestRepository interestRepository;
     private final InterestNamePolicy interestNamePolicy;
     private final InterestRepositoryCustomImpl interestRepositoryCustom;
+    private final InterestQueryMapper interestQueryMapper;
+    private final InterestMapper interestMapper;
+    private final InterestUserRepository interestUserRepository;
 
     @Override
     @Transactional(readOnly = true)
-    public Slice<Interest> getInterests(
-            String keyword,
-            String orderBy,
-            String direction,
-            String cursor,
-            String after,
-            Integer limit
-    ){
-        InterestOrderBy interestOrderBy = InterestOrderBy.valueOf(orderBy.toUpperCase());
-        SortDirection sortDirection = SortDirection.valueOf(direction);
-        String keywordValue = StringUtils.hasText(keyword) ? keyword.trim() : null;
+    public PageResponse<InterestCommonResponse> getInterests(UUID userId, InterestCursorPageRequest request) {
+        Slice<Interest> slice = interestRepositoryCustom.findAllByCursor(
+                interestQueryMapper.toQuery(request)
+        );
+        List<InterestCommonResponse> content = slice.getContent().stream()
+            .map(interest ->
+                interestMapper.toDto(interest,
+                interestUserRepository.existsByUserIdAndInterestId(userId, interest.getId()))
+            ).toList();
 
-        String nameCursor = null;
-        Long subscriberCountCursor = null;
+        String nextCursor = null;
+        LocalDateTime nextAfter = null;
 
-        switch (interestOrderBy){
-            case NAME:
-                nameCursor = cursor;
-                break;
-            case SUBSCRIBER_COUNT:
-                subscriberCountCursor = Long.parseLong(cursor);
-                break;
+        if(slice.hasNext() && !slice.getContent().isEmpty()){
+            Interest last = slice.getContent().get(slice.getContent().size() - 1);
+            nextAfter = last.getCreatedAt();
+            nextCursor = switch (request.orderBy()) {
+                case NAME -> last.getName();
+                case SUBSCRIBER_COUNT -> String.valueOf(last.getSubscriberCount());
+            };
         }
 
-        InterestCursorQuery query = new InterestCursorQuery(
-            interestOrderBy,
-            sortDirection,
-            nameCursor,
-            subscriberCountCursor,
-            after,
-            limit,
-            keywordValue
-        );
-
-        return interestRepositoryCustom.findAllByCursor(query);
+        return new PageResponse<>(content, nextCursor, nextAfter, slice.getSize(),0L, slice.hasNext());
     }
 
     @Override
