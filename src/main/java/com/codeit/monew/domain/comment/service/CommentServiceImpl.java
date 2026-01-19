@@ -19,12 +19,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.codeit.monew.domain.comment.mapper.CommentMapper;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import static com.codeit.monew.domain.comment.mapper.CommentMapper.toDto;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +37,7 @@ public class CommentServiceImpl implements CommentService {
     private final ArticleRepository articleRepository;
 
     @Override
+    @Transactional
     public CommentDto create(CommentRegisterRequest request) {
         User user = userRepository.findById(request.userId())
                 .orElseThrow(() -> new UserNotFoundException("존재하지 않는 사용자입니다."));
@@ -51,7 +53,7 @@ public class CommentServiceImpl implements CommentService {
         Comment saved = commentRepository.save(comment);
 
         article.increaseCommentCount();
-        return toDto(saved);
+        return CommentMapper.toDto(saved);
     }
 
     // 논리 삭제
@@ -89,7 +91,7 @@ public class CommentServiceImpl implements CommentService {
 
         comment.updateContent(request.content());
 
-        return toDto(comment);
+        return CommentMapper.toDto(comment);
 
 
     }
