@@ -2,6 +2,7 @@ package com.codeit.monew.domain.interest.service;
 
 import com.codeit.monew.domain.interest.dto.request.InterestCreatedRequest;
 import com.codeit.monew.domain.interest.dto.request.InterestCursorPageRequest;
+import com.codeit.monew.domain.interest.dto.request.InterestUpdateRequest;
 import com.codeit.monew.domain.interest.dto.response.InterestCommonResponse;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
@@ -71,9 +72,13 @@ public class InterestServiceImpl implements InterestService{
 
     @Override
     @Transactional
-    public Interest editKeywords(UUID id, List<String> keywords){
-        Interest interest = findById(id);
-        return interest.update(keywords);
+    public InterestCommonResponse editKeywords(UUID userId, InterestUpdateRequest request){
+        Interest interest = findById(request.interestId());
+
+        return interestMapper.toDto(
+                interest.update(request.keywords()),
+                interestUserRepository.existsByUserIdAndInterestId(userId, interest.getId())
+        );
     }
 
     @Override

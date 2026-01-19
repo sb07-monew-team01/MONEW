@@ -3,6 +3,7 @@ package com.codeit.monew.domain.interest.unit.service;
 import com.codeit.monew.domain.interest.dto.query.InterestCursorQuery;
 import com.codeit.monew.domain.interest.dto.request.InterestCreatedRequest;
 import com.codeit.monew.domain.interest.dto.request.InterestCursorPageRequest;
+import com.codeit.monew.domain.interest.dto.request.InterestUpdateRequest;
 import com.codeit.monew.domain.interest.dto.response.InterestCommonResponse;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
@@ -123,13 +124,24 @@ public class InterestServiceImplTest {
         @DisplayName("성공: 관심사 수정 시 키워드가 변경된다")
         void success_update_interest_keywords(){
             // given
-            Interest interest = new Interest("백엔드", List.of("java", "spring"));
             UUID interestId = UUID.randomUUID();
+            UUID userId = UUID.randomUUID();
+            String name = "백엔드";
+            List<String> oldKeywords = List.of("java", "spring");
+            List<String> newKeywords = List.of("DB", "Spring boot");
+
+            InterestUpdateRequest request = new InterestUpdateRequest(interestId, newKeywords);
+            Interest interest = new Interest(name, oldKeywords);
+            InterestCommonResponse response = new InterestCommonResponse(
+                    UUID.randomUUID(), name, newKeywords, 0, false);
+
             given(interestRepository.findById(interestId))
                     .willReturn(Optional.of(interest));
+            given(interestUserRepository.existsByUserIdAndInterestId(any(),any())).willReturn(false);
+            given(interestMapper.toDto(any(Interest.class), eq(false))).willReturn(response);
 
             // when
-            interestService.editKeywords(interestId, List.of("DB", "Spring boot"));
+            interestService.editKeywords(userId, request);
 
             // then
             assertThat(interest.getKeywords())
@@ -142,10 +154,16 @@ public class InterestServiceImplTest {
         void fail_update_interest_not_found(){
             // given
             UUID interestId = UUID.randomUUID();
+            UUID userId = UUID.randomUUID();
+            String name = "백엔드";
+            List<String> oldKeywords = List.of("java", "spring");
+            List<String> newKeywords = List.of("DB", "Spring boot");
+            InterestUpdateRequest request = new InterestUpdateRequest(interestId, newKeywords);
+
             given(interestRepository.findById(interestId)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> interestService.editKeywords(interestId, List.of("DB", "Spring boot")))
+            assertThatThrownBy(() -> interestService.editKeywords(userId, request))
                     .isInstanceOf(InterestNotFoundException.class)
                     .extracting("errorCode")
                     .isEqualTo(ErrorCode.INTEREST_NOT_FOUND);
