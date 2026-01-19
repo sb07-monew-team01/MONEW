@@ -11,6 +11,7 @@ import com.codeit.monew.domain.interest.mapper.InterestQueryMapper;
 import com.codeit.monew.domain.interest.policy.InterestNamePolicy;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interest.repository.InterestRepositoryCustomImpl;
+import com.codeit.monew.domain.interest.vo.NextCursor;
 import com.codeit.monew.domain.interestuser.repository.InterestUserRepository;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.global.enums.ErrorCode;
@@ -39,25 +40,23 @@ public class InterestServiceImpl implements InterestService{
         Slice<Interest> slice = interestRepositoryCustom.findAllByCursor(
                 interestQueryMapper.toQuery(request)
         );
+
         List<InterestCommonResponse> content = slice.getContent().stream()
-            .map(interest ->
-                interestMapper.toDto(interest,
-                interestUserRepository.existsByUserIdAndInterestId(userId, interest.getId()))
-            ).toList();
+        .map(interest ->
+            interestMapper.toDto(interest,
+            interestUserRepository.existsByUserIdAndInterestId(userId, interest.getId()))
+        ).toList();
 
-        String nextCursor = null;
-        LocalDateTime nextAfter = null;
+        NextCursor nextCursor = NextCursor.from(slice, request.orderBy());
 
-        if(slice.hasNext() && !slice.getContent().isEmpty()){
-            Interest last = slice.getContent().get(slice.getContent().size() - 1);
-            nextAfter = last.getCreatedAt();
-            nextCursor = switch (request.orderBy()) {
-                case NAME -> last.getName();
-                case SUBSCRIBER_COUNT -> String.valueOf(last.getSubscriberCount());
-            };
-        }
-
-        return new PageResponse<>(content, nextCursor, nextAfter, slice.getSize(),0L, slice.hasNext());
+        return new PageResponse<>(
+                content,
+                nextCursor.getCursor(),
+                nextCursor.getAfter(),
+                slice.getSize(),
+                0L,
+                slice.hasNext()
+        );
     }
 
     @Override

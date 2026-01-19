@@ -13,80 +13,77 @@ public class InterestCursorQueryTest {
     @Nested
     @DisplayName("정렬 validate 테스트")
     class ValidateTest{
-        @Test
-        @DisplayName("정상적인 NAME 정렬 쿼리는 validate 통과한다.")
-        void validateNameCursorSuccess() {
-            // given
-            InterestCursorQuery query = new InterestCursorQuery(
-                    InterestOrderBy.NAME,
-                    SortDirection.ASC,
-                    "cursorName",
-                    null,
-                    null,
-                    10,
-                    null
-            );
+        @Nested
+        @DisplayName("정렬 조건에 따른 생성자 검증 테스트")
+        class ConstructorValidationTest {
 
+            @Test
+            @DisplayName("NAME 정렬 + nameCursor 사용 시 정상 생성된다")
+            void createNameOrderQuerySuccess() {
+                // when & then
+                assertThatCode(() ->
+                        new InterestCursorQuery(
+                                InterestOrderBy.NAME,
+                                SortDirection.ASC,
+                                "cursorName",
+                                null,
+                                null,
+                                10,
+                                null
+                        )
+                ).doesNotThrowAnyException();
+            }
 
-            // when & then
-            assertThatCode(query::validate)
-                    .doesNotThrowAnyException(); // 예외가 발생하지 않아야 함
-        }
+            @Test
+            @DisplayName("NAME 정렬에서 subscriberCountCursor 사용 시 예외 발생")
+            void createNameOrderQueryFail() {
+                // when & then
+                assertThatThrownBy(() ->
+                        new InterestCursorQuery(
+                                InterestOrderBy.NAME,
+                                SortDirection.ASC,
+                                null,
+                                5L,
+                                null,
+                                10,
+                                null
+                        )
+                ).isInstanceOf(IllegalArgumentException.class);
+            }
 
-        @Test
-        @DisplayName("NAME 정렬에서 subscriberCountCursor 사용 시 예외 발생")
-        void validateNameCursorFail() {
-            // given
-            InterestCursorQuery query = new InterestCursorQuery(
-                    InterestOrderBy.NAME,
-                    SortDirection.ASC,
-                    null,
-                    5L,
-                    null,
-                    10,
-                    null
-            );
+            @Test
+            @DisplayName("SUBSCRIBER_COUNT 정렬 + subscriberCountCursor 사용 시 정상 생성된다")
+            void createSubscriberCountOrderQuerySuccess() {
+                // when & then
+                assertThatCode(() ->
+                        new InterestCursorQuery(
+                                InterestOrderBy.SUBSCRIBER_COUNT,
+                                SortDirection.DESC,
+                                null,
+                                10L,
+                                null,
+                                10,
+                                null
+                        )
+                ).doesNotThrowAnyException();
+            }
 
-            // when & then
-            assertThatThrownBy(query::validate)
-                    .isInstanceOf(IllegalArgumentException.class);
-        }
-
-        @Test
-        @DisplayName("정상적인 SUBSCRIBER_COUNT 정렬 쿼리는 validate 통과")
-        void validateSubscriberCountCursorSuccess() {
-            // given
-            InterestCursorQuery query = new InterestCursorQuery(
-                    InterestOrderBy.SUBSCRIBER_COUNT,
-                    SortDirection.DESC,
-                    null,
-                    10L,
-                    null,
-                    10,
-                    null
-            );
-
-            // when & then
-            query.validate(); // 예외 없음
-        }
-
-        @Test
-        @DisplayName("SUBSCRIBER_COUNT 정렬에서 nameCursor 사용 시 예외 발생")
-        void validateSubscriberCountCursorFail() {
-            // given
-            InterestCursorQuery query = new InterestCursorQuery(
-                    InterestOrderBy.SUBSCRIBER_COUNT,
-                    SortDirection.DESC,
-                    "nameCursor",
-                    null,
-                    null,
-                    10,
-                    null
-            );
-
-            // when & then
-            assertThatThrownBy(query::validate)
-                    .isInstanceOf(IllegalArgumentException.class);
+            @Test
+            @DisplayName("SUBSCRIBER_COUNT 정렬에서 nameCursor 사용 시 예외 발생")
+            void createSubscriberCountOrderQueryFail() {
+                // when & then
+                assertThatThrownBy(() ->
+                        new InterestCursorQuery(
+                                InterestOrderBy.SUBSCRIBER_COUNT,
+                                SortDirection.DESC,
+                                "nameCursor",
+                                null,
+                                null,
+                                10,
+                                null
+                        )
+                ).isInstanceOf(IllegalArgumentException.class);
+            }
         }
     }
 }
