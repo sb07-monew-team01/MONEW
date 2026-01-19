@@ -4,6 +4,7 @@ import com.codeit.monew.domain.interest.dto.InterestCursorQuery;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interest.repository.InterestRepositoryCustomImpl;
+import com.codeit.monew.domain.interest.util.InterestTestUtils;
 import com.codeit.monew.domain.interest.vo.InterestOrderBy;
 import com.codeit.monew.domain.interest.vo.SortDirection;
 import com.codeit.monew.global.config.TestJpaAuditing;
@@ -17,11 +18,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Slice;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -53,7 +51,7 @@ public class InterestRepositoryCustomImplTest {
         )
         void sortByName(){
             // given
-            settingInterestList(0);
+            InterestTestUtils.createInterests(interestRepository, entityManager, 0);
             InterestCursorQuery query = new InterestCursorQuery(
                     InterestOrderBy.NAME,
                     SortDirection.ASC,
@@ -84,7 +82,7 @@ public class InterestRepositoryCustomImplTest {
         )
         void sortBySubscriberCount(){
             // given
-            settingInterestList(0);
+            InterestTestUtils.createInterests(interestRepository, entityManager, 0);
             InterestCursorQuery query = new InterestCursorQuery(
                     InterestOrderBy.SUBSCRIBER_COUNT,
                     SortDirection.ASC,
@@ -119,7 +117,7 @@ public class InterestRepositoryCustomImplTest {
         )
         void sortByName(){
             // given
-            settingInterestList(0);
+            InterestTestUtils.createInterests(interestRepository, entityManager, 0);
             InterestCursorQuery query = new InterestCursorQuery(
                     InterestOrderBy.NAME,
                     SortDirection.DESC,
@@ -150,7 +148,7 @@ public class InterestRepositoryCustomImplTest {
         )
         void sortBySubscriberCount(){
             // given
-            settingInterestList(0);
+            InterestTestUtils.createInterests(interestRepository, entityManager, 0);
             InterestCursorQuery query = new InterestCursorQuery(
                     InterestOrderBy.SUBSCRIBER_COUNT,
                     SortDirection.DESC,
@@ -186,7 +184,7 @@ public class InterestRepositoryCustomImplTest {
         """)
         void sortByName(){
             // given
-            settingInterestList(10);
+            InterestTestUtils.createInterests(interestRepository, entityManager, 10);
             InterestCursorQuery query = new InterestCursorQuery(
                     InterestOrderBy.NAME,
                     SortDirection.ASC,
@@ -221,7 +219,7 @@ public class InterestRepositoryCustomImplTest {
         """)
         void sortBySubscriberCount(){
             // given
-            settingInterestList(10);
+            InterestTestUtils.createInterests(interestRepository, entityManager, 10);
             InterestCursorQuery query = new InterestCursorQuery(
                     InterestOrderBy.SUBSCRIBER_COUNT,
                     SortDirection.ASC,
@@ -262,7 +260,7 @@ public class InterestRepositoryCustomImplTest {
         """)
         void sortByName(){
             // given
-            settingInterestList(10);
+            InterestTestUtils.createInterests(interestRepository, entityManager, 10);
             InterestCursorQuery query = new InterestCursorQuery(
                     InterestOrderBy.NAME,
                     SortDirection.DESC,
@@ -297,7 +295,7 @@ public class InterestRepositoryCustomImplTest {
         """)
         void sortBySubscriberCount(){
             // given
-            settingInterestList(10);
+            InterestTestUtils.createInterests(interestRepository, entityManager, 10);
             InterestCursorQuery query = new InterestCursorQuery(
                     InterestOrderBy.SUBSCRIBER_COUNT,
                     SortDirection.DESC,
@@ -347,7 +345,7 @@ public class InterestRepositoryCustomImplTest {
         """)
         void sortByName(){
             // given
-            settingInterestList(totalCount);
+            InterestTestUtils.createInterests(interestRepository, entityManager, totalCount);
 
             // [Page 1]
             // given
@@ -444,7 +442,7 @@ public class InterestRepositoryCustomImplTest {
         """)
         void sortBySubscriberCount(){
             // given
-            settingInterestList(totalCount);
+            InterestTestUtils.createInterests(interestRepository, entityManager, totalCount);
 
             // [Page 1]
             // given
@@ -548,7 +546,7 @@ public class InterestRepositoryCustomImplTest {
         """)
         void sortByName(){
             // given
-            settingInterestList(totalCount);
+            InterestTestUtils.createInterests(interestRepository, entityManager, totalCount);
 
             // [Page 1]
             // given
@@ -645,7 +643,7 @@ public class InterestRepositoryCustomImplTest {
         """)
         void sortBySubscriberCount(){
             // given
-            settingInterestList(totalCount);
+            InterestTestUtils.createInterests(interestRepository, entityManager, totalCount);
 
             // [Page 1]
             // given
@@ -738,7 +736,7 @@ public class InterestRepositoryCustomImplTest {
         @DisplayName("키워드가 포함된 항목만 조회된다")
         void searchByKeyword() {
             // given
-            settingInterestList(100);
+            InterestTestUtils.createInterests(interestRepository, entityManager, 100);
 
             // 예: '코딩' 키워드 포함된 항목만 조회
             InterestCursorQuery query = new InterestCursorQuery(
@@ -765,7 +763,7 @@ public class InterestRepositoryCustomImplTest {
         @DisplayName("키워드가 없으면 전체 조회")
         void searchWithoutKeyword() {
             // given
-            settingInterestList(100);
+            InterestTestUtils.createInterests(interestRepository, entityManager, 100);
 
             InterestCursorQuery query = new InterestCursorQuery(
                     InterestOrderBy.NAME,
@@ -784,50 +782,4 @@ public class InterestRepositoryCustomImplTest {
             assertThat(result.getContent()).hasSize(100); // 전체가 나와야 함
         }
     }
-
-    // 관심사 초기 랜덤 셋팅
-    void settingInterestList(int num){
-        interestRepository.deleteAll();
-        if(num == 0) return;
-
-        String[] word = {"코딩", "스터디", "프로젝트", "개발", "테스트", "자바", "리액트", "백엔드", "프론트엔드", "API",
-                "Code", "Stack", "Flow", "Build", "Test", "Spring", "React", "Java", "Backend", "Frontend", "요리",
-                "동물", "병원", "정치", "대통령", "게임", "축구", "환율", "주식", "성공"};
-
-        for(int i = 1; i <= num; i++){
-            String name = new StringBuilder()
-                    .append(word[(int)(Math.random() * word.length)])
-                    .append(" ")
-                    .append(word[(int)(Math.random() * word.length)])
-                    .append(i)
-                    .toString();
-            String keyword = new StringBuilder()
-                    .append(word[(int)(Math.random() * word.length)])
-                    .append(" ")
-                    .append(word[(int)(Math.random() * word.length)])
-                    .append(i)
-                    .toString();
-            Interest interest = new Interest(name, List.of(keyword));
-
-            // 구독자 수 랜덤화 (0 ~ 10)
-            Long subscriberCount = (long) (Math.random() * 10);
-
-            // createdAt 랜덤화 (최근 365일 이내)
-            LocalDateTime createdAt = LocalDateTime.now()
-                    .minusDays((long) (Math.random() * 365))
-                    .minusHours((long) (Math.random() * 24))
-                    .minusMinutes((long) (Math.random() * 60));
-
-            // ReflectionUtil로 private 필드 직접 세팅
-            ReflectionTestUtils.setField(interest, "subscriberCount", subscriberCount);
-            ReflectionTestUtils.setField(interest, "createdAt", createdAt);
-
-            interestRepository.save(interest);
-
-            entityManager.flush();
-            entityManager.clear();
-        }
-    }
-
-
 }
