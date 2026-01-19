@@ -27,7 +27,10 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<UserDto> login(@Valid @RequestBody UserLoginRequest request){
-        return ResponseEntity.ok(userService.login(request));
+        UserDto response = userService.login(request);
+        return ResponseEntity.ok()
+                .header("MoNew-Request-User-ID", response.id().toString())
+                .body(response);
     }
 
     @PatchMapping("/{userId}")
