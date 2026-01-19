@@ -129,7 +129,7 @@ class ArticleSearchControllerTest {
                     .header("Monew-Request-User-ID", userId.toString()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.articleId").value(articleId.toString()))
-                    .andExpect(jsonPath("$.userId").value(userId.toString()));
+                    .andExpect(jsonPath("$.viewedBy").value(userId.toString()));
         }
     }
 }
