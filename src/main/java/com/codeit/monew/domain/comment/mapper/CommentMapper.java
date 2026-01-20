@@ -12,10 +12,26 @@ public class CommentMapper {
                 comment.getUser().getId(),
                 comment.getUser().getNickname(),
                 comment.getContent(),
-                null, // 아직 좋아요 기능 구현 안 됨
-                null, // 아직 좋아요 기능 구현 안 됨
+                0L,
+                false,
                 comment.getCreatedAt()
             );
         }
-    }
 
+        public static CommentDto toDto(
+                Comment comment,
+                long likeCount,
+                boolean likedByMe
+        ) {
+            return new CommentDto(
+                    comment.getId(),
+                    comment.getArticle().getId(),
+                    comment.getUser().getId(),
+                    comment.getUser().getNickname(),
+                    comment.getContent(),
+                    likeCount,
+                    likedByMe,
+                    comment.getCreatedAt()
+            );
+        }
+    }
