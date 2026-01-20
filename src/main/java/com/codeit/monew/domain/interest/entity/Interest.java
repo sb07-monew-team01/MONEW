@@ -49,11 +49,18 @@ public class Interest extends BaseUpdatableEntity {
         if(keywords == null){
             throw new InterestDomainException(InterestErrorCode.NULL_KEYWORD);
         }
+
         checkKeyword(keywords);
 
         super.touch();
         this.keywords.clear();
         keywords.forEach(this::addKeyword);
+        return this;
+    }
+
+    public Interest clearKeywords() {
+        super.touch();
+        this.keywords.clear();
         return this;
     }
 

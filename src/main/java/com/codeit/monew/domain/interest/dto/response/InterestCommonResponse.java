@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.UUID;
 
 public record InterestCommonResponse(
-    UUID interestId,
+    UUID id,
     String name,
     List<String> keywords,
-    long subscriberCount,
-    boolean subscribeByMe
+    long subscribedByMe,
+    Boolean subscribeByMe
 ){
 
 }

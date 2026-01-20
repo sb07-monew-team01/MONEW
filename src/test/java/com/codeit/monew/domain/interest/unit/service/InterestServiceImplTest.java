@@ -140,7 +140,7 @@ public class InterestServiceImplTest {
             given(interestMapper.toDto(any(Interest.class), eq(false))).willReturn(response);
 
             // when
-            interestService.editKeywords(userId, interestId, request);
+            interestService.editKeywords(interestId, request);
 
             // then
             assertThat(interest.getKeywords())
@@ -162,7 +162,7 @@ public class InterestServiceImplTest {
             given(interestRepository.findById(interestId)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> interestService.editKeywords(userId, interestId, request))
+            assertThatThrownBy(() -> interestService.editKeywords(interestId, request))
                     .isInstanceOf(InterestNotFoundException.class)
                     .extracting("errorCode")
                     .isEqualTo(ErrorCode.INTEREST_NOT_FOUND);

@@ -36,16 +36,15 @@ public class InterestController {
             @RequestBody @Valid InterestCreatedRequest request
     ){
         InterestCommonResponse saved = interestService.create(request);
-        return ResponseEntity.created(URI.create(saved.interestId().toString())).body(saved);
+        return ResponseEntity.created(URI.create(saved.id().toString())).body(saved);
     }
 
     @PatchMapping("/{interestId}")
     public ResponseEntity<InterestCommonResponse> InterestEdit(
-            @RequestHeader("Monew-Request-User-ID") UUID userId,
             @PathVariable UUID interestId,
             @RequestBody @Valid InterestUpdateRequest request
     ){
-        InterestCommonResponse updated = interestService.editKeywords(userId, interestId, request);
+        InterestCommonResponse updated = interestService.editKeywords(interestId, request);
         return ResponseEntity.ok(updated);
     }
 
