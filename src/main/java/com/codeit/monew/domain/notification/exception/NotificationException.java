@@ -12,8 +12,4 @@ public class NotificationException extends MonewException {
         super(NotificationException.class, errorCode, details);
     }
 
-    public NotificationException(UUID id, ErrorCode errorCode) {
-        super(NotificationException.class, errorCode);
-        details.put("contentId", id);
-    }
 }
