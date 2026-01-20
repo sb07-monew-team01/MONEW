@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record CommentUserLikeDto(
-        @NotNull
         UUID id,
         UUID likedBy,
         LocalDateTime createdAt,
