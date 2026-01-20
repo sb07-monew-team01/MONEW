@@ -3,6 +3,7 @@ package com.codeit.monew.global.exception;
 import com.codeit.monew.domain.interest.exception.domain.InterestDomainException;
 import com.codeit.monew.global.dto.ErrorResponse;
 import com.codeit.monew.global.enums.ErrorCode;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

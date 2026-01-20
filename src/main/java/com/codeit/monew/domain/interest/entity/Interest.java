@@ -29,6 +29,9 @@ public class Interest extends BaseUpdatableEntity {
     )
     private List<InterestKeyword> keywords;
 
+    @Column(name = "subscriber_count")
+    private long subscriberCount;
+
     //Constructors
     public Interest(String name, List<String> keywords) {
         if(keywords == null){
@@ -76,5 +79,16 @@ public class Interest extends BaseUpdatableEntity {
                     InterestErrorCode.KEYWORD_DUPLICATE
             );
         }
+    }
+
+    // 구독자 수 변경
+    public Interest increaseSubscriberCount() {
+        this.subscriberCount += 1;
+        return this;
+    }
+
+    public Interest decreaseSubscriberCount() {
+        this.subscriberCount -= 1;
+        return this;
     }
 }

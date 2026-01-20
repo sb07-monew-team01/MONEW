@@ -1,5 +1,10 @@
 package com.codeit.monew.domain.comment.repository;
 
+import com.codeit.monew.domain.comment.dto.request.CommentOrderBy;
+import com.codeit.monew.domain.comment.dto.request.CommentWithLikeCount;
+import com.codeit.monew.domain.comment.dto.request.SortDirection;
+import com.codeit.monew.domain.commentuserlike.entity.CommentUserLike;
+import com.codeit.monew.domain.commentuserlike.repository.CommentUserLikeRepository;
 import com.codeit.monew.global.config.TestJpaAuditing;
 import com.codeit.monew.global.config.TestQueryDslConfig;
 import com.codeit.monew.domain.article.entity.Article;
@@ -15,6 +20,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @Import({TestQueryDslConfig.class, TestJpaAuditing.class})
@@ -24,7 +31,27 @@ public class CommentRepositoryTest {
     @Autowired
     CommentRepository commentRepository;
     @Autowired
+    CommentUserLikeRepository commentUserLikeRepository;
+    @Autowired
     TestEntityManager entityManager;
+
+    private Comment createComment(User user, Article article, String content, LocalDateTime createdAt) {
+        Comment comment = new Comment(user, article, content);
+        entityManager.persist(comment);
+
+        // createdAt 강제 세팅 (정렬 테스트용)
+        entityManager.getEntityManager()
+                .createQuery("update Comment c set c.createdAt = :createdAt where c.id = :id")
+                .setParameter("createdAt", createdAt)
+                .setParameter("id", comment.getId())
+                .executeUpdate();
+
+        entityManager.flush();
+        entityManager.clear();
+
+        return commentRepository.findById(comment.getId()).orElseThrow();
+    }
+
 
     @Test
     @DisplayName("성공: 댓글 저장 시 기본값이 올바르게 설정된다.")
@@ -63,5 +90,44 @@ public class CommentRepositoryTest {
         assertThat(found.getDeletedAt()).isNull();
         assertThat(found.getCreatedAt()).isNotNull();
     }
+
+    @Test
+    @DisplayName("성공: 기사별 댓글 조회 시 likeCount가 포함된다")
+    void findByArticleIdOrderBy_likeCountIncluded() {
+        // given
+        User user = new User("a@test.com", "userA", "1234");
+        User user2 = new User("a1@test.com", "userB", "1234");
+        entityManager.persist(user); // 영속화
+        entityManager.persist(user2);
+
+
+        Article article = new Article(
+                ArticleSource.NAVER,
+                "url",
+                "제목",
+                LocalDateTime.now(),
+                "요약",
+                null
+        );
+        entityManager.persist(article);
+        entityManager.flush(); // 제약 조건 같은 거를 적용시키려면 여기서 flush 필요
+
+        Comment comment1 = createComment(user, article, "댓글1", LocalDateTime.now().minusMinutes(5));
+
+        // 좋아요 2개
+        entityManager.persist(new CommentUserLike(user, comment1));
+        entityManager.persist(new CommentUserLike(user2, comment1));
+
+        entityManager.flush();
+
+        // when
+        Long likeCount = commentUserLikeRepository.countByCommentId(comment1.getId());
+
+        // then
+        assertThat(likeCount).isEqualTo(2L);
+
+    }
+
+
 
 }

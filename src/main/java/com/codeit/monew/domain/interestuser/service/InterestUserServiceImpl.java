@@ -1,7 +1,9 @@
 package com.codeit.monew.domain.interestuser.service;
 
+import com.codeit.monew.domain.interest.dto.response.InterestSubScriptionResponse;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
+import com.codeit.monew.domain.interest.mapper.InterestSubScriptionMapper;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interestuser.entity.InterestUser;
 import com.codeit.monew.domain.interestuser.exception.AlreadySubscribedException;
@@ -23,10 +25,12 @@ public class InterestUserServiceImpl implements InterestUserService{
     private final UserRepository userRepository;
     private final InterestRepository interestRepository;
     private final InterestUserRepository interestUserRepository;
+    private final InterestSubScriptionMapper interestSubScriptionMapper;
+
 
     @Override
     @Transactional
-    public InterestUser subscribe(UUID userId, UUID interestId) {
+    public InterestSubScriptionResponse subscribe(UUID userId, UUID interestId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () ->  new UserNotFoundException(userId));
         Interest interest = interestRepository.findById(interestId).orElseThrow(
@@ -35,16 +39,25 @@ public class InterestUserServiceImpl implements InterestUserService{
         if(interestUserRepository.existsByUserIdAndInterestId(userId, interestId)){
             throw new AlreadySubscribedException(ErrorCode.ALREADY_SUBSCRIBED);
         }
+        InterestUser saved = interestUserRepository.save(new InterestUser(user, interest));
+        interest.increaseSubscriberCount();
 
-        return interestUserRepository.save(new InterestUser(user, interest));
+        return interestSubScriptionMapper.toDto(interest, saved.getId());
     }
 
     @Override
     @Transactional
     public void unSubscribe(UUID userId, UUID interestId) {
+        userRepository.findById(userId).orElseThrow(
+                () -> new UserNotFoundException(userId)
+        );
+        Interest interest = interestRepository.findById(interestId).orElseThrow(
+                () -> new InterestNotFoundException(ErrorCode.INTEREST_NOT_FOUND)
+        );
         InterestUser interestUser = interestUserRepository.findByUserIdAndInterestId(userId, interestId).orElseThrow(
                 () -> new InterestUserNotFoundException(ErrorCode.INTERESTUSER_NOT_FOUND)
         );
         interestUserRepository.delete(interestUser);
+        interest.decreaseSubscriberCount();
     }
 }
