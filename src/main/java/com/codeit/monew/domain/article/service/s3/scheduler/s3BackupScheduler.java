@@ -19,7 +19,7 @@ public class s3BackupScheduler {
     @Scheduled(cron = "0 1 0 * * *")
     public void schedulerArticleBackup() {
         LocalDateTime now = LocalDateTime.now();
-        LocalDate backupTarget = now.minusDays(8).toLocalDate();
+        LocalDate backupTarget = now.minusDays(2).toLocalDate();
 
         log.info("백업 스케줄러 시작 - 실행 시간: {}, 대상 날짜 {}", now, backupTarget);
         try {
