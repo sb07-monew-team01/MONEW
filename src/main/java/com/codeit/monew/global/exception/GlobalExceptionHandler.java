@@ -19,13 +19,6 @@ import static com.codeit.monew.global.enums.ErrorCode.INVALID_ARGUMENT;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse<?>> IllegalArgumentException(IllegalArgumentException e){
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                new ErrorResponse<>(e, e.getMessage(),null, ErrorCode.INVALID_ARGUMENT)
-        );
-    }
-
     @ExceptionHandler(InterestDomainException.class)
     public ResponseEntity<ErrorResponse<?>> handleInterestDomainException(InterestDomainException e) {
         ErrorCode errorcode = switch (e.getInterestErrorCode()){
