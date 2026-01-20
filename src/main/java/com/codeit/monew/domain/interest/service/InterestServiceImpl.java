@@ -18,7 +18,6 @@ import com.codeit.monew.domain.interestuser.repository.InterestUserRepository;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.global.enums.ErrorCode;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -36,9 +35,8 @@ public class InterestServiceImpl implements InterestService{
     private final InterestQueryMapper interestQueryMapper;
     private final InterestMapper interestMapper;
     private final InterestUserRepository interestUserRepository;
+    private final EntityManager em;
 
-    @PersistenceContext
-    private EntityManager em;
 
     @Override
     @Transactional(readOnly = true)
