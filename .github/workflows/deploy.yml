@@ -38,26 +38,27 @@ jobs:
           chmod 600 my-key.pem
           ssh -o StrictHostKeyChecking=no -i my-key.pem $EC2_USER@$EC2_HOST "
             # 1. Git 리포지토리 설정 (처음이면 clone, 아니면 pull)
-            if [ ! -d '/home/ubuntu/my-app/.git' ]; then
+            if [ ! -d '/home/ubuntu/monew-hyo37/.git' ]; then
               echo '리포지토리를 처음 설치합니다...'
-              git clone https://github.com/sb07-monew-team01/MONEW.git /home/ubuntu/my-app
+              rm -rf /home/ubuntu/monew-hyo37
+              git clone https://github.com/sb07-monew-team01/MONEW.git /home/ubuntu/monew-hyo37
             fi
 
-            cd /home/ubuntu/my-app
+            cd /home/ubuntu/monew-hyo37
             git fetch origin
             git checkout feat/common/deploy22
             git pull origin feat/common/deploy22
 
             # 2. 환경 변수 파일 생성 (.env)
-            cat > .env << 'EOF'
-            SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}
-            SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}
-            SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}
-            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}
-            AWS_REGION=${{ secrets.AWS_REGION }}
-            EOF
+            cat > .env << 'ENVEOF'
+SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}
+SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}
+SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}
+AWS_REGION=${{ secrets.AWS_REGION }}
+ENVEOF
 
             # 3. Docker Compose로 배포
             docker-compose -f docker-compose.prod.yml up -d --build
