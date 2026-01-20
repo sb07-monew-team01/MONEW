@@ -2,6 +2,11 @@ server:
   port: 80
 
 spring:
+  flyway:
+    enabled: true
+    baseline-on-migrate: false
+    locations: classpath:sql
+    cleanDisabled: false
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
@@ -45,3 +50,8 @@ management:
     env:
       enabled: false                   # /actuator/info 에 환경변수 노출 안 함
       # → 운영 환경 보안 강화
+
+naver:
+  api:
+    client-id: ${NAVER_CLIENT_ID}
+    client-secret: ${NAVER_CLIENT_SECRET}
