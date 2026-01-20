@@ -5,29 +5,26 @@ on:
   push:
     branches:
       - feat/common/deploy
+env:
+  SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
+  SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+  SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  CONTAINER_NAME: spring-app
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       # 1. 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. 환경 변수 설정 (GitHub Secrets에서 가져오기)
-      - name: Set environment variables
-        env:
-          SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
-          SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-        run: echo "환경 변수 로딩 완료"
-
-      # 3. EC2에 배포 (ssh를 통해 Docker Compose 실행)
+      # 2. EC2에 배포 (ssh를 통해 Docker Compose 실행)
       - name: Deploy to EC2
         env:
           SSH_KEY: ${{ secrets.EC2_SSH_KEY }} # GitHub Secrets에 PEM 파일 내용(base64 가능)
@@ -37,7 +34,7 @@ jobs:
           echo "$SSH_KEY" > my-key.pem
           chmod 600 my-key.pem
           ssh -o StrictHostKeyChecking=no -i my-key.pem $EC2_USER@$EC2_HOST "
-            cd /home/ubuntu/MONEW || mkdir -p /home/ubuntu/my-app
+            cd /home/ubuntu/MONEW || mkdir -p /home/ubuntu/MONEW
             git pull origin feat/common/deploy
             docker-compose -f docker-compose.yml up -d --build
           "
