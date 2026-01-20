@@ -3,8 +3,10 @@ package com.codeit.monew.domain.article.controller;
 import com.codeit.monew.domain.article.controller.docs.ArticleControllerDocs;
 import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
 import com.codeit.monew.domain.article.dto.response.ArticleDto;
+import com.codeit.monew.domain.article.dto.response.ArticleRestoreResultDto;
 import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.codeit.monew.domain.article.service.ArticleService;
+import com.codeit.monew.domain.article.service.s3.ArticleBackupService;
 import com.codeit.monew.domain.articleView.dto.response.ArticleViewDto;
 import com.codeit.monew.domain.articleView.service.ArticleViewService;
 import com.codeit.monew.global.dto.PageResponse;
@@ -14,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +26,7 @@ import java.util.UUID;
 public class ArticleController implements ArticleControllerDocs {
     private final ArticleService articleService;
     private final ArticleViewService articleViewService;
+    private final ArticleBackupService articleBackupService;
 
     @GetMapping("/{articleId}")
     public ResponseEntity<ArticleDto> articleDetails(@PathVariable UUID articleId,
@@ -59,5 +63,13 @@ public class ArticleController implements ArticleControllerDocs {
     public ResponseEntity<Void> deleteArticleHard(@PathVariable("articleId") UUID articleId) {
         articleService.hardDelete(articleId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping("/restore")
+    public ResponseEntity<List<ArticleRestoreResultDto>> articleRestoreList(
+            @RequestParam LocalDate from,
+            @RequestParam LocalDate to
+    ) {
+        return ResponseEntity.ok(articleBackupService.restoredArticles(from, to));
     }
 }

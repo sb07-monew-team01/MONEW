@@ -2,6 +2,7 @@ package com.codeit.monew.domain.article.controller;
 
 import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
 import com.codeit.monew.domain.article.service.ArticleService;
+import com.codeit.monew.domain.article.service.s3.ArticleBackupService;
 import com.codeit.monew.domain.articleView.service.ArticleViewService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import software.amazon.awssdk.services.s3.S3Client;
 
 import java.util.UUID;
 
@@ -25,10 +27,12 @@ class ArticleDeleteControllerTest {
 
     @MockitoBean
     private ArticleService articleService;
-
     @MockitoBean
     private ArticleViewService articleViewService;
-
+    @MockitoBean
+    private S3Client s3Client;
+    @MockitoBean
+    ArticleBackupService articleBackupService;
 
     @Nested
     @DisplayName("논리 삭제 테스트")
