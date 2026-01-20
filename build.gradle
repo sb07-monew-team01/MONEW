@@ -5,6 +5,10 @@ plugins {
     id 'jacoco'
 }
 
+bootJar {
+    archiveFileName = 'app.jar'
+}
+
 group = 'com.codeit'
 version = '0.0.1-SNAPSHOT'
 description = 'monew'

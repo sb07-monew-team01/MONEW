@@ -16,6 +16,12 @@ spring:
         mode: never        # data.sql / schema.sql 자동 실행 비활성화
         # 운영 환경에서 의도치 않은 데이터 변경 방지
 
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
 logging:
   level:
     root: info                         # 전체 로그 기본 레벨
@@ -32,3 +38,14 @@ management:
     env:
       enabled: false                   # /actuator/info 에 환경변수 노출 안 함
       # → 운영 환경 보안 강화
+
+
+cloud:
+  aws:
+    region:
+      static: ${AWS_REGION}
+    credentials:
+      access-key: ${AWS_ACCESS_KEY_ID}
+      secret-key: ${AWS_SECRET_ACCESS_KEY}
+    s3:
+      bucket: ${AWS_S3_BUCKET}
