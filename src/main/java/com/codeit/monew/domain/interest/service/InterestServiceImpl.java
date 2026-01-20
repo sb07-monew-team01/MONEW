@@ -1,20 +1,26 @@
 package com.codeit.monew.domain.interest.service;
 
-import com.codeit.monew.domain.interest.dto.InterestCursorQuery;
+import com.codeit.monew.domain.interest.dto.request.InterestCreatedRequest;
+import com.codeit.monew.domain.interest.dto.request.InterestCursorPageRequest;
+import com.codeit.monew.domain.interest.dto.request.InterestUpdateRequest;
+import com.codeit.monew.domain.interest.dto.response.InterestCommonResponse;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
+import com.codeit.monew.domain.interest.mapper.InterestMapper;
+import com.codeit.monew.domain.interest.mapper.InterestQueryMapper;
 import com.codeit.monew.domain.interest.policy.InterestNamePolicy;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interest.repository.InterestRepositoryCustomImpl;
-import com.codeit.monew.domain.interest.vo.InterestOrderBy;
-import com.codeit.monew.domain.interest.vo.SortDirection;
+import com.codeit.monew.domain.interest.vo.NextCursor;
+import com.codeit.monew.domain.interestuser.repository.InterestUserRepository;
+import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,58 +30,54 @@ public class InterestServiceImpl implements InterestService{
     private final InterestRepository interestRepository;
     private final InterestNamePolicy interestNamePolicy;
     private final InterestRepositoryCustomImpl interestRepositoryCustom;
+    private final InterestQueryMapper interestQueryMapper;
+    private final InterestMapper interestMapper;
+    private final InterestUserRepository interestUserRepository;
 
     @Override
     @Transactional(readOnly = true)
-    public Slice<Interest> getInterests(
-            String keyword,
-            String orderBy,
-            String direction,
-            String cursor,
-            String after,
-            Integer limit
-    ){
-        InterestOrderBy interestOrderBy = InterestOrderBy.valueOf(orderBy.toUpperCase());
-        SortDirection sortDirection = SortDirection.valueOf(direction);
-        String keywordValue = StringUtils.hasText(keyword) ? keyword.trim() : null;
-
-        String nameCursor = null;
-        Long subscriberCountCursor = null;
-
-        switch (interestOrderBy){
-            case NAME:
-                nameCursor = cursor;
-                break;
-            case SUBSCRIBER_COUNT:
-                subscriberCountCursor = Long.parseLong(cursor);
-                break;
-        }
-
-        InterestCursorQuery query = new InterestCursorQuery(
-            interestOrderBy,
-            sortDirection,
-            nameCursor,
-            subscriberCountCursor,
-            after,
-            limit,
-            keywordValue
+    public PageResponse<InterestCommonResponse> getInterests(UUID userId, InterestCursorPageRequest request) {
+        Slice<Interest> slice = interestRepositoryCustom.findAllByCursor(
+                interestQueryMapper.toQuery(request)
         );
 
-        return interestRepositoryCustom.findAllByCursor(query);
+        List<InterestCommonResponse> content = slice.getContent().stream()
+        .map(interest ->
+            interestMapper.toDto(interest,
+            interestUserRepository.existsByUserIdAndInterestId(userId, interest.getId()))
+        ).toList();
+
+        NextCursor nextCursor = NextCursor.from(slice, request.orderBy());
+
+        return new PageResponse<>(
+                content,
+                nextCursor.getCursor(),
+                nextCursor.getAfter(),
+                slice.getSize(),
+                0L,
+                slice.hasNext()
+        );
     }
 
     @Override
     @Transactional
-    public Interest create(String name, List<String> keywords){
-        interestNamePolicy.apply(name, interestRepository.findAll());
-        return interestRepository.save(new Interest(name, keywords));
+    public InterestCommonResponse create(InterestCreatedRequest request){
+        interestNamePolicy.apply(request.name(), interestRepository.findAll());
+        return interestMapper.toDto(
+                interestRepository.save(new Interest(request.name(), request.keywords())),
+                false
+        );
     }
 
     @Override
     @Transactional
-    public Interest editKeywords(UUID id, List<String> keywords){
-        Interest interest = findById(id);
-        return interest.update(keywords);
+    public InterestCommonResponse editKeywords(UUID userId, UUID interestId, InterestUpdateRequest request){
+        Interest interest = findById(interestId);
+
+        return interestMapper.toDto(
+                interest.update(request.keywords()),
+                interestUserRepository.existsByUserIdAndInterestId(userId, interest.getId())
+        );
     }
 
     @Override
