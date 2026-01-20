@@ -221,9 +221,9 @@ public class InterestServiceImplTest {
             );
             Slice<Interest> interestSlice = new SliceImpl<>(List.of(interest));
             InterestCursorPageRequest request = new InterestCursorPageRequest(
-                    InterestOrderBy.NAME, SortDirection.DESC,null,null,10,null);
+                    "name", "desc",null,null,10,null);
             InterestCursorQuery query = new InterestCursorQuery(
-                    request.orderBy(), request.direction(),null,null,null,10,null);
+                    InterestOrderBy.NAME, SortDirection.DESC,null,null,null,10,null);
 
             given(interestQueryMapper.toQuery(request)).willReturn(query);
             given(interestUserRepository.existsByUserIdAndInterestId(any(),any())).willReturn(false);

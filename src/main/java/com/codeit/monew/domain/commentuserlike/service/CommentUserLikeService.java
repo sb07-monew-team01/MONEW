@@ -6,5 +6,6 @@ import java.util.UUID;
 
 public interface CommentUserLikeService {
     CommentUserLikeDto like(UUID userId, UUID commentId);
+    void unlike(UUID userId, UUID commentId);
 
 }
