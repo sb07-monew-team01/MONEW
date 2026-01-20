@@ -2,6 +2,11 @@ server:
   port: 80
 
 spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: validate   # 애플리케이션 시작 시 엔티티와 DB 스키마 일치 여부만 검증
@@ -15,7 +20,15 @@ spring:
       init:
         mode: never        # data.sql / schema.sql 자동 실행 비활성화
         # 운영 환경에서 의도치 않은 데이터 변경 방지
-
+cloud:
+  aws:
+    region:
+      static: ${AWS_REGION}
+    credentials:
+      access-key: ${AWS_ACCESS_KEY_ID}
+      secret-key: ${AWS_SECRET_ACCESS_KEY}
+    s3:
+      bucket: ${AWS_S3_BUCKET}
 logging:
   level:
     root: info                         # 전체 로그 기본 레벨
