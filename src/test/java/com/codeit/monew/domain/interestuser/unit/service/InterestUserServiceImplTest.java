@@ -1,7 +1,9 @@
 package com.codeit.monew.domain.interestuser.unit.service;
 
+import com.codeit.monew.domain.interest.dto.response.InterestSubScriptionResponse;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
+import com.codeit.monew.domain.interest.mapper.InterestSubScriptionMapper;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interestuser.entity.InterestUser;
 import com.codeit.monew.domain.interestuser.exception.AlreadySubscribedException;
@@ -20,6 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 public class InterestUserServiceImplTest {
@@ -40,6 +44,9 @@ public class InterestUserServiceImplTest {
 
     @Mock
     InterestUserRepository interestUserRepository;
+
+    @Mock
+    InterestSubScriptionMapper interestSubScriptionMapper;
 
     @InjectMocks
     InterestUserServiceImpl interestUserService;
@@ -53,16 +60,24 @@ public class InterestUserServiceImplTest {
             // given
             UUID userId = UUID.randomUUID();
             UUID interestId = UUID.randomUUID();
+            UUID interestUserId = UUID.randomUUID();
             User user = new User("tester@test.com", "tester", "test");
-            Interest interest = new Interest("백엔드", List.of("java", "spring"));
+            String name = "백엔드";
+            List<String> keywords = List.of("java", "spring");
+            Interest interest = new Interest(name, keywords);
+            InterestSubScriptionResponse response = new InterestSubScriptionResponse(
+                    interestUserId, interestId, name, keywords, 0, LocalDateTime.now()
+            );
 
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
             given(interestRepository.findById(interestId)).willReturn(Optional.of(interest));
             given(interestUserRepository.save(any(InterestUser.class)))
                     .willAnswer(invocation -> invocation.getArgument(0));
+            given(interestSubScriptionMapper.toDto(any(Interest.class), any()))
+                    .willReturn(response);
 
             // when
-            InterestUser result = interestUserService.subscribe(userId, interestId);
+            InterestSubScriptionResponse result = interestUserService.subscribe(userId, interestId);
 
             // then
             assertThat(result).isNotNull();
@@ -130,18 +145,32 @@ public class InterestUserServiceImplTest {
             // given
             UUID userId = UUID.randomUUID();
             UUID interestId = UUID.randomUUID();
+            UUID interestUserId = UUID.randomUUID();
+            List<String> keywords = List.of("java", "spring");
+            String name = "백엔드";
             User user = new User("tester@test.com", "tester", "test");
-            Interest interest = new Interest("백엔드", List.of("java", "spring"));
+            Interest interest = new Interest(name, keywords);
+            InterestSubScriptionResponse response = new InterestSubScriptionResponse(
+                    interestUserId,
+                    interestId,
+                    name,
+                    keywords,
+                    1,
+                    LocalDateTime.now()
+            );
 
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
             given(interestRepository.findById(interestId)).willReturn(Optional.of(interest));
+            given(interestSubScriptionMapper.toDto(any(), any())).willReturn(response);
+            InterestUser savedInterestUser = mock(InterestUser.class);
+            given(interestUserRepository.save(any(InterestUser.class)))
+                    .willReturn(savedInterestUser);
 
             // when
             interestUserService.subscribe(userId, interestId);
 
             // then
             then(interestUserRepository).should().save(any(InterestUser.class));
-            then(interestRepository).should().save(any(Interest.class));
         }
     }
 
@@ -158,6 +187,8 @@ public class InterestUserServiceImplTest {
             Interest interest = new Interest("백엔드", List.of("java", "spring"));
             InterestUser interestUser = new InterestUser(user, interest);
 
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(interestRepository.findById(interestId)).willReturn(Optional.of(interest));
             given(interestUserRepository
                     .findByUserIdAndInterestId(userId, interestId))
                     .willReturn(Optional.of(interestUser));
@@ -166,8 +197,41 @@ public class InterestUserServiceImplTest {
             interestUserService.unSubscribe(userId, interestId);
 
             // then
-            then(interestRepository).should().save(any(Interest.class));
             then(interestUserRepository).should().delete(interestUser);
+        }
+
+        @Test
+        @DisplayName("실패: 존재하지 않는 사용자가 관심사를 취소하면 예외가 발생한다")
+        void fail_unsubscribe_not_found_user(){
+            // given
+            UUID userId = UUID.randomUUID();
+            UUID interestId = UUID.randomUUID();
+
+            given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> interestUserService.unSubscribe(userId, interestId))
+                    .isInstanceOf(UserNotFoundException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.USER_NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("실패: 존재하지 않는 관심사를 취소하면 예외가 발생한다")
+        void fail_unsubscribe_not_found_interest(){
+            // given
+            UUID userId = UUID.randomUUID();
+            UUID interestId = UUID.randomUUID();
+            User user = new User("tester@test.com", "tester", "test");
+
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(interestRepository.findById(interestId)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> interestUserService.unSubscribe(userId, interestId))
+                    .isInstanceOf(InterestNotFoundException.class)
+                    .extracting("errorCode")
+                    .isEqualTo(ErrorCode.INTEREST_NOT_FOUND);
         }
 
         @Test
@@ -176,7 +240,11 @@ public class InterestUserServiceImplTest {
             // given
             UUID userId = UUID.randomUUID();
             UUID interestId = UUID.randomUUID();
+            User user = new User("tester@test.com", "tester", "test");
+            Interest interest = new Interest("백엔드", List.of("java", "spring"));
 
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(interestRepository.findById(interestId)).willReturn(Optional.of(interest));
             given(interestUserRepository.findByUserIdAndInterestId(userId, interestId))
                     .willReturn(Optional.empty());
 

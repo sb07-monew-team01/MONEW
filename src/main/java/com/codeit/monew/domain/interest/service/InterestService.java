@@ -1,22 +1,20 @@
 package com.codeit.monew.domain.interest.service;
 
+import com.codeit.monew.domain.interest.dto.request.InterestCreatedRequest;
+import com.codeit.monew.domain.interest.dto.request.InterestCursorPageRequest;
+import com.codeit.monew.domain.interest.dto.request.InterestUpdateRequest;
+import com.codeit.monew.domain.interest.dto.response.InterestCommonResponse;
 import com.codeit.monew.domain.interest.entity.Interest;
+import com.codeit.monew.global.dto.PageResponse;
 import org.springframework.data.domain.Slice;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface InterestService {
-    Interest create(String name, List<String> keywords);
-    Interest editKeywords(UUID id, List<String> keywords);
+    InterestCommonResponse create(InterestCreatedRequest request);
+    InterestCommonResponse editKeywords(UUID userId, UUID interestId, InterestUpdateRequest request);
     void delete(UUID id);
     Interest findById(UUID id);
-    Slice<Interest> getInterests(
-            String keyword,
-            String orderBy,
-            String direction,
-            String cursor,
-            String after,
-            Integer limit
-    );
+    PageResponse<InterestCommonResponse> getInterests(UUID userId, InterestCursorPageRequest request);
 }

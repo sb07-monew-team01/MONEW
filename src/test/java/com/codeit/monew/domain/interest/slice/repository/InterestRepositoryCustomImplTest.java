@@ -1,6 +1,6 @@
 package com.codeit.monew.domain.interest.slice.repository;
 
-import com.codeit.monew.domain.interest.dto.InterestCursorQuery;
+import com.codeit.monew.domain.interest.dto.query.InterestCursorQuery;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interest.repository.InterestRepositoryCustomImpl;
@@ -369,8 +369,7 @@ public class InterestRepositoryCustomImplTest {
                     SortDirection.ASC,
                     page1.getContent().get(page1.getContent().size() - 1).getName(),
                     null,
-                    page1.getContent().get(page1.getContent().size() - 1).getCreatedAt() + "_" +
-                            page1.getContent().get(page1.getContent().size() - 1).getId(),
+                    page1.getContent().get(page1.getContent().size() - 1).getCreatedAt(),
                     pageSize,
                     null
             );
@@ -384,8 +383,7 @@ public class InterestRepositoryCustomImplTest {
                     SortDirection.ASC,
                     page2.getContent().get(page2.getContent().size() - 1).getName(),
                     null,
-                    page2.getContent().get(page2.getContent().size() - 1).getCreatedAt() + "_" +
-                            page2.getContent().get(page2.getContent().size() - 1).getId(),
+                    page2.getContent().get(page2.getContent().size() - 1).getCreatedAt(),
                     pageSize,
                     null
             );
@@ -466,8 +464,7 @@ public class InterestRepositoryCustomImplTest {
                     SortDirection.ASC,
                     null,
                     page1.getContent().get(page1.getContent().size() - 1).getSubscriberCount(),
-                    page1.getContent().get(page1.getContent().size() - 1).getCreatedAt() + "_" +
-                            page1.getContent().get(page1.getContent().size() - 1).getId(),
+                    page1.getContent().get(page1.getContent().size() - 1).getCreatedAt(),
                     pageSize,
                     null
             );
@@ -481,8 +478,7 @@ public class InterestRepositoryCustomImplTest {
                     SortDirection.ASC,
                     null,
                     page2.getContent().get(page2.getContent().size() - 1).getSubscriberCount(),
-                    page2.getContent().get(page2.getContent().size() - 1).getCreatedAt() + "_" +
-                            page2.getContent().get(page2.getContent().size() - 1).getId(),
+                    page2.getContent().get(page2.getContent().size() - 1).getCreatedAt(),
                     pageSize,
                     null
             );
@@ -569,8 +565,7 @@ public class InterestRepositoryCustomImplTest {
                     SortDirection.DESC,
                     page1.getContent().get(page1.getContent().size() - 1).getName(),
                     null,
-                    page1.getContent().get(page1.getContent().size() - 1).getCreatedAt() + "_" +
-                            page1.getContent().get(page1.getContent().size() - 1).getId(),
+                    page1.getContent().get(page1.getContent().size() - 1).getCreatedAt(),
                     pageSize,
                     null
             );
@@ -585,8 +580,7 @@ public class InterestRepositoryCustomImplTest {
                     SortDirection.DESC,
                     page2.getContent().get(page2.getContent().size() - 1).getName(),
                     null,
-                    page2.getContent().get(page2.getContent().size() - 1).getCreatedAt() + "_" +
-                            page2.getContent().get(page2.getContent().size() - 1).getId(),
+                    page2.getContent().get(page2.getContent().size() - 1).getCreatedAt(),
                     pageSize,
                     null
             );
@@ -666,8 +660,7 @@ public class InterestRepositoryCustomImplTest {
                     SortDirection.DESC,
                     null,
                     page1.getContent().get(page1.getContent().size() - 1).getSubscriberCount(),
-                    page1.getContent().get(page1.getContent().size() - 1).getCreatedAt() + "_" +
-                            page1.getContent().get(page1.getContent().size() - 1).getId(),
+                    page1.getContent().get(page1.getContent().size() - 1).getCreatedAt(),
                     pageSize,
                     null
             );
@@ -682,8 +675,7 @@ public class InterestRepositoryCustomImplTest {
                     SortDirection.DESC,
                     null,
                     page2.getContent().get(page2.getContent().size() - 1).getSubscriberCount(),
-                    page2.getContent().get(page2.getContent().size() - 1).getCreatedAt() + "_" +
-                            page2.getContent().get(page2.getContent().size() - 1).getId(),
+                    page2.getContent().get(page2.getContent().size() - 1).getCreatedAt(),
                     pageSize,
                     null
             );
