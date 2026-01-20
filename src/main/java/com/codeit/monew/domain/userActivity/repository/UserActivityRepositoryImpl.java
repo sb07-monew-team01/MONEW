@@ -5,7 +5,6 @@ import com.codeit.monew.domain.comment.entity.Comment;
 import com.codeit.monew.domain.commentuserlike.entity.CommentUserLike;
 import com.codeit.monew.domain.interestuser.entity.InterestUser;
 import com.codeit.monew.domain.user.entity.User;
-import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.userActivity.dto.UserActivityDto;
 import com.codeit.monew.domain.userActivity.mapper.UserActivityMapper;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -39,7 +38,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
                 .fetchOne();
 
         if (userEntity == null)
-            throw new UserNotFoundException(userId);
+            return null;
 
         // 구독 관심사
         List<InterestUser> interestUsers = queryFactory
