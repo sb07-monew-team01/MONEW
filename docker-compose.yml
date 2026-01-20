@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: my-sprint:latest
     container_name: my-sprint-app
     ports:
       - "8080:8080"
