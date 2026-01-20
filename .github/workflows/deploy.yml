@@ -37,7 +37,7 @@ jobs:
           echo "$SSH_KEY" > my-key.pem
           chmod 600 my-key.pem
           ssh -o StrictHostKeyChecking=no -i my-key.pem $EC2_USER@$EC2_HOST "
-            cd /home/ubuntu/my-app || mkdir -p /home/ubuntu/my-app
+            cd /home/ubuntu/MONEW || mkdir -p /home/ubuntu/my-app
             git pull origin feat/common/deploy
-            docker-compose -f docker-compose.prod.yml up -d --build
+            docker-compose -f docker-compose.yml up -d --build
           "
