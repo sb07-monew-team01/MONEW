@@ -11,7 +11,9 @@ import com.codeit.monew.domain.interest.mapper.InterestQueryMapper;
 import com.codeit.monew.domain.interest.policy.InterestNamePolicy;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interest.repository.InterestRepositoryCustomImpl;
+import com.codeit.monew.domain.interest.vo.InterestOrderBy;
 import com.codeit.monew.domain.interest.vo.NextCursor;
+import com.codeit.monew.domain.interest.vo.SortDirection;
 import com.codeit.monew.domain.interestuser.repository.InterestUserRepository;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.global.enums.ErrorCode;
@@ -20,7 +22,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,6 +38,9 @@ public class InterestServiceImpl implements InterestService{
     @Override
     @Transactional(readOnly = true)
     public PageResponse<InterestCommonResponse> getInterests(UUID userId, InterestCursorPageRequest request) {
+        InterestOrderBy orderBy = InterestOrderBy.fromString(request.orderBy()).orElse(InterestOrderBy.NAME);
+        SortDirection direction = SortDirection.fromString(request.direction()).orElse(SortDirection.ASC);
+
         Slice<Interest> slice = interestRepositoryCustom.findAllByCursor(
                 interestQueryMapper.toQuery(request)
         );
@@ -47,7 +51,7 @@ public class InterestServiceImpl implements InterestService{
             interestUserRepository.existsByUserIdAndInterestId(userId, interest.getId()))
         ).toList();
 
-        NextCursor nextCursor = NextCursor.from(slice, request.orderBy());
+        NextCursor nextCursor = NextCursor.from(slice, orderBy);
 
         return new PageResponse<>(
                 content,

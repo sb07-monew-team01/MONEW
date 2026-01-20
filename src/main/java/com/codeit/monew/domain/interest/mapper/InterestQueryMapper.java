@@ -9,15 +9,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class InterestQueryMapper {
     public InterestCursorQuery toQuery(InterestCursorPageRequest request) {
-        InterestOrderBy orderBy = request.orderBy();
-        SortDirection direction = request.direction();
+        InterestOrderBy orderBy = InterestOrderBy.fromString(request.orderBy()).orElse(InterestOrderBy.NAME);
+        SortDirection direction = SortDirection.fromString(request.direction()).orElse(SortDirection.ASC);
 
         String nameCursor = null;
         Long subscriberCountCursor = null;
 
         switch (orderBy) {
-            case NAME -> nameCursor = request.nameCursor();
-            case SUBSCRIBER_COUNT -> subscriberCountCursor = request.subscriberCountCursor();
+            case NAME -> nameCursor = request.cursor();
+            case SUBSCRIBER_COUNT -> subscriberCountCursor = Long.parseLong(request.cursor());
         }
         return new InterestCursorQuery(
                 orderBy,
