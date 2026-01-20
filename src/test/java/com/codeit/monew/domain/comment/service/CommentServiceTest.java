@@ -294,16 +294,20 @@ public class CommentServiceTest {
 
 
             // when
-            CommentPageResponse response =
-                    commentService.getComments(
+            CommentSearchRequest request =
+                    new CommentSearchRequest(
                             articleId,
                             userId,
                             CommentOrderBy.CREATED_AT,
                             SortDirection.DESC,
-                            null,          // cursor
-                            null,          // afterDateTime
-                            10             // limit
+                            null,
+                            null,
+                            20
                     );
+
+            CommentPageResponse response =
+                    commentService.getComments(request);
+
 
             // then
             CommentDto dto = response.contents().get(0);
@@ -351,8 +355,8 @@ public class CommentServiceTest {
                     .willReturn(false);
 
             // when
-            CommentPageResponse response =
-                    commentService.getComments(
+            CommentSearchRequest request =
+                    new CommentSearchRequest(
                             articleId,
                             userId,
                             CommentOrderBy.CREATED_AT,
@@ -361,6 +365,10 @@ public class CommentServiceTest {
                             null,
                             10
                     );
+
+            CommentPageResponse response =
+                    commentService.getComments(request);
+
 
             // then
             assertThat(response.contents()).hasSize(1);
@@ -388,8 +396,8 @@ public class CommentServiceTest {
             )).willReturn(emptySlice);
 
             // when
-            CommentPageResponse response =
-                    commentService.getComments(
+            CommentSearchRequest request =
+                    new CommentSearchRequest(
                             articleId,
                             userId,
                             CommentOrderBy.CREATED_AT,
@@ -398,6 +406,10 @@ public class CommentServiceTest {
                             null,
                             10
                     );
+
+            CommentPageResponse response =
+                    commentService.getComments(request);
+
 
             // then
             assertThat(response.contents()).isEmpty();
@@ -447,8 +459,8 @@ public class CommentServiceTest {
             )).willReturn(slice);
 
             // when
-            CommentPageResponse response =
-                    commentService.getComments(
+            CommentSearchRequest request =
+                    new CommentSearchRequest(
                             articleId,
                             userId,
                             CommentOrderBy.CREATED_AT,
@@ -457,6 +469,10 @@ public class CommentServiceTest {
                             null,
                             10
                     );
+
+            CommentPageResponse response =
+                    commentService.getComments(request);
+
 
             // then
             assertThat(response.hasNext()).isTrue();
@@ -503,8 +519,8 @@ public class CommentServiceTest {
             )).willReturn(slice);
 
             // when
-            CommentPageResponse response =
-                    commentService.getComments(
+            CommentSearchRequest request =
+                    new CommentSearchRequest(
                             articleId,
                             userId,
                             CommentOrderBy.CREATED_AT,
@@ -513,6 +529,10 @@ public class CommentServiceTest {
                             null,
                             10
                     );
+
+            CommentPageResponse response =
+                    commentService.getComments(request);
+
 
             // then
             assertThat(response.hasNext()).isFalse();
@@ -561,8 +581,8 @@ public class CommentServiceTest {
             )).willReturn(slice);
 
             // when
-            CommentPageResponse response =
-                    commentService.getComments(
+            CommentSearchRequest request =
+                    new CommentSearchRequest(
                             articleId,
                             userId,
                             CommentOrderBy.CREATED_AT,
@@ -571,6 +591,10 @@ public class CommentServiceTest {
                             after,
                             10
                     );
+
+            CommentPageResponse response =
+                    commentService.getComments(request);
+
 
             // then
             assertThat(response.contents().size()).isEqualTo(1);
