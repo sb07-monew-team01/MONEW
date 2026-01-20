@@ -27,22 +27,25 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<UserDto> login(@Valid @RequestBody UserLoginRequest request){
-        return ResponseEntity.ok(userService.login(request));
+        UserDto response = userService.login(request);
+        return ResponseEntity.ok()
+                .header("Monew-Request-User-ID", response.id().toString())
+                .body(response);
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<UserDto> update(@RequestHeader(name = "MoNew-Request-User-ID") UUID loginId, @PathVariable UUID userId, @Valid @RequestBody UserUpdateRequest request){
+    public ResponseEntity<UserDto> update(@RequestHeader(name = "Monew-Request-User-ID") UUID loginId, @PathVariable UUID userId, @Valid @RequestBody UserUpdateRequest request){
         return ResponseEntity.ok(userService.update(loginId, userId, request));
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteSoft(@RequestHeader(name = "MoNew-Request-User-ID") UUID loginId, @PathVariable UUID userId){
+    public ResponseEntity<?> deleteSoft(@RequestHeader(name = "Monew-Request-User-ID") UUID loginId, @PathVariable UUID userId){
         userService.delete(loginId, userId);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{userId}/hard")
-    public ResponseEntity<?> deleteHard(@RequestHeader(name = "MoNew-Request-User-ID") UUID loginId, @PathVariable UUID userId){
+    public ResponseEntity<?> deleteHard(@RequestHeader(name = "Monew-Request-User-ID") UUID loginId, @PathVariable UUID userId){
         userService.deleteHard(loginId, userId);
         return ResponseEntity.noContent().build();
     }
