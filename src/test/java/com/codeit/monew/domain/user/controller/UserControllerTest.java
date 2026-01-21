@@ -192,7 +192,7 @@ class UserControllerTest {
             // given
             UserDto response = Instancio.create(UserDto.class);
             UserUpdateRequest request = new UserUpdateRequest("나는 짱이다");
-            when(userService.update(any(), any(), any())).thenReturn(response);
+            when(userService.update(any(), any())).thenReturn(response);
 
             // when & then
             mockMvc.perform(patch("/api/users/" + response.id())
@@ -230,33 +230,13 @@ class UserControllerTest {
                 // given
                 UUID userId = UUID.randomUUID();
                 UserUpdateRequest request = new UserUpdateRequest("솔쳤습니까 휴먼");
-                when(userService.update(userId, userId, request)).thenThrow(new UserNotFoundException(userId));
+                when(userService.update(userId, request)).thenThrow(new UserNotFoundException(userId));
                 // when & then
                 mockMvc.perform(patch("/api/users/" + userId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .header("MoNew-Request-User-ID", userId)
                                 .content(objectMapper.writeValueAsString(request)))
                         .andExpect(status().is(404));
-            }
-        }
-
-        @Nested
-        @DisplayName("실패 - 비즈니스 로직")
-        class BusinessLogicFailure {
-            @Test
-            @DisplayName("사용자 정보 수정 권한이 없는 경우 오류가 발생한다.")
-            void fail_NotAuthorized() throws Exception {
-                // given
-                UUID userId = UUID.randomUUID();
-                UserUpdateRequest request = new UserUpdateRequest("오류에요");
-                when(userService.update(any(),any() , any())).thenThrow(new UserNotAuthorizedException(userId, UUID.randomUUID()));
-
-                // when & then
-                mockMvc.perform(patch("/api/users/" + userId)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .header("MoNew-Request-User-ID", userId)
-                                .content(objectMapper.writeValueAsString(request)))
-                        .andExpect(status().is(403));
             }
         }
     }
