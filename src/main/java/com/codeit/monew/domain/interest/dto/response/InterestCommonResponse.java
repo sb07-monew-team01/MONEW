@@ -8,7 +8,7 @@ public record InterestCommonResponse(
     String name,
     List<String> keywords,
     long subscriberCount,
-    Boolean subscribeByMe
+    Boolean subscribedByMe
 ){
 
 }
