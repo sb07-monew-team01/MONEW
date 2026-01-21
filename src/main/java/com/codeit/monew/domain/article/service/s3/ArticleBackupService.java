@@ -69,7 +69,7 @@ public class ArticleBackupService {
 
     public List<ArticleRestoreResultDto> restoredArticles(LocalDate from, LocalDate to) {
 
-        LocalDate limit = LocalDate.now().minusDays(7);
+        LocalDate limit = LocalDate.now().minusDays(2);
 
         if (from.isAfter(limit)) return List.of();
 

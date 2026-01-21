@@ -21,6 +21,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.codeit.monew.domain.article.entity.QArticle.article;
@@ -176,16 +177,17 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
     private OrderSpecifier<?>[] articleSorts(String orderBy, String direction) {
 
-        Order order = "DESC".equalsIgnoreCase(direction) ? Order.DESC : Order.ASC;
+        String safeOrderBy = orderBy == null ? "publishDate" : orderBy;
+        Order safeDirection = "DESC".equalsIgnoreCase(direction) ? Order.DESC : Order.ASC;
 
-        OrderSpecifier<?> mainSort = switch (orderBy) {
-            case "viewCount" -> new OrderSpecifier<>(order, article.viewCount);
-            case "commentCount" -> new OrderSpecifier<>(order, article.commentCount);
-            default -> new OrderSpecifier<>(order, article.publishDate);
+        OrderSpecifier<?> mainSort = switch (safeOrderBy) {
+            case "viewCount" -> new OrderSpecifier<>(safeDirection, article.viewCount);
+            case "commentCount" -> new OrderSpecifier<>(safeDirection, article.commentCount);
+            default -> new OrderSpecifier<>(safeDirection, article.publishDate);
         };
 
-        OrderSpecifier<?> subSort = new OrderSpecifier<>(order, article.createdAt);
-        OrderSpecifier<?> tieBreaker = new OrderSpecifier<>(order, article.id);
+        OrderSpecifier<?> subSort = new OrderSpecifier<>(safeDirection, article.createdAt);
+        OrderSpecifier<?> tieBreaker = new OrderSpecifier<>(safeDirection, article.id);
 
         return new OrderSpecifier[]{mainSort, subSort, tieBreaker};
     }
@@ -204,6 +206,6 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 )
                 .fetchOne();
 
-        return total != null ? total : 0L;
+        return Objects.requireNonNullElse(total, 0L);
     }
 }
