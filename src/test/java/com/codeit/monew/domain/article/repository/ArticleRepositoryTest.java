@@ -1,6 +1,7 @@
 package com.codeit.monew.domain.article.repository;
 
 import com.codeit.monew.domain.article.entity.Article;
+import com.codeit.monew.domain.article.fixture.ArticleCreateRequestFixture;
 import com.codeit.monew.domain.article.fixture.ArticleFixture;
 import com.codeit.monew.domain.comment.entity.Comment;
 import com.codeit.monew.domain.user.entity.User;
@@ -15,6 +16,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,9 +29,9 @@ class ArticleRepositoryTest {
 
     @Autowired
     private ArticleRepository articleRepository;
-    
+
     @Autowired
-    private EntityManager  entityManager;
+    private EntityManager entityManager;
 
     @Nested
     @DisplayName("기사 물리 삭제 테스트")
@@ -45,8 +48,7 @@ class ArticleRepositoryTest {
             UUID articleId = article.getId();
 
             entityManager.flush();
-            
-            
+
             Comment comment = new Comment(user, article, "댓글 내용");
             entityManager.persist(comment);
             UUID commentId = comment.getId();
@@ -63,6 +65,33 @@ class ArticleRepositoryTest {
             // then
             assertThat(entityManager.find(Article.class, articleId)).isNull();
             assertThat(entityManager.find(Comment.class, commentId)).isNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("날짜로 기사 조회")
+    class FindByDate {
+
+        @Test
+        @DisplayName("특정 게시일의 기사 목록을 조회한다.")
+        void searchArticleListByDate() {
+            // given
+            LocalDate date = LocalDate.now();
+
+            Article article1 = ArticleFixture.createEntity(ArticleCreateRequestFixture.createDummy(0, 1));
+            Article article2 = ArticleFixture.createEntity(ArticleCreateRequestFixture.createDummy(0, 0));
+            Article article3 = ArticleFixture.createEntity(ArticleCreateRequestFixture.createDummy(0, 0));
+            Article article4 = ArticleFixture.createEntity(ArticleCreateRequestFixture.createDummy(0, -1));
+
+            articleRepository.saveAll(List.of(article1, article2, article3, article4));
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            List<Article> articleList = articleRepository.findByPublishDate(date);
+
+            // then
+            assertThat(articleList).hasSize(2);
         }
     }
 }
