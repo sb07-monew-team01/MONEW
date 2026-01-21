@@ -5,6 +5,7 @@ import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.comment.dto.request.*;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
+import com.codeit.monew.domain.comment.dto.response.CommentWithLikeCount;
 import com.codeit.monew.domain.comment.entity.Comment;
 import com.codeit.monew.domain.comment.exception.CommentAlreadyDeleteException;
 import com.codeit.monew.domain.comment.exception.CommentNotFoundException;
@@ -103,7 +104,6 @@ public class CommentServiceImpl implements CommentService {
         UUID articleId = request.articleId();
         UUID userId = request.userId();
         CommentOrderBy orderBy = request.orderBy();
-        SortDirection direction = request.direction();
         String cursor = request.cursor();
         LocalDateTime after = request.after();
         int limit = request.limit();
@@ -112,50 +112,53 @@ public class CommentServiceImpl implements CommentService {
                 commentRepository.findByArticleIdOrderBy(
                         articleId,
                         orderBy,
-                        direction,
                         cursor,
-                        after,
                         limit
                 );
 
-        List<CommentDto> content = slice.getContent().stream()
-                .map(it -> {
-                    Comment comment = it.comment();
-                    long likeCount = it.likeCount();
+        boolean hasNext = slice.hasNext();
 
-                    boolean likedByMe = userId != null && commentUserLikeRepository.existsByUserIdAndCommentId(
-                            userId,
-                            comment.getId()
-                    );
+        long totalElements = commentRepository.countByArticleIdAndDeletedAtIsNull(articleId);
 
-                    return CommentMapper.toDto(
-                            comment,
-                            likeCount,
-                            likedByMe
-                    );
-                })
-                .toList();
+        List<CommentDto> content =
+                slice.getContent().stream()
+                        .map(it -> {
+                            Comment comment = it.comment();
+                            long likeCount = it.likeCount();
+
+                            boolean likedByMe = userId != null && commentUserLikeRepository.existsByUserIdAndCommentId(
+                                    userId,
+                                    comment.getId()
+                            );
+
+                            return CommentMapper.toDto(
+                                    comment,
+                                    likeCount,
+                                    likedByMe
+                            );
+                        })
+                        .toList();
 
         String nextCursor = null;
         LocalDateTime nextAfter = null;
 
-        if (slice.hasNext() && !content.isEmpty()) {
-            Comment last = slice.getContent()
-                    .get(slice.getContent().size() - 1)
-                    .comment();
+        if (hasNext && !slice.getContent().isEmpty()) {
+            Comment lastComment =
+                    slice.getContent()
+                            .get(slice.getContent().size() - 1)
+                            .comment();
 
-            nextCursor = last.getId().toString();
-            nextAfter = last.getCreatedAt();
+            nextCursor = lastComment.getId().toString();
+            nextAfter = lastComment.getCreatedAt();
         }
 
-        return new PageResponse(
+        return new PageResponse<>(
                 content,
                 nextCursor,
                 nextAfter,
-                limit,
-                0L,               // Slice 기반이므로 total 없음
-                slice.hasNext()
+                content.size(),
+                (int) totalElements,
+                hasNext
         );
     }
-
 }
