@@ -51,30 +51,44 @@ public class InterestRepositoryCustomImpl implements InterestRepositoryCustom {
             case NAME -> {
                 if (query.nameCursor() == null) yield null;
                 if (asc) {
-                    yield interest.name.gt(query.nameCursor())
-                        .or(interest.name.eq(query.nameCursor()).and(interest.createdAt.gt(query.after())
-                    ));
+                    if (query.after() != null) {
+                        yield interest.name.gt(query.nameCursor())
+                                .or(interest.name.eq(query.nameCursor())
+                                        .and(interest.createdAt.gt(query.after())));
+                    } else {
+                        // after가 null이면 단순 name 비교
+                        yield interest.name.gt(query.nameCursor());
+                    }
                 } else {
-                    yield interest.name.lt(query.nameCursor())
-                        .or(interest.name.eq(query.nameCursor()).and(interest.createdAt.lt(query.after())
-                    ));
+                    if (query.after() != null) {
+                        yield interest.name.lt(query.nameCursor())
+                                .or(interest.name.eq(query.nameCursor())
+                                        .and(interest.createdAt.lt(query.after())));
+                    } else {
+                        yield interest.name.lt(query.nameCursor());
+                    }
                 }
             }
             case SUBSCRIBERCOUNT -> {
                 if (query.subscriberCountCursor() == null) yield null;
                 if (asc) {
-                    yield interest.subscriberCount.gt(query.subscriberCountCursor())
-                        .or(interest.subscriberCount.eq(query.subscriberCountCursor())
-                                .and(interest.createdAt.gt(query.after())
-                        ));
+                    if (query.after() != null) {
+                        yield interest.subscriberCount.gt(query.subscriberCountCursor())
+                                .or(interest.subscriberCount.eq(query.subscriberCountCursor())
+                                        .and(interest.createdAt.gt(query.after())));
+                    } else {
+                        yield interest.subscriberCount.gt(query.subscriberCountCursor());
+                    }
                 } else {
-                    yield interest.subscriberCount.lt(query.subscriberCountCursor())
-                        .or(interest.subscriberCount.eq(query.subscriberCountCursor())
-                                .and(interest.createdAt.lt(query.after())
-                        ));
+                    if (query.after() != null) {
+                        yield interest.subscriberCount.lt(query.subscriberCountCursor())
+                                .or(interest.subscriberCount.eq(query.subscriberCountCursor())
+                                        .and(interest.createdAt.lt(query.after())));
+                    } else {
+                        yield interest.subscriberCount.lt(query.subscriberCountCursor());
+                    }
                 }
             }
-
             default -> throw new IllegalArgumentException("지원하지 않는 정렬 기준입니다.");
         };
 
