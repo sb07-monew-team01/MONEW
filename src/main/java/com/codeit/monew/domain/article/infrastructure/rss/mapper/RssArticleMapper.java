@@ -38,7 +38,8 @@ public class RssArticleMapper {
                 link,
                 title,
                 parsePublicDate(entry.getPublishedDate()),
-                summary
+                summary,
+                null
         );
     }
 
@@ -63,7 +64,8 @@ public class RssArticleMapper {
                 article.sourceUrl(),
                 article.title(),
                 article.publishDate(),
-                newSummary
+                newSummary,
+                matched.getId()
         );
     }
 }

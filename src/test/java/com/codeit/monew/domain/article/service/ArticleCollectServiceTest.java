@@ -11,6 +11,8 @@ import com.codeit.monew.domain.article.infrastructure.service.ArticleCollectServ
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
+import com.codeit.monew.domain.interestuser.repository.InterestUserRepository;
+import com.codeit.monew.domain.notification.service.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,6 +47,12 @@ public class ArticleCollectServiceTest {
     @Mock
     CollectedArticleMapper collectedArticleMapper;
 
+    @Mock
+    NotificationService notificationService;
+
+    @Mock
+    InterestUserRepository interestUserRepository;
+
     @InjectMocks
     ArticleCollectServiceImpl articleCollectService;
 
@@ -56,7 +64,9 @@ public class ArticleCollectServiceTest {
                 List.of(articleCollector1, articleCollector2),
                 articleRepository,
                 interestRepository,
-                collectedArticleMapper
+                collectedArticleMapper,
+                notificationService,
+                interestUserRepository
         );
 
         interests = InterestFixture.createMultiple(

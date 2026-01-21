@@ -1,9 +1,11 @@
 package com.codeit.monew.domain.article.fixture;
 
 import com.codeit.monew.domain.interest.entity.Interest;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class InterestFixture {
     // 그냥 DB에 들어있는 전체 관심사 느낌
@@ -15,7 +17,9 @@ public class InterestFixture {
     }
 
     public static Interest create(String name, List<String> keywords) {
-        return new Interest(name, keywords);
+        Interest interest = new Interest(name, keywords);
+        ReflectionTestUtils.setField(interest, "id", UUID.randomUUID());
+        return interest;
     }
 
     public static List<Interest> createMultiple(Interest... interests) {
