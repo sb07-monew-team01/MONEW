@@ -21,9 +21,9 @@ public record InterestCursorQuery(
             );
         }
 
-        if (orderBy == InterestOrderBy.SUBSCRIBER_COUNT && nameCursor != null) {
+        if (orderBy == InterestOrderBy.SUBSCRIBERCOUNT && nameCursor != null) {
             throw new IllegalArgumentException(
-                    "SUBSCRIBER_COUNT 정렬에는 nameCursor를 사용할 수 없습니다."
+                    "SUBSCRIBERCOUNT 정렬에는 nameCursor를 사용할 수 없습니다."
             );
         }
     }

@@ -4,7 +4,7 @@ import java.util.Optional;
 
 public enum InterestOrderBy {
     NAME,
-    SUBSCRIBER_COUNT;
+    SUBSCRIBERCOUNT;
 
     public static Optional<InterestOrderBy> fromString(String value) {
         return Optional.ofNullable(value == null ? null : InterestOrderBy.valueOf(value.toUpperCase()));
