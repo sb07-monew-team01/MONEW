@@ -7,8 +7,8 @@ public record InterestCommonResponse(
     UUID id,
     String name,
     List<String> keywords,
-    long subscribedByMe,
-    Boolean subscribeByMe
+    long subscriberCount,
+    Boolean subscribedByMe
 ){
 
 }
