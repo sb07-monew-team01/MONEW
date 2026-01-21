@@ -37,19 +37,19 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
                         .select(Projections.constructor(
                                 CommentWithLikeCount.class,
                                 comment,
-                                // 좋아요 개수 서브쿼리
-                                queryFactory
-                                        .select(like.count())
-                                        .from(like)
-                                        .where(like.comment.eq(comment))
+                                like.count()
                         ))
                         .from(comment)
+                        .leftJoin(like).on(like.comment.eq(comment))
                         .where(
                                 comment.article.id.eq(articleId),
                                 cursorCondition
                         )
+                        .groupBy(comment.id)
                         .orderBy(
-                                comment.createdAt.desc(),
+                                orderBy == CommentOrderBy.likeCount
+                                        ? like.count().desc()
+                                        : comment.createdAt.desc(),
                                 comment.id.desc()
                         )
                         .limit(limit + 1)
@@ -68,8 +68,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
     }
 
     /**
-     * cursor(String = 마지막 댓글 ID)를 기준으로
-     * DB에서 createdAt을 직접 조회해서 페이징 기준을 만든다.
+     * 커서 기반 페이징 (createdAt + id)
      */
     private BooleanExpression buildCursorCondition(String cursor) {
         if (cursor == null || cursor.isBlank()) {
@@ -77,7 +76,6 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
         }
 
         UUID cursorId = UUID.fromString(cursor);
-
         QComment cursorComment = new QComment("cursorComment");
 
         var cursorCreatedAt =
