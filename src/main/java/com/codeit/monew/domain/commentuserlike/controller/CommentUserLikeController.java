@@ -28,7 +28,7 @@ public class CommentUserLikeController implements CommentUserLikeControllerDocs 
     public ResponseEntity<Void> unlike(
             @PathVariable UUID commentId,
             @RequestHeader(value = "Monew-Request-User-ID") UUID userId) {
-        commentUserLikeService.like(userId, commentId);
+        commentUserLikeService.unlike(userId, commentId);
         return ResponseEntity.noContent().build();
     }
 

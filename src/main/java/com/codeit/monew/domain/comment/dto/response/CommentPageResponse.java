@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record CommentPageResponse(
-    List<CommentDto> contents,
+    List<CommentDto> content,
     String nextCursor,
     LocalDateTime nextAfter,
     int size,
