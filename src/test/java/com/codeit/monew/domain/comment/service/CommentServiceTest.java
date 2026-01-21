@@ -279,7 +279,7 @@ public class CommentServiceTest {
 
             CommentWithLikeCount cwlc = new CommentWithLikeCount(comment, 3L);
 
-            given(commentRepository.findByArticleIdOrderBy(
+            given(commentRepository.findByCommentIdOrderBy(
                     any(UUID.class),
                     any(CommentOrderBy.class),
                     any(SortDirection.class),
@@ -298,7 +298,7 @@ public class CommentServiceTest {
                     new CommentSearchRequest(
                             articleId,
                             userId,
-                            CommentOrderBy.CREATED_AT,
+                            CommentOrderBy.createdAt,
                             SortDirection.DESC,
                             null,
                             null,
@@ -310,7 +310,7 @@ public class CommentServiceTest {
 
 
             // then
-            CommentDto dto = response.contents().get(0);
+            CommentDto dto = response.content().get(0);
             assertThat(dto.likeCount()).isEqualTo(3L);
             assertThat(dto.likedByMe()).isTrue();
 
@@ -341,9 +341,9 @@ public class CommentServiceTest {
             Slice<CommentWithLikeCount> slice =
                     new SliceImpl<>(List.of(projection), Pageable.unpaged(), false);
 
-            given(commentRepository.findByArticleIdOrderBy(
+            given(commentRepository.findByCommentIdOrderBy(
                     eq(articleId),
-                    eq(CommentOrderBy.CREATED_AT),
+                    eq(CommentOrderBy.createdAt),
                     eq(SortDirection.DESC),
                     isNull(),
                     isNull(),
@@ -359,7 +359,7 @@ public class CommentServiceTest {
                     new CommentSearchRequest(
                             articleId,
                             userId,
-                            CommentOrderBy.CREATED_AT,
+                            CommentOrderBy.createdAt,
                             SortDirection.DESC,
                             null,
                             null,
@@ -371,9 +371,9 @@ public class CommentServiceTest {
 
 
             // then
-            assertThat(response.contents()).hasSize(1);
+            assertThat(response.content()).hasSize(1);
 
-            CommentDto dto = response.contents().get(0);
+            CommentDto dto = response.content().get(0);
             assertThat(dto.likeCount()).isEqualTo(0L);
             assertThat(dto.likedByMe()).isFalse();
             assertThat(dto.content()).isEqualTo("테스트 댓글");
@@ -386,9 +386,9 @@ public class CommentServiceTest {
             Slice<CommentWithLikeCount> emptySlice =
                     new SliceImpl<>(List.of(), Pageable.unpaged(), false);
 
-            given(commentRepository.findByArticleIdOrderBy(
+            given(commentRepository.findByCommentIdOrderBy(
                     eq(articleId),
-                    eq(CommentOrderBy.CREATED_AT),
+                    eq(CommentOrderBy.createdAt),
                     eq(SortDirection.DESC),
                     isNull(),
                     isNull(),
@@ -400,7 +400,7 @@ public class CommentServiceTest {
                     new CommentSearchRequest(
                             articleId,
                             userId,
-                            CommentOrderBy.CREATED_AT,
+                            CommentOrderBy.createdAt,
                             SortDirection.DESC,
                             null,
                             null,
@@ -412,7 +412,7 @@ public class CommentServiceTest {
 
 
             // then
-            assertThat(response.contents()).isEmpty();
+            assertThat(response.content()).isEmpty();
             assertThat(response.hasNext()).isFalse();
             assertThat(response.nextCursor()).isNull();
             assertThat(response.nextAfter()).isNull();
@@ -449,9 +449,9 @@ public class CommentServiceTest {
                             true
                     );
 
-            given(commentRepository.findByArticleIdOrderBy(
+            given(commentRepository.findByCommentIdOrderBy(
                     eq(articleId),
-                    eq(CommentOrderBy.CREATED_AT),
+                    eq(CommentOrderBy.createdAt),
                     eq(SortDirection.DESC),
                     isNull(),
                     isNull(),
@@ -463,7 +463,7 @@ public class CommentServiceTest {
                     new CommentSearchRequest(
                             articleId,
                             userId,
-                            CommentOrderBy.CREATED_AT,
+                            CommentOrderBy.createdAt,
                             SortDirection.DESC,
                             null,
                             null,
@@ -476,7 +476,7 @@ public class CommentServiceTest {
 
             // then
             assertThat(response.hasNext()).isTrue();
-            assertThat(response.contents()).hasSize(1);
+            assertThat(response.content()).hasSize(1);
         }
 
         @Test
@@ -509,9 +509,9 @@ public class CommentServiceTest {
                             false
                     );
 
-            given(commentRepository.findByArticleIdOrderBy(
+            given(commentRepository.findByCommentIdOrderBy(
                     eq(articleId),
-                    eq(CommentOrderBy.CREATED_AT),
+                    eq(CommentOrderBy.createdAt),
                     eq(SortDirection.DESC),
                     isNull(),
                     isNull(),
@@ -523,7 +523,7 @@ public class CommentServiceTest {
                     new CommentSearchRequest(
                             articleId,
                             userId,
-                            CommentOrderBy.CREATED_AT,
+                            CommentOrderBy.createdAt,
                             SortDirection.DESC,
                             null,
                             null,
@@ -536,7 +536,7 @@ public class CommentServiceTest {
 
             // then
             assertThat(response.hasNext()).isFalse();
-            assertThat(response.contents().size()).isEqualTo(1);
+            assertThat(response.content().size()).isEqualTo(1);
             assertThat(response.size()).isEqualTo(10);
         }
 
@@ -571,9 +571,9 @@ public class CommentServiceTest {
                             false
                     );
 
-            given(commentRepository.findByArticleIdOrderBy(
+            given(commentRepository.findByCommentIdOrderBy(
                     eq(articleId),
-                    eq(CommentOrderBy.CREATED_AT),
+                    eq(CommentOrderBy.createdAt),
                     eq(SortDirection.DESC),
                     eq(cursor),
                     eq(after),
@@ -585,7 +585,7 @@ public class CommentServiceTest {
                     new CommentSearchRequest(
                             articleId,
                             userId,
-                            CommentOrderBy.CREATED_AT,
+                            CommentOrderBy.createdAt,
                             SortDirection.DESC,
                             cursor,
                             after,
@@ -597,7 +597,7 @@ public class CommentServiceTest {
 
 
             // then
-            assertThat(response.contents().size()).isEqualTo(1);
+            assertThat(response.content().size()).isEqualTo(1);
 
         }
 

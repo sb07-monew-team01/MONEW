@@ -16,6 +16,7 @@ import com.codeit.monew.domain.user.repository.UserRepository;
 import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -27,6 +28,7 @@ public class CommentUserLikeServiceImpl implements CommentUserLikeService {
     private final UserRepository userRepository;
     private final NotificationService notificationService;
 
+    @Transactional
     @Override
     public CommentUserLikeDto like(UUID userId, UUID commentId) {
 
@@ -55,19 +57,20 @@ public class CommentUserLikeServiceImpl implements CommentUserLikeService {
         return CommentUserLikeMapper.toDto(like, likeCount);
     }
 
+    @Transactional
     @Override
     public void unlike(UUID userId, UUID commentId) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-        CommentUserLike like = commentUserLikeRepository
+        CommentUserLike unlike = commentUserLikeRepository
                 .findByUserIdAndCommentId(userId, commentId)
                 .orElseThrow(() ->
                         new CommentUserLikeNotFoundException(ErrorCode.COMMENT_USER_LIKE_NOT_FOUND)
                 );
 
-        commentUserLikeRepository.delete(like);
+        commentUserLikeRepository.delete(unlike);
     }
 
 

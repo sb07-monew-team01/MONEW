@@ -96,6 +96,7 @@ public class CommentServiceImpl implements CommentService {
 
     }
 
+    @Transactional
     @Override
     public CommentPageResponse getComments(CommentSearchRequest request) {
 
@@ -108,7 +109,7 @@ public class CommentServiceImpl implements CommentService {
         int limit = request.limit();
 
         Slice<CommentWithLikeCount> slice =
-                commentRepository.findByArticleIdOrderBy(
+                commentRepository.findByCommentIdOrderBy(
                         articleId,
                         orderBy,
                         direction,
@@ -155,7 +156,7 @@ public class CommentServiceImpl implements CommentService {
                 nextCursor,
                 nextAfter,
                 limit,
-                null,               // Slice 기반이므로 total 없음
+                0L,               // Slice 기반이므로 total 없음
                 slice.hasNext()
         );
     }
