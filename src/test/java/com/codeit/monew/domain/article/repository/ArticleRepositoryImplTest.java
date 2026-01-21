@@ -153,7 +153,7 @@ class ArticleRepositoryImplTest {
         
         @Test
         @DisplayName("""
-                주 정렬이 null이거나, 보조정렬이 null 이라면 
+                주 정렬이 null이거나, 보조정렬이 null 이라면,
                 다른 정렬 기준과 관계없이 전체 조회한다.
                 """)
         void searchAllArticles_CursorOrAfterIsNull() {

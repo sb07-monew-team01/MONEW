@@ -49,7 +49,6 @@ public class Article extends BaseUpdatableEntity {
     @OneToMany(mappedBy = "article", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
-    // 테스트용
     @Builder
     public Article(ArticleSource source, String sourceUrl, String title, LocalDateTime publishDate, String summary, LocalDateTime deletedAt) {
         this.source = source;

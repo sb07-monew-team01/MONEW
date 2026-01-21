@@ -2,6 +2,7 @@ package com.codeit.monew.domain.article.controller.docs;
 
 import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
 import com.codeit.monew.domain.article.dto.response.ArticleDto;
+import com.codeit.monew.domain.article.dto.response.ArticleRestoreResultDto;
 import com.codeit.monew.domain.article.entity.ArticleSource;
 import com.codeit.monew.domain.articleView.dto.response.ArticleViewDto;
 import com.codeit.monew.global.dto.ErrorResponse;
@@ -17,7 +18,9 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -124,5 +127,19 @@ public interface ArticleControllerDocs {
             @Parameter(description = "뉴스 기사 ID", required = true, example = "302c88f3-c4f1-4817-a08d-a385daf6944d")
             @PathVariable("articleId") UUID articleId);
 
-
+    @Operation(
+            summary = "뉴스 복구",
+            description = "유실된 뉴스 기사를 복구.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "복구 성공",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ArticleRestoreResultDto.class))),
+                    @ApiResponse(responseCode = "500", description = "서버 내부 오류",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+            }
+    )
+    ResponseEntity<List<ArticleRestoreResultDto>> articleRestoreList(
+            @Parameter(description = "날짜 시작(범위)", required = true, example = "2026-01-01")
+            @RequestParam LocalDate from,
+            @Parameter(description = "날짜 끝(범위)", required = true, example = "2026-01-05")
+            @RequestParam LocalDate to);
 }
