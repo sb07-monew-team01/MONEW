@@ -12,7 +12,7 @@ public record NotificationPageQuery(
                 description = "커서 (createdAt_UUID)",
                 example = "2026-01-18T10:15:30_7a187ac2-87f7-44d3-a8fb-b1936b1f0000"
         )
-        @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}_[0-9a-fA-F\\-]{36}$",
+        @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?_[0-9a-fA-F\\-]{36}$",
                 message = "형식에 어긋납니다")
         String cursor,
 

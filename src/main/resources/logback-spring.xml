@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--설정바뀌면 런터타임 자동 적용-->
+<configuration scan="true">
+
+    <conversionRule conversionWord="clr" class="org.springframework.boot.logging.logback.ColorConverter"/>
+
+    <property name="LOG_PATTERN"
+              value="%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - [%X{requestId}] [%X{clientIp}] %msg%n"/>
+    <property name="LOG_FILE_PATH" value=".logs"/>
+    <property name="LOG_FILE_NAME" value="applicationLog"/>
+
+    <!-- 콘솔 출력 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 파일 출력 -->
+    <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE_PATH}/${LOG_FILE_NAME}.log</file>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE_PATH}/${LOG_FILE_NAME}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>      <!--한파일당 용량 : 넘으면 i증가하면서 다음파일-->
+            <maxHistory>14</maxHistory>          <!--보관날짜-->
+            <totalSizeCap>2GB</totalSizeCap>   <!--전체로그파일 용량제한 넘치면 오래된것부터삭제-->
+        </rollingPolicy>
+    </appender>
+
+    <!--설정 -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ROLLING"/>
+    </root>
+
+</configuration>
