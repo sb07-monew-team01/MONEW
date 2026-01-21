@@ -87,7 +87,7 @@ public interface InterestControllerDocs {
             summary = "관심사 물리 삭제",
             description = "관심사를 물리적으로 삭제합니다.",
             responses = {
-                    @ApiResponse(responseCode = "204", description = "논리 삭제 성공"),
+                    @ApiResponse(responseCode = "204", description = "물리 삭제 성공"),
                     @ApiResponse(responseCode = "404", description = "요청한 리소스(관심사)를 찾을 수 없음",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(responseCode = "500", description = "서버 내부 오류",
