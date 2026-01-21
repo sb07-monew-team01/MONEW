@@ -73,7 +73,8 @@ class RssArticleMapperTest {
                 "url",
                 "title",
                 LocalDateTime.now(),
-                "요약"
+                "요약",
+                null
         );
 
         Interest interest = InterestFixture.create(
@@ -98,7 +99,8 @@ class RssArticleMapperTest {
                 "url",
                 "title",
                 LocalDateTime.now(),
-                "요약"
+                "요약",
+                null
         );
 
         // when

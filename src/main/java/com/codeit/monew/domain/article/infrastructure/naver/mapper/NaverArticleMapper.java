@@ -22,7 +22,8 @@ public class NaverArticleMapper {
                 item.originallink(),
                 item.title(),
                 parsePublicDate(item.pubDate()),
-                addTagDescription(item.description(), interest)
+                addTagDescription(item.description(), interest),
+                interest.getId()
         );
     }
 
