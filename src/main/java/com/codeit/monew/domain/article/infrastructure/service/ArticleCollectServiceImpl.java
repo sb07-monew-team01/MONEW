@@ -7,17 +7,22 @@ import com.codeit.monew.domain.article.infrastructure.CollectedArticleMapper;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
+import com.codeit.monew.domain.interestuser.entity.InterestUser;
+import com.codeit.monew.domain.interestuser.repository.InterestUserRepository;
+import com.codeit.monew.domain.notification.dto.request.NotificationCreateRequest;
+import com.codeit.monew.domain.notification.dto.request.NotificationCreateRequestList;
+import com.codeit.monew.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ArticleCollectServiceImpl implements ArticleCollectService {
 
     private final List<ArticleCollector> articleCollectors;
@@ -25,13 +30,17 @@ public class ArticleCollectServiceImpl implements ArticleCollectService {
     private final InterestRepository interestRepository;
     private final CollectedArticleMapper collectedArticleMapper;
 
+    private final NotificationService notificationService;
+    private final InterestUserRepository interestUserRepository;
+
+
     @Transactional
     @Override
     public void collectAndSave() {
         List<Interest> interests = interestRepository.findAll();
 
         // 관심사가 없다면 종료
-        if(interests.isEmpty()){
+        if (interests.isEmpty()) {
             return;
         }
 
@@ -52,7 +61,7 @@ public class ArticleCollectServiceImpl implements ArticleCollectService {
                 .toList();
 
         // 수집된 기사가 없다면 종료
-        if(collectedUrls.isEmpty()){
+        if (collectedUrls.isEmpty()) {
             return;
         }
 
@@ -65,15 +74,89 @@ public class ArticleCollectServiceImpl implements ArticleCollectService {
             existingUrlSet.addAll(articleRepository.findExistingUrlsIn(batch));
         }
 
-        // ExsistingUrlSet과 collectArtilce를 비교하여, 존재하지 않는 URL만 리스트화 -> newArticles
-        List<Article> newArticles = collectedArticles.stream()
+        //  ExsistingUrlSet과 collectArtilce를 비교하여
+        // 중복 제거된 List<ArticleRequest>
+        List<ArticleCreateRequest> newRequests = collectedArticles.stream()
                 .filter(request -> !existingUrlSet.contains(request.sourceUrl()))
+                .toList();
+
+        // 존재하지 않는 URL만 리스트화 -> newArticles
+        List<Article> newArticles = newRequests.stream()
                 .map(collectedArticleMapper::toEntity)
                 .toList();
 
 
-        // saveAll(10만건)을 호출해도, 내부 설정에 따라 JPA가 알아서 1,000개 단위로 쪼개서 DB에 Insert 명령을 보냄
+        // hibernate.jdbc.batch_size 설정이 적용되어 있어 JDBC batch로 묶여 전송된다.
         articleRepository.saveAll(newArticles);
 
+        if (!newRequests.isEmpty()) {
+            createdNotifications(interests, newRequests);
+        }
+    }
+
+    public void createdNotifications(List<Interest> interests, List<ArticleCreateRequest> newRequests) {
+        // <관심사ID, 관심사 이름>
+        Map<UUID, String> interestIdToName = interests.stream()
+                .collect(Collectors.toMap(
+                        Interest::getId,
+                        Interest::getName));
+
+        // 1. 이번에 저장된 기사들이 속한 관심사 ID 집합 구하기
+        Set<UUID> interestIds = newRequests.stream()
+                .map(ArticleCreateRequest::interestId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        if (!interestIds.isEmpty()) {
+            // 2. 관심사별 구독자(InterestUser) 엔티티들 조회
+            List<InterestUser> interestUsers =
+                    interestUserRepository.findAllByInterestIdIn(interestIds);
+
+            // 3. 관심사 ID -> 유저 ID 리스트 맵으로 변환
+            Map<UUID, List<UUID>> interestToUserIds = interestUsers.stream()
+                    .collect(Collectors.groupingBy(
+                            iu -> iu.getInterest().getId(),
+                            Collectors.mapping(iu -> iu.getUser().getId(), Collectors.toList())
+                    ));
+
+            List<NotificationCreateRequest> notificationRequests = new ArrayList<>();
+
+            // 4. "관심사별 기사 개수" 집계 (newRequests DTO를 직접 사용하여 단순화)
+            Map<UUID, Long> countByInterestId = newRequests.stream()
+                    .filter(req -> req.interestId() != null)
+                    .collect(Collectors.groupingBy(
+                            ArticleCreateRequest::interestId,
+                            Collectors.counting()
+                    ));
+
+            // 5. 집계된 관심사별로 알림 생성
+            for (Map.Entry<UUID, Long> entry : countByInterestId.entrySet()) {
+                UUID interestId = entry.getKey();
+                int count = entry.getValue().intValue();
+
+                List<UUID> subscriberIds =
+                        interestToUserIds.getOrDefault(interestId, List.of());
+
+                String interestName = interestIdToName.get(interestId);
+
+                for (UUID userId : subscriberIds) {
+                    notificationRequests.add(NotificationCreateRequest.of(
+                            userId,
+                            interestId,
+                            interestName,
+                            count
+                    ));
+                }
+            }
+
+            // 6. 실제 알림 저장
+            if (!notificationRequests.isEmpty()) {
+                notificationService.createAllByInterest(
+                        new NotificationCreateRequestList(notificationRequests)
+                );
+            }
+        }
     }
 }
+
+

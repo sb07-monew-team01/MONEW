@@ -5,6 +5,7 @@ import com.codeit.monew.domain.article.entity.ArticleSource;
 
 import java.time.LocalDateTime;
 import java.util.Random;
+import java.util.UUID;
 
 public class ArticleCreateRequestFixture {
     public static ArticleCreateRequest createDefault() {
@@ -13,7 +14,8 @@ public class ArticleCreateRequestFixture {
                 "http://target.com",
                 "test-title",
                 LocalDateTime.now(),
-                "test summary"
+                "test summary",
+                UUID.randomUUID()
         );
     }
 
@@ -23,8 +25,8 @@ public class ArticleCreateRequestFixture {
                 "http//target.com",
                 title,
                 LocalDateTime.now(),
-                summary
-                );
+                summary,
+                UUID.randomUUID());
     }
 
     public static ArticleCreateRequest createDummy(int s, int d) {
@@ -43,7 +45,8 @@ public class ArticleCreateRequestFixture {
                 "http://" + random.nextInt(1000) + source + ".com",
                 source.name() + " 뉴스_" + random.nextInt(1000),
                 LocalDateTime.now().plusDays(d),
-                "test summary"
+                "test summary",
+                UUID.randomUUID()
         );
     }
 
@@ -53,7 +56,8 @@ public class ArticleCreateRequestFixture {
                 "http//target.com",
                 title,
                 LocalDateTime.now(),
-                summary
+                summary,
+                UUID.randomUUID()
         );
     }
 
@@ -63,7 +67,8 @@ public class ArticleCreateRequestFixture {
                 sourceUrl,
                 title,
                 LocalDateTime.now(),
-                summary
+                summary,
+                UUID.randomUUID()
         );
     }
 }
