@@ -46,7 +46,7 @@ jacocoTestReport {
     reports {
         html.required = true
         xml.required = true
-        csv.required = false
+        csv.required = true
     }
 }
 // 나중에 추가 예정 (테스트 커버리지 70% 이상으로 제한)
