@@ -48,7 +48,7 @@ public interface CommentControllerDocs {
             }
     )
     @GetMapping
-    CommentPageResponse getComments(@Parameter(description = "기사 ID(UUID)", required = true, example = "d1c17835-6325-40ba-8d72-5e6f5f23a8fc")
+    ResponseEntity<CommentPageResponse> getComments(@Parameter(description = "기사 ID(UUID)", required = true, example = "d1c17835-6325-40ba-8d72-5e6f5f23a8fc")
             @RequestParam UUID articleId,
 
             @Parameter(description = "요청 사용자 ID(UUID)", required = true, example = "b285abcc-8e72-4bb4-9b8d-d1ddc93242ff")
@@ -93,8 +93,6 @@ public interface CommentControllerDocs {
     )
     @PostMapping
     ResponseEntity<CommentDto> create(
-            @Parameter(description = "요청 사용자 ID(UUID)", required = true, example = "bbad74a7-7533-4805-b8f7-78fa910ad44f")
-            @RequestHeader("Monew-Request-User-ID") UUID userId,
             @RequestBody CommentRegisterRequest request
     );
 

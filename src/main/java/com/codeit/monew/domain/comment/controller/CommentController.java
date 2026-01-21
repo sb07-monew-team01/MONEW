@@ -21,11 +21,11 @@ public class CommentController implements CommentControllerDocs {
     private final CommentService commentService;
 
     @GetMapping
-    public CommentPageResponse getComments(
+    public ResponseEntity<CommentPageResponse> getComments(
             @RequestParam UUID articleId,
             @RequestHeader(value = "Monew-Request-User-ID", required = false) UUID userId,
-            @RequestParam CommentOrderBy orderBy,
-            @RequestParam SortDirection direction,
+            @RequestParam(defaultValue = "createdAt") CommentOrderBy orderBy,
+            @RequestParam(defaultValue = "DESC") SortDirection direction,
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false) String after,
             @RequestParam(defaultValue = "50") int limit
@@ -43,12 +43,11 @@ public class CommentController implements CommentControllerDocs {
                         afterDateTime,
                         limit
                 );
-        return commentService.getComments(request);
+        return ResponseEntity.ok(commentService.getComments(request));
     }
 
     @PostMapping
     public ResponseEntity<CommentDto> create(
-            @RequestHeader("Monew-Request-User-ID") UUID userId,
             @Valid @RequestBody CommentRegisterRequest request) {
         CommentDto created = commentService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
