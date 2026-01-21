@@ -4,7 +4,7 @@ import com.codeit.monew.domain.interest.dto.request.InterestCreatedRequest;
 import com.codeit.monew.domain.interest.dto.request.InterestCursorPageRequest;
 import com.codeit.monew.domain.interest.dto.request.InterestUpdateRequest;
 import com.codeit.monew.domain.interest.dto.response.InterestCommonResponse;
-import com.codeit.monew.domain.interest.dto.response.InterestSubScriptionResponse;
+import com.codeit.monew.domain.interest.dto.response.InterestSubscriptionResponse;
 import com.codeit.monew.domain.interest.service.InterestService;
 import com.codeit.monew.domain.interestuser.service.InterestUserService;
 import com.codeit.monew.global.dto.PageResponse;
@@ -55,7 +55,7 @@ public class InterestController {
     }
 
     @PostMapping("/{interestId}/subscriptions")
-    public ResponseEntity<InterestSubScriptionResponse> subscribe(
+    public ResponseEntity<InterestSubscriptionResponse> subscribe(
         @RequestHeader("Monew-Request-User-ID") UUID userId,
         @PathVariable UUID interestId
     ){

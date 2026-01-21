@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public record InterestSubScriptionResponse(
+public record InterestSubscriptionResponse(
     UUID id,
     UUID interestId,
     String interestName,

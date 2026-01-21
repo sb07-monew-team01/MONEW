@@ -1,6 +1,6 @@
 package com.codeit.monew.domain.interestuser.service;
 
-import com.codeit.monew.domain.interest.dto.response.InterestSubScriptionResponse;
+import com.codeit.monew.domain.interest.dto.response.InterestSubscriptionResponse;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
 import com.codeit.monew.domain.interest.mapper.InterestSubScriptionMapper;
@@ -30,7 +30,7 @@ public class InterestUserServiceImpl implements InterestUserService{
 
     @Override
     @Transactional
-    public InterestSubScriptionResponse subscribe(UUID userId, UUID interestId) {
+    public InterestSubscriptionResponse subscribe(UUID userId, UUID interestId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () ->  new UserNotFoundException(userId));
         Interest interest = interestRepository.findById(interestId).orElseThrow(
