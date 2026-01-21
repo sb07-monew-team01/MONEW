@@ -1,5 +1,6 @@
 package com.codeit.monew.domain.commentuserlike.controller;
 
+import com.codeit.monew.domain.commentuserlike.controller.docs.CommentUserLikeControllerDocs;
 import com.codeit.monew.domain.commentuserlike.dto.CommentUserLikeDto;
 import com.codeit.monew.domain.commentuserlike.service.CommentUserLikeService;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/comments/{commentId}/comment-likes")
-public class CommentUserLikeController {
+public class CommentUserLikeController implements CommentUserLikeControllerDocs {
     private final CommentUserLikeService commentUserLikeService;
 
     @PostMapping

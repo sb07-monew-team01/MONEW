@@ -97,15 +97,16 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentPageResponse getComments(
-            UUID articleId,
-            UUID userId,
-            CommentOrderBy orderBy,
-            SortDirection direction,
-            String cursor,
-            LocalDateTime after,
-            int limit
-    ) {
+    public CommentPageResponse getComments(CommentSearchRequest request) {
+
+        UUID articleId = request.articleId();
+        UUID userId = request.userId();
+        CommentOrderBy orderBy = request.orderBy();
+        SortDirection direction = request.direction();
+        String cursor = request.cursor();
+        LocalDateTime after = request.after();
+        int limit = request.limit();
+
         Slice<CommentWithLikeCount> slice =
                 commentRepository.findByArticleIdOrderBy(
                         articleId,
@@ -124,17 +125,15 @@ public class CommentServiceImpl implements CommentService {
                     boolean likedByMe =
                             userId != null &&
                                     commentUserLikeRepository
-                                            .existsByUserIdAndCommentId(userId, comment.getId());
+                                            .existsByUserIdAndCommentId(
+                                                    userId,
+                                                    comment.getId()
+                                            );
 
-                    return new CommentDto(
-                            comment.getId(),
-                            comment.getArticle().getId(),
-                            comment.getUser().getId(),
-                            comment.getUser().getNickname(),
-                            comment.getContent(),
+                    return CommentMapper.toDto(
+                            comment,
                             likeCount,
-                            likedByMe,
-                            comment.getCreatedAt()
+                            likedByMe
                     );
                 })
                 .toList();
@@ -156,8 +155,9 @@ public class CommentServiceImpl implements CommentService {
                 nextCursor,
                 nextAfter,
                 limit,
-                null,               // Slice는 total 없음
+                null,               // Slice 기반이므로 total 없음
                 slice.hasNext()
         );
     }
+
 }
