@@ -60,7 +60,7 @@ public class InterestRepositoryCustomImpl implements InterestRepositoryCustom {
                     ));
                 }
             }
-            case SUBSCRIBER_COUNT -> {
+            case SUBSCRIBERCOUNT -> {
                 if (query.subscriberCountCursor() == null) yield null;
                 if (asc) {
                     yield interest.subscriberCount.gt(query.subscriberCountCursor())
@@ -93,7 +93,7 @@ public class InterestRepositoryCustomImpl implements InterestRepositoryCustom {
 
         switch (query.orderBy()) {
             case NAME -> primary = asc ? interest.name.asc() : interest.name.desc();
-            case SUBSCRIBER_COUNT -> primary = asc ? interest.subscriberCount.asc() : interest.subscriberCount.desc();
+            case SUBSCRIBERCOUNT -> primary = asc ? interest.subscriberCount.asc() : interest.subscriberCount.desc();
             default -> throw new IllegalArgumentException("지원하지 않는 정렬 기준입니다.");
         }
 

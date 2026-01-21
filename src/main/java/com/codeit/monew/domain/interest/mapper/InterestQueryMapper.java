@@ -17,7 +17,7 @@ public class InterestQueryMapper {
 
         switch (orderBy) {
             case NAME -> nameCursor = request.cursor();
-            case SUBSCRIBER_COUNT -> subscriberCountCursor = Long.parseLong(request.cursor());
+            case SUBSCRIBERCOUNT -> subscriberCountCursor = Long.parseLong(request.cursor());
         }
         return new InterestCursorQuery(
                 orderBy,

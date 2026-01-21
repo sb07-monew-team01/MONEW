@@ -84,7 +84,7 @@ public class InterestRepositoryCustomImplTest {
             // given
             InterestTestUtils.createInterests(interestRepository, entityManager, 0);
             InterestCursorQuery query = new InterestCursorQuery(
-                    InterestOrderBy.SUBSCRIBER_COUNT,
+                    InterestOrderBy.SUBSCRIBERCOUNT,
                     SortDirection.ASC,
                     null,
                     null,
@@ -150,7 +150,7 @@ public class InterestRepositoryCustomImplTest {
             // given
             InterestTestUtils.createInterests(interestRepository, entityManager, 0);
             InterestCursorQuery query = new InterestCursorQuery(
-                    InterestOrderBy.SUBSCRIBER_COUNT,
+                    InterestOrderBy.SUBSCRIBERCOUNT,
                     SortDirection.DESC,
                     null,
                     null,
@@ -221,7 +221,7 @@ public class InterestRepositoryCustomImplTest {
             // given
             InterestTestUtils.createInterests(interestRepository, entityManager, 10);
             InterestCursorQuery query = new InterestCursorQuery(
-                    InterestOrderBy.SUBSCRIBER_COUNT,
+                    InterestOrderBy.SUBSCRIBERCOUNT,
                     SortDirection.ASC,
                     null,
                     null,
@@ -297,7 +297,7 @@ public class InterestRepositoryCustomImplTest {
             // given
             InterestTestUtils.createInterests(interestRepository, entityManager, 10);
             InterestCursorQuery query = new InterestCursorQuery(
-                    InterestOrderBy.SUBSCRIBER_COUNT,
+                    InterestOrderBy.SUBSCRIBERCOUNT,
                     SortDirection.DESC,
                     null,
                     null,
@@ -445,7 +445,7 @@ public class InterestRepositoryCustomImplTest {
             // [Page 1]
             // given
             InterestCursorQuery query1 = new InterestCursorQuery(
-                    InterestOrderBy.SUBSCRIBER_COUNT,
+                    InterestOrderBy.SUBSCRIBERCOUNT,
                     SortDirection.ASC,
                     null,
                     null,
@@ -460,7 +460,7 @@ public class InterestRepositoryCustomImplTest {
             // [Page 2]
             // given
             InterestCursorQuery query2 = new InterestCursorQuery(
-                    InterestOrderBy.SUBSCRIBER_COUNT,
+                    InterestOrderBy.SUBSCRIBERCOUNT,
                     SortDirection.ASC,
                     null,
                     page1.getContent().get(page1.getContent().size() - 1).getSubscriberCount(),
@@ -474,7 +474,7 @@ public class InterestRepositoryCustomImplTest {
             // [Page 3]
             // given
             InterestCursorQuery query3 = new InterestCursorQuery(
-                    InterestOrderBy.SUBSCRIBER_COUNT,
+                    InterestOrderBy.SUBSCRIBERCOUNT,
                     SortDirection.ASC,
                     null,
                     page2.getContent().get(page2.getContent().size() - 1).getSubscriberCount(),
@@ -642,7 +642,7 @@ public class InterestRepositoryCustomImplTest {
             // [Page 1]
             // given
             InterestCursorQuery query1 = new InterestCursorQuery(
-                    InterestOrderBy.SUBSCRIBER_COUNT,
+                    InterestOrderBy.SUBSCRIBERCOUNT,
                     SortDirection.DESC,
                     null,
                     null,
@@ -656,7 +656,7 @@ public class InterestRepositoryCustomImplTest {
             // [Page 2]
             // given
             InterestCursorQuery query2 = new InterestCursorQuery(
-                    InterestOrderBy.SUBSCRIBER_COUNT,
+                    InterestOrderBy.SUBSCRIBERCOUNT,
                     SortDirection.DESC,
                     null,
                     page1.getContent().get(page1.getContent().size() - 1).getSubscriberCount(),
@@ -671,7 +671,7 @@ public class InterestRepositoryCustomImplTest {
             // [Page 3]
             // given
             InterestCursorQuery query3 = new InterestCursorQuery(
-                    InterestOrderBy.SUBSCRIBER_COUNT,
+                    InterestOrderBy.SUBSCRIBERCOUNT,
                     SortDirection.DESC,
                     null,
                     page2.getContent().get(page2.getContent().size() - 1).getSubscriberCount(),

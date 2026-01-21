@@ -52,12 +52,12 @@ public class InterestCursorQueryTest {
             }
 
             @Test
-            @DisplayName("SUBSCRIBER_COUNT 정렬 + subscriberCountCursor 사용 시 정상 생성된다")
+            @DisplayName("SUBSCRIBERCOUNT 정렬 + subscriberCountCursor 사용 시 정상 생성된다")
             void createSubscriberCountOrderQuerySuccess() {
                 // when & then
                 assertThatCode(() ->
                         new InterestCursorQuery(
-                                InterestOrderBy.SUBSCRIBER_COUNT,
+                                InterestOrderBy.SUBSCRIBERCOUNT,
                                 SortDirection.DESC,
                                 null,
                                 10L,
@@ -69,12 +69,12 @@ public class InterestCursorQueryTest {
             }
 
             @Test
-            @DisplayName("SUBSCRIBER_COUNT 정렬에서 nameCursor 사용 시 예외 발생")
+            @DisplayName("SUBSCRIBERCOUNT 정렬에서 nameCursor 사용 시 예외 발생")
             void createSubscriberCountOrderQueryFail() {
                 // when & then
                 assertThatThrownBy(() ->
                         new InterestCursorQuery(
-                                InterestOrderBy.SUBSCRIBER_COUNT,
+                                InterestOrderBy.SUBSCRIBERCOUNT,
                                 SortDirection.DESC,
                                 "nameCursor",
                                 null,
