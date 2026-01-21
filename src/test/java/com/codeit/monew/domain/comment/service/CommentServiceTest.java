@@ -6,7 +6,6 @@ import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.comment.dto.request.*;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
-import com.codeit.monew.domain.comment.dto.response.CommentPageResponse;
 import com.codeit.monew.domain.comment.entity.Comment;
 import com.codeit.monew.domain.comment.exception.CommentAlreadyDeleteException;
 import com.codeit.monew.domain.comment.exception.CommentNotFoundException;
@@ -15,6 +14,7 @@ import com.codeit.monew.domain.commentuserlike.repository.CommentUserLikeReposit
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
+import com.codeit.monew.global.dto.PageResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -279,7 +279,7 @@ public class CommentServiceTest {
 
             CommentWithLikeCount cwlc = new CommentWithLikeCount(comment, 3L);
 
-            given(commentRepository.findByCommentIdOrderBy(
+            given(commentRepository.findByArticleIdOrderBy(
                     any(UUID.class),
                     any(CommentOrderBy.class),
                     any(SortDirection.class),
@@ -305,7 +305,7 @@ public class CommentServiceTest {
                             20
                     );
 
-            CommentPageResponse response =
+            PageResponse<CommentDto> response =
                     commentService.getComments(request);
 
 
@@ -341,7 +341,7 @@ public class CommentServiceTest {
             Slice<CommentWithLikeCount> slice =
                     new SliceImpl<>(List.of(projection), Pageable.unpaged(), false);
 
-            given(commentRepository.findByCommentIdOrderBy(
+            given(commentRepository.findByArticleIdOrderBy(
                     eq(articleId),
                     eq(CommentOrderBy.createdAt),
                     eq(SortDirection.DESC),
@@ -366,7 +366,7 @@ public class CommentServiceTest {
                             10
                     );
 
-            CommentPageResponse response =
+            PageResponse<CommentDto> response =
                     commentService.getComments(request);
 
 
@@ -386,7 +386,7 @@ public class CommentServiceTest {
             Slice<CommentWithLikeCount> emptySlice =
                     new SliceImpl<>(List.of(), Pageable.unpaged(), false);
 
-            given(commentRepository.findByCommentIdOrderBy(
+            given(commentRepository.findByArticleIdOrderBy(
                     eq(articleId),
                     eq(CommentOrderBy.createdAt),
                     eq(SortDirection.DESC),
@@ -407,7 +407,7 @@ public class CommentServiceTest {
                             10
                     );
 
-            CommentPageResponse response =
+            PageResponse response =
                     commentService.getComments(request);
 
 
@@ -449,7 +449,7 @@ public class CommentServiceTest {
                             true
                     );
 
-            given(commentRepository.findByCommentIdOrderBy(
+            given(commentRepository.findByArticleIdOrderBy(
                     eq(articleId),
                     eq(CommentOrderBy.createdAt),
                     eq(SortDirection.DESC),
@@ -470,7 +470,7 @@ public class CommentServiceTest {
                             10
                     );
 
-            CommentPageResponse response =
+            PageResponse response =
                     commentService.getComments(request);
 
 
@@ -509,7 +509,7 @@ public class CommentServiceTest {
                             false
                     );
 
-            given(commentRepository.findByCommentIdOrderBy(
+            given(commentRepository.findByArticleIdOrderBy(
                     eq(articleId),
                     eq(CommentOrderBy.createdAt),
                     eq(SortDirection.DESC),
@@ -530,7 +530,7 @@ public class CommentServiceTest {
                             10
                     );
 
-            CommentPageResponse response =
+            PageResponse response =
                     commentService.getComments(request);
 
 
@@ -571,7 +571,7 @@ public class CommentServiceTest {
                             false
                     );
 
-            given(commentRepository.findByCommentIdOrderBy(
+            given(commentRepository.findByArticleIdOrderBy(
                     eq(articleId),
                     eq(CommentOrderBy.createdAt),
                     eq(SortDirection.DESC),
@@ -592,7 +592,7 @@ public class CommentServiceTest {
                             10
                     );
 
-            CommentPageResponse response =
+            PageResponse response =
                     commentService.getComments(request);
 
 

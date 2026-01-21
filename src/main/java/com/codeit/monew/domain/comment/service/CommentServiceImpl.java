@@ -5,7 +5,6 @@ import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.comment.dto.request.*;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
-import com.codeit.monew.domain.comment.dto.response.CommentPageResponse;
 import com.codeit.monew.domain.comment.entity.Comment;
 import com.codeit.monew.domain.comment.exception.CommentAlreadyDeleteException;
 import com.codeit.monew.domain.comment.exception.CommentNotFoundException;
@@ -14,6 +13,7 @@ import com.codeit.monew.domain.commentuserlike.repository.CommentUserLikeReposit
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
+import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
@@ -96,9 +96,9 @@ public class CommentServiceImpl implements CommentService {
 
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
-    public CommentPageResponse getComments(CommentSearchRequest request) {
+    public PageResponse<CommentDto> getComments(CommentSearchRequest request) {
 
         UUID articleId = request.articleId();
         UUID userId = request.userId();
@@ -109,7 +109,7 @@ public class CommentServiceImpl implements CommentService {
         int limit = request.limit();
 
         Slice<CommentWithLikeCount> slice =
-                commentRepository.findByCommentIdOrderBy(
+                commentRepository.findByArticleIdOrderBy(
                         articleId,
                         orderBy,
                         direction,
@@ -123,13 +123,10 @@ public class CommentServiceImpl implements CommentService {
                     Comment comment = it.comment();
                     long likeCount = it.likeCount();
 
-                    boolean likedByMe =
-                            userId != null &&
-                                    commentUserLikeRepository
-                                            .existsByUserIdAndCommentId(
-                                                    userId,
-                                                    comment.getId()
-                                            );
+                    boolean likedByMe = userId != null && commentUserLikeRepository.existsByUserIdAndCommentId(
+                            userId,
+                            comment.getId()
+                    );
 
                     return CommentMapper.toDto(
                             comment,
@@ -151,7 +148,7 @@ public class CommentServiceImpl implements CommentService {
             nextAfter = last.getCreatedAt();
         }
 
-        return new CommentPageResponse(
+        return new PageResponse(
                 content,
                 nextCursor,
                 nextAfter,

@@ -28,7 +28,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     private static final QCommentUserLike like = QCommentUserLike.commentUserLike;
 
     @Override
-    public Slice<CommentWithLikeCount> findByCommentIdOrderBy(
+    public Slice<CommentWithLikeCount> findByArticleIdOrderBy(
             UUID articleId,
             CommentOrderBy orderBy,
             SortDirection direction,
@@ -60,7 +60,9 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                         .where(
                                 comment.article.id.eq(articleId),
                                 comment.deletedAt.isNull(),
-                                cursorCondition(cursor, createdAt, sortOrder)
+                                orderBy == CommentOrderBy.createdAt
+                                        ? cursorCondition(cursor, createdAt, sortOrder)
+                                        : null
                         )
                         .groupBy(comment.id)
                         .orderBy(orderSpecifier, comment.id.desc())

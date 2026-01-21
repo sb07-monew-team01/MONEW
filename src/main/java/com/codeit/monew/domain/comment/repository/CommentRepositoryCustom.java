@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public interface CommentRepositoryCustom {
-    Slice<CommentWithLikeCount> findByCommentIdOrderBy(
+    Slice<CommentWithLikeCount> findByArticleIdOrderBy(
             UUID articleId,
             CommentOrderBy orderBy,
             SortDirection direction,

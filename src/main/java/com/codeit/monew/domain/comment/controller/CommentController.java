@@ -3,8 +3,8 @@ package com.codeit.monew.domain.comment.controller;
 import com.codeit.monew.domain.comment.controller.docs.CommentControllerDocs;
 import com.codeit.monew.domain.comment.dto.request.*;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
-import com.codeit.monew.domain.comment.dto.response.CommentPageResponse;
 import com.codeit.monew.domain.comment.service.CommentService;
+import com.codeit.monew.global.dto.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,7 @@ public class CommentController implements CommentControllerDocs {
     private final CommentService commentService;
 
     @GetMapping
-    public ResponseEntity<CommentPageResponse> getComments(
+    public ResponseEntity<PageResponse<CommentDto>> getComments(
             @RequestParam UUID articleId,
             @RequestHeader(value = "Monew-Request-User-ID", required = false) UUID userId,
             @RequestParam(defaultValue = "createdAt") CommentOrderBy orderBy,
@@ -43,7 +43,7 @@ public class CommentController implements CommentControllerDocs {
                         afterDateTime,
                         limit
                 );
-        return ResponseEntity.ok(commentService.getComments(request));
+        return ResponseEntity.status(HttpStatus.OK).body(commentService.getComments(request));
     }
 
     @PostMapping
