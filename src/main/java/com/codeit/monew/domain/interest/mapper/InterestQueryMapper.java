@@ -19,7 +19,7 @@ public class InterestQueryMapper {
             case SUBSCRIBERCOUNT -> subscriberCountCursor =
                     request.cursor() == null
                     ? null
-                    : Long.parseLong(request.cursor());
+                    : Long.parseLong(request.cursor().split("_")[0]);
         }
         return new InterestCursorQuery(
                 orderBy,
