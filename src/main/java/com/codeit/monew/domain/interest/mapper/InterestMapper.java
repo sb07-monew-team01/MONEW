@@ -7,14 +7,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class InterestMapper {
-    public InterestCommonResponse toDto(Interest interest,boolean subscribeByMe) {
+    public InterestCommonResponse toDto(Interest interest, Boolean subscribedByMe) {
         return new InterestCommonResponse(
             interest.getId(),
             interest.getName(),
             interest.getKeywords().stream()
                     .map(InterestKeyword::getKeyword).toList(),
             interest.getSubscriberCount(),
-            subscribeByMe
+            subscribedByMe
         );
     }
 }

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 public record InterestSubScriptionResponse(
-    UUID interestUserId,
+    UUID id,
     UUID interestId,
     String interestName,
     List<String> interestKeywords,

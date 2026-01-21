@@ -18,6 +18,7 @@ import com.codeit.monew.domain.interest.vo.SortDirection;
 import com.codeit.monew.domain.interestkeyword.entity.InterestKeyword;
 import com.codeit.monew.domain.interestuser.repository.InterestUserRepository;
 import com.codeit.monew.global.enums.ErrorCode;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -59,6 +60,9 @@ public class InterestServiceImplTest {
 
     @Mock
     InterestMapper interestMapper;
+
+    @Mock
+    private EntityManager em;
 
     @InjectMocks
     InterestServiceImpl interestService;
@@ -132,15 +136,14 @@ public class InterestServiceImplTest {
             InterestUpdateRequest request = new InterestUpdateRequest(newKeywords);
             Interest interest = new Interest(name, oldKeywords);
             InterestCommonResponse response = new InterestCommonResponse(
-                    UUID.randomUUID(), name, newKeywords, 0, false);
+                    UUID.randomUUID(), name, newKeywords, 0, null);
 
             given(interestRepository.findById(interestId))
                     .willReturn(Optional.of(interest));
-            given(interestUserRepository.existsByUserIdAndInterestId(any(),any())).willReturn(false);
-            given(interestMapper.toDto(any(Interest.class), eq(false))).willReturn(response);
+            given(interestMapper.toDto(any(Interest.class), any())).willReturn(response);
 
             // when
-            interestService.editKeywords(userId, interestId, request);
+            interestService.editKeywords(interestId, request);
 
             // then
             assertThat(interest.getKeywords())
@@ -162,7 +165,7 @@ public class InterestServiceImplTest {
             given(interestRepository.findById(interestId)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> interestService.editKeywords(userId, interestId, request))
+            assertThatThrownBy(() -> interestService.editKeywords(interestId, request))
                     .isInstanceOf(InterestNotFoundException.class)
                     .extracting("errorCode")
                     .isEqualTo(ErrorCode.INTEREST_NOT_FOUND);

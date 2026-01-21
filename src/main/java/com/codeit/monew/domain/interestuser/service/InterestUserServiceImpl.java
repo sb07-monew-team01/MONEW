@@ -42,7 +42,7 @@ public class InterestUserServiceImpl implements InterestUserService{
         InterestUser saved = interestUserRepository.save(new InterestUser(user, interest));
         interest.increaseSubscriberCount();
 
-        return interestSubScriptionMapper.toDto(interest, saved.getId());
+        return interestSubScriptionMapper.toDto(interest, saved);
     }
 
     @Override
