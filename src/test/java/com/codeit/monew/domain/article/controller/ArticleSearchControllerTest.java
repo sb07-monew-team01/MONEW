@@ -2,11 +2,12 @@ package com.codeit.monew.domain.article.controller;
 
 import com.codeit.monew.domain.article.dto.request.ArticleSearchRequest;
 import com.codeit.monew.domain.article.dto.response.ArticleDto;
+import com.codeit.monew.domain.article.dto.response.ArticleRestoreResultDto;
 import com.codeit.monew.domain.article.service.ArticleService;
+import com.codeit.monew.domain.article.service.s3.ArticleBackupService;
 import com.codeit.monew.domain.articleView.dto.response.ArticleViewDto;
 import com.codeit.monew.domain.articleView.service.ArticleViewService;
 import com.codeit.monew.global.dto.PageResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -17,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import software.amazon.awssdk.services.s3.S3Client;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -34,13 +37,16 @@ class ArticleSearchControllerTest {
     private static final Logger log = LoggerFactory.getLogger(ArticleSearchControllerTest.class);
     @Autowired
     private MockMvc mockMvc;
-    @Autowired
-    ObjectMapper objectMapper;
 
     @MockitoBean
     private ArticleService articleService;
     @MockitoBean
     private ArticleViewService articleViewService;
+    @MockitoBean
+    private S3Client s3Client;
+    @MockitoBean
+    ArticleBackupService articleBackupService;
+
 
     @Nested
     @DisplayName("기사 조회")
@@ -149,6 +155,37 @@ class ArticleSearchControllerTest {
                     .andExpect(jsonPath("$[1]").value("HANKYUNG"))
                     .andExpect(jsonPath("$[2]").value("CHOSUN"))
                     .andExpect(jsonPath("$[3]").value("YEONHAP"));
+        }
+    }
+    
+    @Nested
+    @DisplayName("기사 복구")
+    class RestoreArticleTest {
+        
+        @Test
+        @DisplayName("유실된 뉴스 기사 복구")
+        void restoreArticleList() throws Exception {
+            // given
+
+            LocalDate from = LocalDate.of(2026, 1, 10);
+            LocalDate to = LocalDate.of(2026, 1, 12);
+
+            ArticleRestoreResultDto dto1 = new ArticleRestoreResultDto(LocalDateTime.now(), List.of(UUID.randomUUID()), 1L);
+            ArticleRestoreResultDto dto2 = new ArticleRestoreResultDto(LocalDateTime.now(), List.of(UUID.randomUUID()), 1L);
+            ArticleRestoreResultDto dto3 = new ArticleRestoreResultDto(LocalDateTime.now(), List.of(UUID.randomUUID()), 1L);
+
+            List<ArticleRestoreResultDto> dtoList = List.of(dto1, dto2, dto3);
+
+            when(articleBackupService.restoredArticles(from, to)).thenReturn(dtoList);
+            // when
+            mockMvc.perform(get("/api/articles/restore")
+                            .param("from", "2026-01-10")
+                            .param("to", "2026-01-12"))
+                    .andExpect(status().isOk());
+            
+            // then
+
+            
         }
     }
 
