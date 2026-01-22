@@ -7,7 +7,7 @@ import com.codeit.monew.domain.comment.entity.Comment;
 import com.codeit.monew.domain.commentuserlike.entity.CommentUserLike;
 import com.codeit.monew.domain.interest.dto.response.InterestSubScriptionResponse;
 import com.codeit.monew.domain.interest.entity.Interest;
-import com.codeit.monew.domain.interest.mapper.InterestSubScriptionMapper;
+import com.codeit.monew.domain.interest.mapper.InterestSubscriptionMapper;
 import com.codeit.monew.domain.interestuser.entity.InterestUser;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.userActivity.dto.UserActivityCommentDto;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserActivityMapper {
 
-    private final InterestSubScriptionMapper subscriptionMapper;
+    private final InterestSubscriptionMapper subscriptionMapper;
     private final ArticleViewMapper articleViewMapper;
     private final UserActivityCommentDtoMapper commentDtoMapper;
     private final UserActivityCommentLikeDtoMapper commentUserLikeMapper;

@@ -3,7 +3,7 @@ package com.codeit.monew.domain.interestuser.unit.service;
 import com.codeit.monew.domain.interest.dto.response.InterestSubscriptionResponse;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
-import com.codeit.monew.domain.interest.mapper.InterestSubScriptionMapper;
+import com.codeit.monew.domain.interest.mapper.InterestSubscriptionMapper;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interestuser.entity.InterestUser;
 import com.codeit.monew.domain.interestuser.exception.AlreadySubscribedException;
@@ -46,7 +46,7 @@ public class InterestUserServiceImplTest {
     InterestUserRepository interestUserRepository;
 
     @Mock
-    InterestSubScriptionMapper interestSubScriptionMapper;
+    InterestSubscriptionMapper interestSubScriptionMapper;
 
     @InjectMocks
     InterestUserServiceImpl interestUserService;

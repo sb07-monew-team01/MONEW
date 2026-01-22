@@ -7,7 +7,7 @@ import com.codeit.monew.domain.interestuser.entity.InterestUser;
 import org.springframework.stereotype.Component;
 
 @Component
-public class InterestSubScriptionMapper {
+public class InterestSubscriptionMapper {
     public InterestSubscriptionResponse toDto(Interest interest, InterestUser interestUser) {
         return new InterestSubscriptionResponse(
             interestUser.getId(),
