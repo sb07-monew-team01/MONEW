@@ -44,6 +44,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
                         .leftJoin(like).on(like.comment.eq(comment))
                         .where(
                                 comment.article.id.eq(articleId),
+                                comment.deletedAt.isNull(),
                                 cursorCondition
                         )
                         .groupBy(comment.id)
