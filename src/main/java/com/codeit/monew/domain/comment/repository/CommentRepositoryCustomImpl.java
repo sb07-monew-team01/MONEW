@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,7 +31,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
         QComment comment = QComment.comment;
         QCommentUserLike like = QCommentUserLike.commentUserLike;
 
-        BooleanExpression cursorCondition = buildCursorCondition(cursor);
+        BooleanExpression cursorCondition = buildCreatedAtCursorCondition(cursor);
 
         List<CommentWithLikeCount> results =
                 queryFactory
@@ -47,9 +48,13 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
                         )
                         .groupBy(comment.id)
                         .orderBy(
+                                // 1차 정렬
                                 orderBy == CommentOrderBy.likeCount
                                         ? like.count().desc()
                                         : comment.createdAt.desc(),
+                                // 2차 정렬: 등록순(최신순) 고정
+                                comment.createdAt.desc(),
+                                // 3차 정렬: 결정성 보장
                                 comment.id.desc()
                         )
                         .limit(limit + 1)
@@ -68,26 +73,32 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
     }
 
     /**
-     * 커서 기반 페이징 (createdAt + id)
+     * 커서 페이징 조건
+     * createdAt DESC, id DESC 기준
      */
-    private BooleanExpression buildCursorCondition(String cursor) {
+    private BooleanExpression buildCreatedAtCursorCondition(String cursor) {
         if (cursor == null || cursor.isBlank()) {
             return null;
         }
 
         UUID cursorId = UUID.fromString(cursor);
-        QComment cursorComment = new QComment("cursorComment");
+        QComment c = QComment.comment;
 
-        var cursorCreatedAt =
+        LocalDateTime cursorCreatedAt =
                 queryFactory
-                        .select(cursorComment.createdAt)
-                        .from(cursorComment)
-                        .where(cursorComment.id.eq(cursorId));
+                        .select(c.createdAt)
+                        .from(c)
+                        .where(c.id.eq(cursorId))
+                        .fetchOne();
 
-        return QComment.comment.createdAt.lt(cursorCreatedAt)
+        if (cursorCreatedAt == null) {
+            return null;
+        }
+
+        return c.createdAt.lt(cursorCreatedAt)
                 .or(
-                        QComment.comment.createdAt.eq(cursorCreatedAt)
-                                .and(QComment.comment.id.lt(cursorId))
+                        c.createdAt.eq(cursorCreatedAt)
+                                .and(c.id.lt(cursorId))
                 );
     }
 }
