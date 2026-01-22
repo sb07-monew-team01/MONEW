@@ -1,6 +1,6 @@
 package com.codeit.monew.domain.interestuser.unit.service;
 
-import com.codeit.monew.domain.interest.dto.response.InterestSubScriptionResponse;
+import com.codeit.monew.domain.interest.dto.response.InterestSubscriptionResponse;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.exception.web.InterestNotFoundException;
 import com.codeit.monew.domain.interest.mapper.InterestSubScriptionMapper;
@@ -65,7 +65,7 @@ public class InterestUserServiceImplTest {
             String name = "백엔드";
             List<String> keywords = List.of("java", "spring");
             Interest interest = new Interest(name, keywords);
-            InterestSubScriptionResponse response = new InterestSubScriptionResponse(
+            InterestSubscriptionResponse response = new InterestSubscriptionResponse(
                     interestUserId, interestId, name, keywords, 0, LocalDateTime.now()
             );
 
@@ -77,7 +77,7 @@ public class InterestUserServiceImplTest {
                     .willReturn(response);
 
             // when
-            InterestSubScriptionResponse result = interestUserService.subscribe(userId, interestId);
+            InterestSubscriptionResponse result = interestUserService.subscribe(userId, interestId);
 
             // then
             assertThat(result).isNotNull();
@@ -150,7 +150,7 @@ public class InterestUserServiceImplTest {
             String name = "백엔드";
             User user = new User("tester@test.com", "tester", "test");
             Interest interest = new Interest(name, keywords);
-            InterestSubScriptionResponse response = new InterestSubScriptionResponse(
+            InterestSubscriptionResponse response = new InterestSubscriptionResponse(
                     interestUserId,
                     interestId,
                     name,
