@@ -19,7 +19,7 @@ spring:
 logging:
   level:
     root: info                                   # 전체 로그 기본 레벨
-    com.sprint.mission.discodeit: OFF          # 프로젝트 패키지 로그를 상세히 출력
+    com.codeit.monew: OFF          # 프로젝트 패키지 로그를 상세히 출력
     org.hibernate.SQL: OFF                     # Hibernate 실행 SQL 출력
     org.hibernate.orm.jdbc.bind: OFF           # SQL 바인딩 파라미터까지 출력
     #  실제 실행된 쿼리에 ? 에 바인딩된 값까지 확인 가능 (개발용으로 매우 유용)
