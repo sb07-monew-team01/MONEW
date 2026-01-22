@@ -20,6 +20,9 @@ import java.util.UUID;
 public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+    private static final QComment comment = QComment.comment;
+    private static final QCommentUserLike like = QCommentUserLike.commentUserLike;
+
 
     @Override
     public Slice<CommentWithLikeCount> findByArticleIdOrderBy(
@@ -28,20 +31,20 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
             String cursor,
             int limit
     ) {
-        QComment comment = QComment.comment;
-        QCommentUserLike like = QCommentUserLike.commentUserLike;
+        // 커서 조건 생성
+        BooleanExpression cursorCondition = createdAtCursorCondition(cursor);
 
-        BooleanExpression cursorCondition = buildCreatedAtCursorCondition(cursor);
-
+        // 조회
         List<CommentWithLikeCount> results =
                 queryFactory
                         .select(Projections.constructor(
                                 CommentWithLikeCount.class,
                                 comment,
-                                like.count()
+                                like.id.countDistinct()
                         ))
                         .from(comment)
-                        .leftJoin(like).on(like.comment.eq(comment))
+                        .leftJoin(like)
+                        .on(like.comment.eq(comment))
                         .where(
                                 comment.article.id.eq(articleId),
                                 comment.deletedAt.isNull(),
@@ -49,13 +52,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
                         )
                         .groupBy(comment.id)
                         .orderBy(
-                                // 1차 정렬
-                                orderBy == CommentOrderBy.likeCount
-                                        ? like.count().desc()
-                                        : comment.createdAt.desc(),
-                                // 2차 정렬: 등록순(최신순) 고정
                                 comment.createdAt.desc(),
-                                // 3차 정렬: 결정성 보장
                                 comment.id.desc()
                         )
                         .limit(limit + 1)
@@ -66,40 +63,25 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
             results.remove(limit);
         }
 
-        return new SliceImpl<>(
-                results,
-                PageRequest.of(0, limit),
-                hasNext
-        );
+        return new SliceImpl<>(results, PageRequest.of(0, limit), hasNext);
     }
 
     /**
-     * 커서 페이징 조건
-     * createdAt DESC, id DESC 기준
+     * createdAt DESC
      */
-    private BooleanExpression buildCreatedAtCursorCondition(String cursor) {
-        if (cursor == null || cursor.isBlank()) {
+    private BooleanExpression createdAtCursorCondition(String cursor) {
+        if (cursor == null) {
             return null;
         }
 
-        UUID cursorId = UUID.fromString(cursor);
-        QComment c = QComment.comment;
-
-        LocalDateTime cursorCreatedAt =
-                queryFactory
-                        .select(c.createdAt)
-                        .from(c)
-                        .where(c.id.eq(cursorId))
-                        .fetchOne();
-
-        if (cursorCreatedAt == null) {
+        String[] parts = cursor.split("_");
+        if (parts.length != 2) {
             return null;
         }
+        LocalDateTime cursorCreatedAt = LocalDateTime.parse(parts[0]);
+        UUID cursorId = UUID.fromString(parts[1]);
 
-        return c.createdAt.lt(cursorCreatedAt)
-                .or(
-                        c.createdAt.eq(cursorCreatedAt)
-                                .and(c.id.lt(cursorId))
-                );
+        return comment.createdAt.lt(cursorCreatedAt).or(comment.createdAt.eq(cursorCreatedAt)
+                .and(comment.id.lt(cursorId)));
     }
 }

@@ -27,6 +27,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import static org.jdom2.filter.Filters.comment;
+
 
 @Service
 @RequiredArgsConstructor
@@ -105,7 +107,6 @@ public class CommentServiceImpl implements CommentService {
         UUID userId = request.userId();
         CommentOrderBy orderBy = request.orderBy();
         String cursor = request.cursor();
-        LocalDateTime after = request.after();
         int limit = request.limit();
 
         Slice<CommentWithLikeCount> slice =
@@ -143,13 +144,14 @@ public class CommentServiceImpl implements CommentService {
         LocalDateTime nextAfter = null;
 
         if (hasNext && !slice.getContent().isEmpty()) {
-            Comment lastComment =
-                    slice.getContent()
-                            .get(slice.getContent().size() - 1)
-                            .comment();
+            Comment lastComment = slice.getContent()
+                    .get(slice.getContent().size() - 1)
+                    .comment();
 
-            nextCursor = lastComment.getId().toString();
-            nextAfter = lastComment.getCreatedAt();
+            nextCursor =
+                    lastComment.getCreatedAt().toString()
+                    + "_"
+                    + lastComment.getId().toString();
         }
 
         return new PageResponse<>(
