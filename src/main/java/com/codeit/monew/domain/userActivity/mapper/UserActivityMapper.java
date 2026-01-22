@@ -3,15 +3,15 @@ package com.codeit.monew.domain.userActivity.mapper;
 import com.codeit.monew.domain.articleView.dto.mapper.ArticleViewMapper;
 import com.codeit.monew.domain.articleView.dto.response.ArticleViewDto;
 import com.codeit.monew.domain.articleView.entity.ArticleView;
-import com.codeit.monew.domain.comment.dto.response.CommentDto;
 import com.codeit.monew.domain.comment.entity.Comment;
-import com.codeit.monew.domain.comment.mapper.CommentMapper;
-import com.codeit.monew.domain.commentuserlike.dto.CommentUserLikeDto;
 import com.codeit.monew.domain.commentuserlike.entity.CommentUserLike;
-import com.codeit.monew.domain.commentuserlike.mapper.CommentUserLikeMapper;
+import com.codeit.monew.domain.interest.dto.response.InterestSubScriptionResponse;
+import com.codeit.monew.domain.interest.entity.Interest;
+import com.codeit.monew.domain.interest.mapper.InterestSubScriptionMapper;
 import com.codeit.monew.domain.interestuser.entity.InterestUser;
 import com.codeit.monew.domain.user.entity.User;
-import com.codeit.monew.domain.userActivity.dto.SubscriptionDto;
+import com.codeit.monew.domain.userActivity.dto.UserActivityCommentDto;
+import com.codeit.monew.domain.userActivity.dto.UserActivityCommentLikeDto;
 import com.codeit.monew.domain.userActivity.dto.UserActivityDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -23,12 +23,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserActivityMapper {
 
-    private final SubscriptionMapper subscriptionMapper;
+    private final InterestSubScriptionMapper subscriptionMapper;
     private final ArticleViewMapper articleViewMapper;
+    private final UserActivityCommentDtoMapper commentDtoMapper;
+    private final UserActivityCommentLikeDtoMapper commentUserLikeMapper;
 
+    // 다바꿔
     public UserActivityDto toDto(
             User user,
-            List<InterestUser> interestUsers,
+            List<Interest> subscriptions,
             List<Comment> comments,
             List<CommentUserLike> commentLikes,
             List<ArticleView> articleViews
@@ -38,28 +41,28 @@ public class UserActivityMapper {
                 user.getEmail(),
                 user.getNickname(),
                 user.getCreatedAt().toString(),
-                toSubscriptionDtos(interestUsers),
+                toSubscriptionDtos(user, subscriptions),
                 toCommentDtos(comments),
                 toCommentUserLikeDtos(commentLikes),
                 toArticleViewDtos(articleViews)
         );
     }
 
-    private List<SubscriptionDto> toSubscriptionDtos(List<InterestUser> interestUsers) {
-        return interestUsers.stream()
-                .map(subscriptionMapper::toDto)
+    private List<InterestSubScriptionResponse> toSubscriptionDtos(User user, List<Interest> interests) {
+        return interests.stream()
+                .map(i -> subscriptionMapper.toDto(i, new InterestUser(user, i)))
                 .collect(Collectors.toList());
     }
 
-    private List<CommentDto> toCommentDtos(List<Comment> comments) {
+    private List<UserActivityCommentDto> toCommentDtos(List<Comment> comments) {
         return comments.stream()
-                .map(CommentMapper::toDto)
-                .collect(Collectors.toList());
+                .map(commentDtoMapper::toDto)
+                .toList();
     }
 
-    private List<CommentUserLikeDto> toCommentUserLikeDtos(List<CommentUserLike> commentLikes) {
+    private List<UserActivityCommentLikeDto> toCommentUserLikeDtos(List<CommentUserLike> commentLikes) {
         return commentLikes.stream()
-                .map(like -> CommentUserLikeMapper.toDto(like, 0L))
+                .map(commentUserLikeMapper::toDto)
                 .collect(Collectors.toList());
     }
 
