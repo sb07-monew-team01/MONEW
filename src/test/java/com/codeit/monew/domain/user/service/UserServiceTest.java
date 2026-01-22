@@ -250,7 +250,7 @@ public class UserServiceTest {
             UserUpdateRequest dto = new UserUpdateRequest(newNickname);
 
             // when
-            userService.update(userId, userId, dto);
+            userService.update(userId, dto);
 
             //then
             assertThat(user.getNickname()).isEqualTo(newNickname);
@@ -260,17 +260,6 @@ public class UserServiceTest {
         @DisplayName("실패 - 비즈니스 로직")
         class BusinessLogicFailure {
             @Test
-            @DisplayName("수정 권한이 없는 경우 오류가 발생한다.")
-            void fail_unAuthorized() {
-                // given
-                UserUpdateRequest request = new UserUpdateRequest("nickname");
-
-                // when & then
-                assertThatThrownBy(() -> userService.update(UUID.randomUUID(), UUID.randomUUID(), request))
-                        .isInstanceOf(UserNotAuthorizedException.class);
-            }
-
-            @Test
             @DisplayName("요청 uuid가 존재하지 않으면 예외가 발생한다.")
             void notValidUserUuid() {
                 // given
@@ -278,7 +267,7 @@ public class UserServiceTest {
                 when(userRepository.findById(wrongUserId)).thenReturn(Optional.empty());
 
                 // when & then
-                assertThatThrownBy(() -> userService.update(wrongUserId, wrongUserId, new UserUpdateRequest("nickname")))
+                assertThatThrownBy(() -> userService.update(wrongUserId, new UserUpdateRequest("nickname")))
                         .isInstanceOf(UserNotFoundException.class);
             }
 
@@ -292,7 +281,7 @@ public class UserServiceTest {
                 when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
                 // when & then
-                assertThatThrownBy(() -> userService.update(userId, userId, dto))
+                assertThatThrownBy(() -> userService.update(userId, dto))
                         .isInstanceOf(UserAlreadyDeletedException.class);
             }
 

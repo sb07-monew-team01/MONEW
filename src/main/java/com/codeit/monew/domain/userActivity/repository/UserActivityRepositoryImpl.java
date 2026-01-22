@@ -3,7 +3,7 @@ package com.codeit.monew.domain.userActivity.repository;
 import com.codeit.monew.domain.articleView.entity.ArticleView;
 import com.codeit.monew.domain.comment.entity.Comment;
 import com.codeit.monew.domain.commentuserlike.entity.CommentUserLike;
-import com.codeit.monew.domain.interestuser.entity.InterestUser;
+import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.userActivity.dto.UserActivityDto;
 import com.codeit.monew.domain.userActivity.mapper.UserActivityMapper;
@@ -41,9 +41,10 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
             return null;
 
         // 구독 관심사
-        List<InterestUser> interestUsers = queryFactory
-                .selectFrom(interestUser)
-                .join(interestUser.interest, interest).fetchJoin()
+        List<Interest> interests = queryFactory
+                .select(interest)
+                .from(interestUser)
+                .join(interestUser.interest, interest)
                 .leftJoin(interest.keywords, interestKeyword).fetchJoin()
                 .where(interestUser.user.id.eq(userId))
                 .fetch();
@@ -86,7 +87,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
 
         return userActivityMapper.toDto(
                 userEntity,
-                interestUsers,
+                interests,
                 recentComments,
                 recentLikedComments,
                 recentViewedArticles

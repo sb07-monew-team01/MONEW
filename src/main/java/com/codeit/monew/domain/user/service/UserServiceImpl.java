@@ -73,9 +73,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto update(UUID loginId, UUID requestId, UserUpdateRequest request) {
-        if (!loginId.equals(requestId))
-            throw new UserNotAuthorizedException(loginId, requestId);
+    public UserDto update(UUID requestId, UserUpdateRequest request) {
         User user = userRepository.findById(requestId)
                 .orElseThrow(() -> new UserNotFoundException(requestId));
         if (user.isDeleted())
