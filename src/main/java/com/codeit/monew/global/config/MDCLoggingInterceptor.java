@@ -26,7 +26,7 @@ public class MDCLoggingInterceptor extends OncePerRequestFilter {
     public static final String HEADER_CLIENT_IP = "Header-Client-Ip";
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
+    protected void doFilterInternal( HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
