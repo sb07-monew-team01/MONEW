@@ -42,7 +42,7 @@ public interface ArticleControllerDocs {
             @Parameter(description = "뉴스 기사 ID", required = true, example = "302c88f3-c4f1-4817-a08d-a385daf6944d")
             @PathVariable UUID articleId,
 
-            @Parameter(description = "요청자 사용자 ID", required = true, example = "111c88f3-c4f1-4817-a08d-a385daf60000")
+            @Parameter(description = "요청 사용자 ID", required = true, example = "111c88f3-c4f1-4817-a08d-a385daf60000")
             @RequestHeader("Monew-Request-User-ID") UUID userId
     );
 
@@ -61,7 +61,7 @@ public interface ArticleControllerDocs {
     ResponseEntity<PageResponse<ArticleDto>> articleList(
             @ParameterObject ArticleSearchRequest request,
 
-            @Parameter(description = "요청자 사용자 ID", required = true, example = "111c88f3-c4f1-4817-a08d-a385daf60000")
+            @Parameter(description = "요청 사용자 ID", required = true, example = "111c88f3-c4f1-4817-a08d-a385daf60000")
             @RequestHeader("Monew-Request-User-ID") UUID userId
     );
 
@@ -82,7 +82,7 @@ public interface ArticleControllerDocs {
             @Parameter(description = "뉴스 기사 ID", required = true, example = "302c88f3-c4f1-4817-a08d-a385daf6944d")
             @PathVariable UUID articleId,
 
-            @Parameter(description = "요청자 사용자 ID", required = true, example = "111c88f3-c4f1-4817-a08d-a385daf60000")
+            @Parameter(description = "요청 사용자 ID", required = true, example = "111c88f3-c4f1-4817-a08d-a385daf60000")
             @RequestHeader("Monew-Request-User-ID") UUID userId);
 
     @Operation(

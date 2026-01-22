@@ -1,5 +1,6 @@
 package com.codeit.monew.domain.interest.controller;
 
+import com.codeit.monew.domain.interest.controller.docs.InterestControllerDocs;
 import com.codeit.monew.domain.interest.dto.request.InterestCreatedRequest;
 import com.codeit.monew.domain.interest.dto.request.InterestCursorPageRequest;
 import com.codeit.monew.domain.interest.dto.request.InterestUpdateRequest;
@@ -10,6 +11,7 @@ import com.codeit.monew.domain.interestuser.service.InterestUserService;
 import com.codeit.monew.global.dto.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,28 +21,31 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/interests")
-public class InterestController {
+public class InterestController implements InterestControllerDocs {
     private final InterestService interestService;
     private final InterestUserService interestUserService;
 
+    @Override
     @GetMapping
-    public ResponseEntity<PageResponse<InterestCommonResponse>> InterestList(
+    public ResponseEntity<PageResponse<InterestCommonResponse>> interestList(
         @RequestHeader("Monew-Request-User-ID") UUID userId,
-        InterestCursorPageRequest request
+        @ParameterObject InterestCursorPageRequest request
     ){
         return ResponseEntity.ok(interestService.getInterests(userId, request));
     }
 
+    @Override
     @PostMapping
-    public ResponseEntity<InterestCommonResponse> InterestCreate(
+    public ResponseEntity<InterestCommonResponse> interestCreate(
             @RequestBody @Valid InterestCreatedRequest request
     ){
         InterestCommonResponse saved = interestService.create(request);
         return ResponseEntity.created(URI.create(saved.id().toString())).body(saved);
     }
 
+    @Override
     @PatchMapping("/{interestId}")
-    public ResponseEntity<InterestCommonResponse> InterestEdit(
+    public ResponseEntity<InterestCommonResponse> interestEdit(
             @PathVariable UUID interestId,
             @RequestBody @Valid InterestUpdateRequest request
     ){
@@ -48,12 +53,14 @@ public class InterestController {
         return ResponseEntity.ok(updated);
     }
 
+    @Override
     @DeleteMapping("/{interestId}")
-    public ResponseEntity<Void> InterestDelete(@PathVariable UUID interestId){
+    public ResponseEntity<Void> interestDelete(@PathVariable UUID interestId){
         interestService.delete(interestId);
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @PostMapping("/{interestId}/subscriptions")
     public ResponseEntity<InterestSubScriptionResponse> subscribe(
         @RequestHeader("Monew-Request-User-ID") UUID userId,
@@ -62,6 +69,7 @@ public class InterestController {
         return ResponseEntity.ok(interestUserService.subscribe(userId, interestId));
     }
 
+    @Override
     @DeleteMapping("/{interestId}/subscriptions")
     public ResponseEntity<Void> unsubscribe(
         @RequestHeader("Monew-Request-User-ID") UUID userId,
