@@ -15,7 +15,7 @@ public class ArticleCollectScheduler {
 
     private final ArticleCollectService articleCollectService;
 
-    @Scheduled(cron = "0 0/5 * * * *") // 매 5분마다 (0분, 5분, 10분 ...)
+    @Scheduled(cron = "0 0 * * * *") // 매 5분마다 (0분, 5분, 10분 ...)
     public void scheduleArticleCollection() {
         log.info("기사 수집 스케줄러 시작: {}", LocalDateTime.now());
 

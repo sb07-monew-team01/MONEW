@@ -1,61 +1,60 @@
 spring:
   config:
-    import: optional:dotenv:./.env #  env ?? ???? ?(Optinal ? ??? ??X)
+    import: optional:dotenv:./.env
 
   profiles:
     active:
-      - dev # ??? profile
+      - dev
 
   application:
-    name: monew # ?????? ??
+    name: monew
 
   jackson:
     serialization:
       write-dates-as-timestamps: false
-    time-zone: Asia/Seoul # ??? ?????(ms) ? ??? ISO-8601 ???? ??? (2026-01-05T22:25:10.199)
+    time-zone: Asia/Seoul
 
   jpa:
-    database: postgresql # DB ?? ??
+    database: postgresql
     hibernate:
-      ddl-auto: validate # ??? ?? ??/?? ??
+      ddl-auto: validate
     properties:
       hibernate:
-        format_sql: true # SQL ??? ?? ?? ??
+        format_sql: true
         jdbc:
-          batch_size: 1000       # 1000개씩 모아서 DB에 보냄
-          order_inserts: true      # 같은 테이블 insert끼리 묶어서 속도 향상
-          order_updates: true      # 같은 테이블 update끼리 묶음
-    open-in-view: false # ????? Controller?? ?? ?? ??. N+1 ??? ????? ???? ? (?? ??)
+          batch_size: 1000
+          order_inserts: true
+          order_updates: true
+    open-in-view: false
 
 
 logging:
   level:
-    root: info # ?? ?? ??: INFO
+    root: info
 
 springdoc:
   swagger-ui:
-    path: /api-docs-ui.html # Swagger UI ??: /api-docs-ui.html
-    tags-sorter: alpha # ?? ??: ???
-    operations-sorter: method # API ??: HTTP ??? ??
-    display-request-duration: true # ?? ?? ?? ??
-    doc-expansion: list # ?? ?? ?? (none, list, full)
+    path: /api-docs-ui.html
+    tags-sorter: alpha
+    operations-sorter: method
+    display-request-duration: true
+    doc-expansion: list
 
   api-docs:
-    path: /my-api # OpenAPI JSON ??: /my-api
+    path: /my-api
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,loggers # ??? ??? Actuator ?????
+        include: health,info,metrics,loggers
   endpoint:
     health:
-      show-details: always # health ?? ?? ?? ??. ?? ????? always, ????? when-authorized
+      show-details: always
   info:
     env:
-      enabled: false # ???? ?? /actuator/info? ??
+      enabled: false
 
-# /actuator/info ? ???? ?? ??
 info:
   app:
     name: monew
@@ -64,3 +63,16 @@ info:
     encoding: UTF-8
     java-version: 17
     spring-version: 3.5.9
+
+naver:
+  api:
+    client-id: ${NAVER_CLIENT_ID}
+    client-secret: ${NAVER_CLIENT_SECRET}
+
+aws:
+  s3:
+    bucket:
+      access-key: ${AWS_ACCESS_KEY_ID}
+      secret-key: ${AWS_SECRET_ACCESS_KEY}
+      region: ${AWS_REGION}
+      name: ${AWS_S3_BUCKET}
