@@ -24,6 +24,7 @@ import com.codeit.monew.domain.comment.mapper.CommentMapper;
 
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -140,18 +141,23 @@ public class CommentServiceImpl implements CommentService {
                         })
                         .toList();
 
+        if (orderBy == CommentOrderBy.likeCount) {
+            content = content.stream()
+                    .sorted((a, b) ->
+                            b.createdAt().compareTo(a.createdAt()))
+                    .toList();
+        }
+
         String nextCursor = null;
         LocalDateTime nextAfter = null;
 
         if (hasNext && !slice.getContent().isEmpty()) {
-            Comment lastComment = slice.getContent()
-                    .get(slice.getContent().size() - 1)
-                    .comment();
+            CommentDto last = content.get(content.size() - 1);
 
             nextCursor =
-                    lastComment.getCreatedAt().toString()
-                    + "_"
-                    + lastComment.getId().toString();
+                    last.createdAt().toString()
+                            + "_"
+                            + last.id().toString();
         }
 
         return new PageResponse<>(
