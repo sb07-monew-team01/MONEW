@@ -14,7 +14,6 @@ import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interest.repository.InterestRepositoryCustomImpl;
 import com.codeit.monew.domain.interest.vo.InterestOrderBy;
 import com.codeit.monew.domain.interest.vo.NextCursor;
-import com.codeit.monew.domain.interest.vo.SortDirection;
 import com.codeit.monew.domain.interestuser.repository.InterestUserRepository;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.global.enums.ErrorCode;
@@ -24,7 +23,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,11 +41,7 @@ public class InterestServiceImpl implements InterestService{
     @Override
     @Transactional(readOnly = true)
     public PageResponse<InterestCommonResponse> getInterests(UUID userId, InterestCursorPageRequest request) {
-        InterestOrderBy orderBy = InterestOrderBy.fromString(request.orderBy()).orElse(InterestOrderBy.NAME);
-        SortDirection direction = SortDirection.fromString(request.direction()).orElse(SortDirection.ASC);
         InterestCursorQuery query = interestQueryMapper.toQuery(request);
-        query = applySubscriberCountCursor(request, query);
-
         Slice<Interest> slice = interestRepositoryCustom.findAllByCursor(query);
 
         List<InterestCommonResponse> content = slice.getContent().stream()
@@ -57,7 +51,8 @@ public class InterestServiceImpl implements InterestService{
             )
         ).toList();
 
-        NextCursor nextCursor = NextCursor.from(slice, orderBy);
+        NextCursor nextCursor = NextCursor.from(slice,
+                InterestOrderBy.fromString(request.orderBy()).orElse(InterestOrderBy.NAME));
 
         return new PageResponse<>(
                 content,
@@ -67,26 +62,6 @@ public class InterestServiceImpl implements InterestService{
                 0L,
                 slice.hasNext()
         );
-    }
-    private InterestCursorQuery applySubscriberCountCursor(InterestCursorPageRequest request, InterestCursorQuery query) {
-        if (request.cursor() != null &&
-                InterestOrderBy.fromString(request.orderBy()).orElse(InterestOrderBy.NAME) == InterestOrderBy.SUBSCRIBERCOUNT) {
-
-            String[] parts = request.cursor().split("_");
-            long subscriberCountCursor = Long.parseLong(parts[0]);
-            LocalDateTime afterCursor = LocalDateTime.parse(parts[1]);
-
-            query = new InterestCursorQuery(
-                    query.orderBy(),
-                    query.direction(),
-                    query.nameCursor(),          // NAME 정렬이면 그대로
-                    subscriberCountCursor,       // 새로 지정
-                    afterCursor,                 // 새로 지정
-                    query.limit(),
-                    query.keyword()
-            );
-        }
-        return query;
     }
 
     @Override
