@@ -38,6 +38,7 @@ public enum ErrorCode {
 
     // Article
     ARTICLE_NOT_FOUND("해당 기사를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    ARTICLE_ALREADY_DELETED("이미 삭제된 기사입니다.", HttpStatus.NOT_FOUND),
 
     // Global
     INVALID_ARGUMENT("입력값이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
