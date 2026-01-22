@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 
@@ -25,7 +26,7 @@ public class MDCLoggingInterceptor extends OncePerRequestFilter {
     public static final String HEADER_CLIENT_IP = "Header-Client-Ip";
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
@@ -38,10 +39,15 @@ public class MDCLoggingInterceptor extends OncePerRequestFilter {
         response.setHeader(HEADER_REQUEST_ID, requestId);
         response.setHeader(HEADER_CLIENT_IP, clientIp);
 
+        long start = System.currentTimeMillis();
+        String method = request.getMethod();
+        String uri = request.getRequestURI();
         try {
+            log.info("[REQ] {} {}", method, uri);
             filterChain.doFilter(request, response);
         } finally {
-
+            log.info("[RES] {} {} -> {} ({} ms)",
+                    method, uri, response.getStatus(), System.currentTimeMillis() - start);
             MDC.clear();
         }
     }
@@ -67,4 +73,5 @@ public class MDCLoggingInterceptor extends OncePerRequestFilter {
         }
         return request.getRemoteAddr();
     }
+
 }
