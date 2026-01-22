@@ -5,7 +5,7 @@ import com.codeit.monew.domain.articleView.dto.response.ArticleViewDto;
 import com.codeit.monew.domain.articleView.entity.ArticleView;
 import com.codeit.monew.domain.comment.entity.Comment;
 import com.codeit.monew.domain.commentuserlike.entity.CommentUserLike;
-import com.codeit.monew.domain.interest.dto.response.InterestSubScriptionResponse;
+import com.codeit.monew.domain.interest.dto.response.InterestSubscriptionResponse;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.mapper.InterestSubscriptionMapper;
 import com.codeit.monew.domain.interestuser.entity.InterestUser;
@@ -48,7 +48,7 @@ public class UserActivityMapper {
         );
     }
 
-    private List<InterestSubScriptionResponse> toSubscriptionDtos(User user, List<Interest> interests) {
+    private List<InterestSubscriptionResponse> toSubscriptionDtos(User user, List<Interest> interests) {
         return interests.stream()
                 .map(i -> subscriptionMapper.toDto(i, new InterestUser(user, i)))
                 .collect(Collectors.toList());

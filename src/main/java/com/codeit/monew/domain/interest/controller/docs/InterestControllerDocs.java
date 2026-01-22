@@ -4,7 +4,7 @@ import com.codeit.monew.domain.interest.dto.request.InterestCreatedRequest;
 import com.codeit.monew.domain.interest.dto.request.InterestCursorPageRequest;
 import com.codeit.monew.domain.interest.dto.request.InterestUpdateRequest;
 import com.codeit.monew.domain.interest.dto.response.InterestCommonResponse;
-import com.codeit.monew.domain.interest.dto.response.InterestSubScriptionResponse;
+import com.codeit.monew.domain.interest.dto.response.InterestSubscriptionResponse;
 import com.codeit.monew.global.dto.ErrorResponse;
 import com.codeit.monew.global.dto.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -104,14 +104,14 @@ public interface InterestControllerDocs {
             description = "관심사를 구독합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "구독 성공하였습니다.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = InterestSubScriptionResponse.class))),
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = InterestSubscriptionResponse.class))),
                     @ApiResponse(responseCode = "404", description = "요청한 리소스(관심사)를 찾을 수 없음",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(responseCode = "500", description = "서버 내부 오류",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
-    ResponseEntity<InterestSubScriptionResponse> subscribe(
+    ResponseEntity<InterestSubscriptionResponse> subscribe(
             @Parameter(description = "요청 사용자 ID", required = true, example = "302c88f3-c4f1-4817-a08d-a385daf6944d")
             @RequestHeader("Monew-Request-User-ID") UUID userId,
 
