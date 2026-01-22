@@ -9,9 +9,9 @@ public record UserActivityCommentLikeDto(
         UUID commentId,
         UUID articleId,
         String articleTitle,
-        UUID CommentUserId,
-        String CommentUserNickname,
-        String CommentContent,
-        Long CommentLikeCount,
-        LocalDateTime CommentCreatedAt
+        UUID commentUserId,
+        String commentUserNickname,
+        String commentContent,
+        Long commentLikeCount,
+        LocalDateTime commentCreatedAt
 ){}
