@@ -1,7 +1,7 @@
 package com.codeit.monew.domain.userActivity.dto;
 
 import com.codeit.monew.domain.articleView.dto.response.ArticleViewDto;
-import com.codeit.monew.domain.interest.dto.response.InterestSubScriptionResponse;
+import com.codeit.monew.domain.interest.dto.response.InterestSubscriptionResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -11,7 +11,7 @@ public record UserActivityDto(
         String email,
         String nickname,
         String createdAt,
-        List<InterestSubScriptionResponse> subscriptions,
+        List<InterestSubscriptionResponse> subscriptions,
         List<UserActivityCommentDto> comments,
         List<UserActivityCommentLikeDto> commentLikes,
         List<ArticleViewDto> articleViews
