@@ -141,12 +141,6 @@ public class CommentServiceImpl implements CommentService {
                         })
                         .toList();
 
-        if (orderBy == CommentOrderBy.likeCount) {
-            content = content.stream()
-                    .sorted((a, b) ->
-                            b.createdAt().compareTo(a.createdAt()))
-                    .toList();
-        }
 
         String nextCursor = null;
         LocalDateTime nextAfter = null;

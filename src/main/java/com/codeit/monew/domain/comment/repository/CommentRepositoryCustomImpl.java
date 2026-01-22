@@ -37,7 +37,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
         BooleanExpression cursorCondition =
                 switch (orderBy) {
                     case createdAt -> createdAtCursorCondition(cursor);
-                    case likeCount -> likeCountCursorCondition(cursor);
+                    case likeCount -> null;
                 };
 
         // 조회
@@ -61,7 +61,9 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
                         .limit(limit + 1)
                         .fetch();
 
-        boolean hasNext = results.size() > limit;
+        boolean hasNext =
+                orderBy == CommentOrderBy.createdAt
+                && results.size() > limit;
         if (hasNext) {
             results.remove(limit);
         }
@@ -69,35 +71,26 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
         return new SliceImpl<>(results, PageRequest.of(0, limit), hasNext);
     }
 
-    private BooleanExpression likeCountCursorCondition(String cursor) {
-        if (cursor == null) { return null; }
-
-        String[] parts = cursor.split("_");
-        if (parts.length != 2) return null;
-
-        long cursorLikeCount = Long.parseLong(parts[0]);
-        UUID cursorId = UUID.fromString(parts[1]);
-
-        NumberExpression<Long> likeCount = like.id.countDistinct();
-
-        return likeCount.lt(cursorLikeCount)
-                .or(likeCount.eq(cursorLikeCount)
-                        .and(comment.id.lt(cursorId)));
-    }
-
     private BooleanExpression createdAtCursorCondition(String cursor) {
-        if (cursor == null) { return null; }
+        if (cursor == null || cursor.isBlank()) {
+            return null;
+        }
 
         String[] parts = cursor.split("_");
         if (parts.length != 2) {
             return null;
         }
+
         LocalDateTime cursorCreatedAt = LocalDateTime.parse(parts[0]);
         UUID cursorId = UUID.fromString(parts[1]);
 
-        return comment.createdAt.lt(cursorCreatedAt).or(comment.createdAt.eq(cursorCreatedAt)
-                .and(comment.id.lt(cursorId)));
+        return comment.createdAt.lt(cursorCreatedAt)
+                .or(
+                        comment.createdAt.eq(cursorCreatedAt)
+                                .and(comment.id.lt(cursorId))
+                );
     }
+
 
     private OrderSpecifier<?>[] orderSpecifiers(CommentOrderBy orderBy) {
         return switch (orderBy) {
