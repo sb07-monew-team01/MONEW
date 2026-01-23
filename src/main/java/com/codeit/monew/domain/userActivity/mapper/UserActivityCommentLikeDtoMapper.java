@@ -5,7 +5,7 @@ import com.codeit.monew.domain.comment.entity.Comment;
 import com.codeit.monew.domain.commentuserlike.entity.CommentUserLike;
 import com.codeit.monew.domain.commentuserlike.repository.CommentUserLikeRepository;
 import com.codeit.monew.domain.user.entity.User;
-import com.codeit.monew.domain.userActivity.dto.UserActivityCommentLikeDto;
+import com.codeit.monew.domain.userActivity.entity.UserActivityCommentLike;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,11 +16,11 @@ public class UserActivityCommentLikeDtoMapper {
         this.commentUserLikeRepository = commentUserLikeRepository;
     }
 
-    public UserActivityCommentLikeDto toDto(CommentUserLike commentUserLike) {
+    public UserActivityCommentLike toDto(CommentUserLike commentUserLike) {
         Comment comment = commentUserLike.getComment();
         Article article = comment.getArticle();
         User user = commentUserLike.getUser();
-        return new UserActivityCommentLikeDto(
+        return new UserActivityCommentLike(
                 commentUserLike.getId(),
                 commentUserLike.getCreatedAt(),
                 comment.getId(),

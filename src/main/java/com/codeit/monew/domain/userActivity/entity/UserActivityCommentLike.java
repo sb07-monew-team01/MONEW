@@ -1,9 +1,9 @@
-package com.codeit.monew.domain.userActivity.dto;
+package com.codeit.monew.domain.userActivity.entity;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record UserActivityCommentLikeDto(
+public record UserActivityCommentLike(
         UUID id,
         LocalDateTime createdAt,
         UUID commentId,
