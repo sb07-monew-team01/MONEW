@@ -15,6 +15,8 @@ import com.codeit.monew.domain.interest.repository.InterestRepositoryCustomImpl;
 import com.codeit.monew.domain.interest.vo.InterestOrderBy;
 import com.codeit.monew.domain.interest.vo.NextCursor;
 import com.codeit.monew.domain.interestuser.repository.InterestUserRepository;
+import com.codeit.monew.global.aop.annotation.LogExecution;
+import com.codeit.monew.global.aop.annotation.LogTag;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.global.enums.ErrorCode;
 import jakarta.persistence.EntityManager;
@@ -28,6 +30,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@LogExecution(tag= LogTag.INTEREST)
 public class InterestServiceImpl implements InterestService{
     private final InterestRepository interestRepository;
     private final InterestNamePolicy interestNamePolicy;
@@ -42,6 +45,7 @@ public class InterestServiceImpl implements InterestService{
     @Transactional(readOnly = true)
     public PageResponse<InterestCommonResponse> getInterests(UUID userId, InterestCursorPageRequest request) {
         InterestCursorQuery query = interestQueryMapper.toQuery(request);
+        System.out.println("2: ******************* "+ query.orderBy() + " - " + query.direction() + " : " + query.after() + "******************* ");
         Slice<Interest> slice = interestRepositoryCustom.findAllByCursor(query);
 
         List<InterestCommonResponse> content = slice.getContent().stream()
@@ -50,7 +54,7 @@ public class InterestServiceImpl implements InterestService{
                 interestUserRepository.existsByUserIdAndInterestId(userId, interest.getId())
             )
         ).toList();
-
+        System.out.println("3: ******************* "+ query.orderBy() + " - " + query.direction() + " : " + query.after() + "******************* ");
         NextCursor nextCursor = NextCursor.from(slice,
                 InterestOrderBy.fromString(request.orderBy()).orElse(InterestOrderBy.NAME));
 
