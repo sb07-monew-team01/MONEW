@@ -14,7 +14,7 @@ public class SimilarityInterestNamePolicy implements InterestNamePolicy {
     private static final double SIMILARITY_THRESHOLD = 0.8;
     private final JaroWinklerSimilarity similarity = new JaroWinklerSimilarity();
 
-    //80% 이상 유사한가를 체크하고, 유사하면 예외를 발생시키는 메소드
+    //80% 이상 유사한가를 체크하고 유사하면 예외를 발생시키는 메소드
     @Override
     public void apply(String name, List<Interest> list) {
         list.forEach(interest -> {
