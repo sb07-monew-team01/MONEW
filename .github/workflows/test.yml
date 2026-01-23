@@ -1,17 +1,18 @@
-name: CI - Test
+name: CI - Test and Update Badge
 
 on:
   push:
     branches:
-      - dev  # dev에 merge/push 될 때만 뱃지 파일을 실제로 커밋함
+      - dev
+      - 'feat/**'
   pull_request:
     branches:
-      - dev  # PR 시에는 테스트만 수행하고 뱃지 커밋은 건너뜀
+      - dev
+      - 'feat/**'
 
 jobs:
-  test:
+  test-and-badge:
     runs-on: ubuntu-latest
-    # [중요] 토큰 없이 레포지토리에 파일을 쓰기 위한 권한 설정
     permissions:
       contents: write
 
@@ -30,5 +31,20 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build and Test with Gradle
-        # jacocoTestReport가 실행되어야 build/reports/jacoco/test/ 경로에 리포트가 생성됨
         run: ./gradlew test jacocoTestReport
+
+      - name: Generate JaCoCo Badge
+        id: jacoco
+        uses: cicirello/jacoco-badge-generator@v2
+        with:
+          jacoco-csv-file: build/reports/jacoco/test/jacocoTestReport.csv
+          badges-directory: .github/badges
+          generate-branches-badge: true
+
+      - name: Commit and push the badge
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feat/')
+        uses: EndBug/add-and-commit@v9
+        with:
+          default_author: github_actions
+          message: 'docs: update coverage badge [skip ci]'
+          add: '.github/badges/*.svg'
