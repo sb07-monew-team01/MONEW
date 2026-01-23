@@ -8,9 +8,11 @@ import com.codeit.monew.domain.interest.dto.response.InterestCommonResponse;
 import com.codeit.monew.domain.interest.dto.response.InterestSubscriptionResponse;
 import com.codeit.monew.domain.interest.service.InterestService;
 import com.codeit.monew.domain.interestuser.service.InterestUserService;
+import com.codeit.monew.global.annotation.LogExecution;
 import com.codeit.monew.global.dto.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/interests")
+@LogExecution
 public class InterestController implements InterestControllerDocs {
     private final InterestService interestService;
     private final InterestUserService interestUserService;
