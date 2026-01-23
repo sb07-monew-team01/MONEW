@@ -26,7 +26,13 @@ spring:
           order_inserts: true      # 같은 테이블 insert끼리 묶어서 속도 향상
           order_updates: true      # 같은 테이블 update끼리 묶음
     open-in-view: false # ????? Controller?? ?? ?? ??. N+1 ??? ????? ???? ? (?? ??)
-
+  data:
+    mongodb:
+      uri:
+      port: 27017
+      database: monew
+      username: monew
+      password:
 
 logging:
   level:
@@ -64,3 +70,10 @@ info:
     encoding: UTF-8
     java-version: 17
     spring-version: 3.5.9
+aws:
+  s3:
+    bucket:
+      access-key: asd
+      secret-key: asd
+      region: ap-northeast-2
+      name: bucket-name
