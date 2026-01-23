@@ -30,9 +30,11 @@ public class NextCursor {
     }
 
     private static String resolveCursor(Interest interest, InterestOrderBy orderBy) {
-        return switch (orderBy) {
+        String parsedCursor = switch (orderBy) {
             case NAME -> interest.getName();
-            case SUBSCRIBERCOUNT -> interest.getSubscriberCount() + "_" + interest.getCreatedAt();
+            case SUBSCRIBERCOUNT -> interest.getSubscriberCount()+"";
         };
+        parsedCursor += ("_" + interest.getCreatedAt());
+        return parsedCursor;
     }
 }
