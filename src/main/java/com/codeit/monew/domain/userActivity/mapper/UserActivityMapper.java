@@ -5,9 +5,9 @@ import com.codeit.monew.domain.articleView.dto.response.ArticleViewDto;
 import com.codeit.monew.domain.articleView.entity.ArticleView;
 import com.codeit.monew.domain.comment.entity.Comment;
 import com.codeit.monew.domain.commentuserlike.entity.CommentUserLike;
-import com.codeit.monew.domain.interest.dto.response.InterestSubScriptionResponse;
+import com.codeit.monew.domain.interest.dto.response.InterestSubscriptionResponse;
 import com.codeit.monew.domain.interest.entity.Interest;
-import com.codeit.monew.domain.interest.mapper.InterestSubScriptionMapper;
+import com.codeit.monew.domain.interest.mapper.InterestSubscriptionMapper;
 import com.codeit.monew.domain.interestuser.entity.InterestUser;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.userActivity.dto.UserActivityCommentDto;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserActivityMapper {
 
-    private final InterestSubScriptionMapper subscriptionMapper;
+    private final InterestSubscriptionMapper subscriptionMapper;
     private final ArticleViewMapper articleViewMapper;
     private final UserActivityCommentDtoMapper commentDtoMapper;
     private final UserActivityCommentLikeDtoMapper commentUserLikeMapper;
@@ -48,7 +48,7 @@ public class UserActivityMapper {
         );
     }
 
-    private List<InterestSubScriptionResponse> toSubscriptionDtos(User user, List<Interest> interests) {
+    private List<InterestSubscriptionResponse> toSubscriptionDtos(User user, List<Interest> interests) {
         return interests.stream()
                 .map(i -> subscriptionMapper.toDto(i, new InterestUser(user, i)))
                 .collect(Collectors.toList());

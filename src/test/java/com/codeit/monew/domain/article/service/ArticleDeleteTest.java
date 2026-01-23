@@ -1,6 +1,7 @@
 package com.codeit.monew.domain.article.service;
 
 import com.codeit.monew.domain.article.entity.Article;
+import com.codeit.monew.domain.article.exception.ArticleAlreadyDeletedException;
 import com.codeit.monew.domain.article.exception.ArticleNotFoundException;
 import com.codeit.monew.domain.article.fixture.ArticleFixture;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
@@ -64,18 +65,19 @@ public class ArticleDeleteTest {
         }
 
         @Test
-        @DisplayName("이미 삭제된 기사면 예외가 발생한다. 예외명은 ArticleNotFoundException")
+        @DisplayName("이미 삭제된 기사면 예외가 발생한다. 예외명은 ArticleAlreadyDeletedException")
         void softDelete_alreadySoftDeletedArticle_fail() {
             // given
             UUID articleId = UUID.randomUUID();
             Article article = ArticleFixture.createDefaultEntity();
             article.softDelete();
+            System.out.println("article.isDeleted() = " + article.isDeleted());
             given(articleRepository.findById(articleId)).willReturn(Optional.of(article));
 
             // when & then
             // Swagger 문서에서 이미 논리 삭제된 기사는 "기사를 찾을 수 없습니다"
             assertThatThrownBy(() -> articleService.softDelete(articleId))
-                    .isInstanceOf(ArticleNotFoundException.class);
+                    .isInstanceOf(ArticleAlreadyDeletedException.class);
 
             then(articleRepository).should().findById(articleId);
         }

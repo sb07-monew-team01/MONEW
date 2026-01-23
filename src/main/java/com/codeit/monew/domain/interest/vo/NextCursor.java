@@ -32,7 +32,7 @@ public class NextCursor {
     private static String resolveCursor(Interest interest, InterestOrderBy orderBy) {
         return switch (orderBy) {
             case NAME -> interest.getName();
-            case SUBSCRIBERCOUNT -> String.valueOf(interest.getSubscriberCount());
+            case SUBSCRIBERCOUNT -> interest.getSubscriberCount() + "_" + interest.getCreatedAt();
         };
     }
 }

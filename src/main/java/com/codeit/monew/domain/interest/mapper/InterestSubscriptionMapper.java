@@ -1,17 +1,15 @@
 package com.codeit.monew.domain.interest.mapper;
 
-import com.codeit.monew.domain.interest.dto.response.InterestSubScriptionResponse;
+import com.codeit.monew.domain.interest.dto.response.InterestSubscriptionResponse;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interestkeyword.entity.InterestKeyword;
 import com.codeit.monew.domain.interestuser.entity.InterestUser;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
-
 @Component
-public class InterestSubScriptionMapper {
-    public InterestSubScriptionResponse toDto(Interest interest, InterestUser interestUser) {
-        return new InterestSubScriptionResponse(
+public class InterestSubscriptionMapper {
+    public InterestSubscriptionResponse toDto(Interest interest, InterestUser interestUser) {
+        return new InterestSubscriptionResponse(
             interestUser.getId(),
             interest.getId(),
             interest.getName(),

@@ -1,5 +1,6 @@
 package com.codeit.monew.domain.interest.service;
 
+import com.codeit.monew.domain.interest.dto.query.InterestCursorQuery;
 import com.codeit.monew.domain.interest.dto.request.InterestCreatedRequest;
 import com.codeit.monew.domain.interest.dto.request.InterestCursorPageRequest;
 import com.codeit.monew.domain.interest.dto.request.InterestUpdateRequest;
@@ -13,7 +14,6 @@ import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.domain.interest.repository.InterestRepositoryCustomImpl;
 import com.codeit.monew.domain.interest.vo.InterestOrderBy;
 import com.codeit.monew.domain.interest.vo.NextCursor;
-import com.codeit.monew.domain.interest.vo.SortDirection;
 import com.codeit.monew.domain.interestuser.repository.InterestUserRepository;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.global.enums.ErrorCode;
@@ -41,20 +41,18 @@ public class InterestServiceImpl implements InterestService{
     @Override
     @Transactional(readOnly = true)
     public PageResponse<InterestCommonResponse> getInterests(UUID userId, InterestCursorPageRequest request) {
-        InterestOrderBy orderBy = InterestOrderBy.fromString(request.orderBy()).orElse(InterestOrderBy.NAME);
-        SortDirection direction = SortDirection.fromString(request.direction()).orElse(SortDirection.ASC);
-
-        Slice<Interest> slice = interestRepositoryCustom.findAllByCursor(
-                interestQueryMapper.toQuery(request)
-        );
+        InterestCursorQuery query = interestQueryMapper.toQuery(request);
+        Slice<Interest> slice = interestRepositoryCustom.findAllByCursor(query);
 
         List<InterestCommonResponse> content = slice.getContent().stream()
         .map(interest ->
             interestMapper.toDto(interest,
-            interestUserRepository.existsByUserIdAndInterestId(userId, interest.getId()))
+                interestUserRepository.existsByUserIdAndInterestId(userId, interest.getId())
+            )
         ).toList();
 
-        NextCursor nextCursor = NextCursor.from(slice, orderBy);
+        NextCursor nextCursor = NextCursor.from(slice,
+                InterestOrderBy.fromString(request.orderBy()).orElse(InterestOrderBy.NAME));
 
         return new PageResponse<>(
                 content,
