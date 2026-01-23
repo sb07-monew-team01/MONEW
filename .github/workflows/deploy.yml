@@ -82,7 +82,7 @@ jobs:
       - name: Download current task definition
         run: |
           aws ecs describe-task-definition \
-            --task-definition my-spring-app \
+            --task-definition ${{env.CONTAINER_NAME}} \
             --query taskDefinition > task-definition.json
           
           sudo apt-get update && sudo apt-get install -y jq
