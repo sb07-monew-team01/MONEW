@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - dev  # dev에 merge/push 될 때만 뱃지 파일을 실제로 커밋함
+  pull_request:
+    branches:
+      - dev  # PR 시에는 테스트만 수행하고 뱃지 커밋은 건너뜀
 
 jobs:
   test:
