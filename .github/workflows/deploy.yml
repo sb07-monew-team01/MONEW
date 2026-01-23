@@ -10,6 +10,7 @@ env:
   ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
   ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
   ECS_SERVICE: ${{ secrets.ECS_SERVICE }}
+  TASK_DEFINITION: ${{ secrets.TASK_DEFINITION }}
   CONTAINER_NAME: ${{secrets.CONTAINER_NAME}}
 
 jobs:
@@ -82,7 +83,7 @@ jobs:
       - name: Download current task definition
         run: |
           aws ecs describe-task-definition \
-            --task-definition ${{env.CONTAINER_NAME}} \
+            --task-definition ${{env.TASK_DEFINITION}} \
             --query taskDefinition > task-definition.json
           
           sudo apt-get update && sudo apt-get install -y jq
