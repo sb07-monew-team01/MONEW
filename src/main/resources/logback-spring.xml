@@ -6,7 +6,7 @@
     <conversionRule conversionWord="clr" class="org.springframework.boot.logging.logback.ColorConverter"/>
 
     <property name="LOG_PATTERN"
-              value="%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - [%X{requestId}] [%X{clientIp}] %msg%n"/>
+              value="%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - [%X{requestId:-system}] [%X{clientIp}] %msg%n"/>
     <property name="LOG_FILE_PATH" value=".logs"/>
     <property name="LOG_FILE_NAME" value="applicationLog"/>
 

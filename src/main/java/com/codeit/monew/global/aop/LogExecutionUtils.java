@@ -1,7 +1,7 @@
-package com.codeit.monew.global.config;
+package com.codeit.monew.global.aop;
 
-import com.codeit.monew.global.annotation.LogExecution;
-import com.codeit.monew.global.annotation.LogTag;
+import com.codeit.monew.global.aop.annotation.LogExecution;
+import com.codeit.monew.global.aop.annotation.LogTag;
 import com.codeit.monew.global.exception.MonewException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
