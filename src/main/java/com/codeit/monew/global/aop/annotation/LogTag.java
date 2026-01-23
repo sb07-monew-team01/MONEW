@@ -1,4 +1,4 @@
-package com.codeit.monew.global.annotation;
+package com.codeit.monew.global.aop.annotation;
 
 public enum LogTag {
     NONE,
