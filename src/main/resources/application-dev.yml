@@ -7,6 +7,12 @@ spring:
     username: monew_user                          # DB 사용자 이름
     password: monew1234                           # DB 비밀번호 (운영에선 환경변수 권장)
     driver-class-name: org.postgresql.Driver      # PostgreSQL JDBC 드라이버
+  batch:
+    jdbc:
+      initialize-schema: always
+      table-prefix: batch.BATCH_
+    job:
+      enabled: false
 
   jpa:
     hibernate:
