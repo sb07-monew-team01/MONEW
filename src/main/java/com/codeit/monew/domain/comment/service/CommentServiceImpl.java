@@ -24,12 +24,8 @@ import com.codeit.monew.domain.comment.mapper.CommentMapper;
 
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-
-import static org.jdom2.filter.Filters.comment;
-
 
 @Service
 @RequiredArgsConstructor
@@ -120,18 +116,18 @@ public class CommentServiceImpl implements CommentService {
 
         boolean hasNext = slice.hasNext();
 
-        long totalElements = commentRepository.countByArticleIdAndDeletedAtIsNull(articleId);
-
         List<CommentDto> content =
                 slice.getContent().stream()
                         .map(it -> {
                             Comment comment = it.comment();
                             long likeCount = it.likeCount();
 
-                            boolean likedByMe = userId != null && commentUserLikeRepository.existsByUserIdAndCommentId(
-                                    userId,
-                                    comment.getId()
-                            );
+                            boolean likedByMe =
+                                    userId != null &&
+                                            commentUserLikeRepository.existsByUserIdAndCommentId(
+                                                    userId,
+                                                    comment.getId()
+                                            );
 
                             return CommentMapper.toDto(
                                     comment,
@@ -141,18 +137,32 @@ public class CommentServiceImpl implements CommentService {
                         })
                         .toList();
 
-
+        // =========================
+        // nextCursor (정렬 기준과 동일)
+        // =========================
         String nextCursor = null;
         LocalDateTime nextAfter = null;
 
-        if (hasNext && !slice.getContent().isEmpty()) {
+        if (hasNext && !content.isEmpty()) {
             CommentDto last = content.get(content.size() - 1);
 
-            nextCursor =
-                    last.createdAt().toString()
-                            + "_"
-                            + last.id().toString();
+            if (orderBy == CommentOrderBy.likeCount) {
+                nextCursor =
+                        last.likeCount()
+                                + "_"
+                                + last.createdAt()
+                                + "_"
+                                + last.id();
+            } else {
+                nextCursor =
+                        last.createdAt()
+                                + "_"
+                                + last.id();
+            }
         }
+
+        long totalElements =
+                commentRepository.countByArticleIdAndDeletedAtIsNull(articleId);
 
         return new PageResponse<>(
                 content,
