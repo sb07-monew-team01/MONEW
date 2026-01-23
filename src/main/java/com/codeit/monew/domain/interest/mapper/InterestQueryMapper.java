@@ -6,6 +6,8 @@ import com.codeit.monew.domain.interest.vo.InterestOrderBy;
 import com.codeit.monew.domain.interest.vo.SortDirection;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 @Component
 public class InterestQueryMapper {
     public InterestCursorQuery toQuery(InterestCursorPageRequest request) {
@@ -26,7 +28,7 @@ public class InterestQueryMapper {
                 direction,
                 nameCursor,
                 subscriberCountCursor,
-                request.after(),
+                request.cursor()==null? null:LocalDateTime.parse(request.cursor().split("_")[1]),
                 request.limit(),
                 request.keywordValue()
         );
