@@ -1,8 +1,5 @@
 package com.codeit.monew.domain.comment.repository;
 
-import com.codeit.monew.domain.comment.dto.request.CommentOrderBy;
-import com.codeit.monew.domain.comment.dto.request.CommentWithLikeCount;
-import com.codeit.monew.domain.comment.dto.request.SortDirection;
 import com.codeit.monew.domain.commentuserlike.entity.CommentUserLike;
 import com.codeit.monew.domain.commentuserlike.repository.CommentUserLikeRepository;
 import com.codeit.monew.global.config.TestJpaAuditing;
@@ -20,7 +17,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
