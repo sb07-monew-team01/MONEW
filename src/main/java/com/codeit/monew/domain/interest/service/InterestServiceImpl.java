@@ -45,7 +45,6 @@ public class InterestServiceImpl implements InterestService{
     @Transactional(readOnly = true)
     public PageResponse<InterestCommonResponse> getInterests(UUID userId, InterestCursorPageRequest request) {
         InterestCursorQuery query = interestQueryMapper.toQuery(request);
-        System.out.println("2: ******************* "+ query.orderBy() + " - " + query.direction() + " : " + query.after() + "******************* ");
         Slice<Interest> slice = interestRepositoryCustom.findAllByCursor(query);
 
         List<InterestCommonResponse> content = slice.getContent().stream()
@@ -54,7 +53,6 @@ public class InterestServiceImpl implements InterestService{
                 interestUserRepository.existsByUserIdAndInterestId(userId, interest.getId())
             )
         ).toList();
-        System.out.println("3: ******************* "+ query.orderBy() + " - " + query.direction() + " : " + query.after() + "******************* ");
         NextCursor nextCursor = NextCursor.from(slice,
                 InterestOrderBy.fromString(request.orderBy()).orElse(InterestOrderBy.NAME));
 
