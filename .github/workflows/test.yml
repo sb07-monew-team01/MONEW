@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - dev  # dev에 merge/push 될 때만 뱃지 파일을 실제로 커밋함
-  pull_request:
-    branches:
-      - dev  # PR 시에는 테스트만 수행하고 뱃지 커밋은 건너뜀
+#  pull_request:
+#    branches:
+#      - dev  # PR 시에는 테스트만 수행하고 뱃지 커밋은 건너뜀
 
 jobs:
   test:
@@ -42,14 +42,27 @@ jobs:
           badges-directory: .github/badges
           generate-branches-badge: true
 
-      # Step 2: 생성된 뱃지 파일을 레포지토리에 자동 커밋 및 푸시
-      # push 이벤트일 때만 동작하도록 설정 (PR 시 불필요한 커밋 방지)
-      - name: Commit and push the badge
-        # if: github.event_name == 'push'
-        # dev 브랜치가 갱신될 때
-        if: github.ref == 'refs/heads/dev'
-        uses: EndBug/add-and-commit@v9
+      # 자동 브랜치 생성 + PR 생성
+      - name: Create Pull Request with badge
+        if: github.ref == 'refs/heads/dev'  # dev 브랜치에 merge/push 이벤트일 때만
+        uses: peter-evans/create-pull-request@v5
         with:
-          default_author: github_actions
-          message: 'docs: update coverage badge [skip ci]'
-          add: '.github/badges/*.svg'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'docs: update coverage badge [skip ci]'
+          branch: "update-badge-${{ github.run_id }}"  # 자동으로 브랜치 생성
+          title: "Update JaCoCo coverage badge"
+          body: "Automated PR to update coverage badge"
+          base: dev
+          path: ".github/badges/*.svg"
+#
+      # Step 2: 생성된 뱃지 파일을 레포지토리에 자동 커밋 및 푸시
+#      # push 이벤트일 때만 동작하도록 설정 (PR 시 불필요한 커밋 방지)
+#      - name: Commit and push the badge
+#        # if: github.event_name == 'push'
+#        # dev 브랜치가 갱신될 때
+#        if: github.ref == 'refs/heads/dev'
+#        uses: EndBug/add-and-commit@v9
+#        with:
+#          default_author: github_actions
+#          message: 'docs: update coverage badge [skip ci]'
+#          add: '.github/badges/*.svg'
