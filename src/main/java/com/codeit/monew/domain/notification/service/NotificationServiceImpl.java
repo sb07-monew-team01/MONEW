@@ -1,5 +1,7 @@
 package com.codeit.monew.domain.notification.service;
 
+import com.codeit.monew.global.aop.annotation.LogExecution;
+import com.codeit.monew.global.aop.annotation.LogTag;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.domain.notification.dto.request.*;
 import com.codeit.monew.domain.notification.dto.response.NotificationDto;
@@ -20,6 +22,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@LogExecution(tag = LogTag.NOTIFICATION)
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;

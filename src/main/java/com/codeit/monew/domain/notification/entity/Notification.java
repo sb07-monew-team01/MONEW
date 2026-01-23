@@ -34,6 +34,7 @@ public class Notification extends BaseUpdatableEntity {
     private Boolean confirmed;
 
     private Notification(UUID userId, UUID resourceId, ResourceType resourceType, String content) {
+
         this.userId = userId;
         this.resourceId = resourceId;
         this.resourceType = resourceType;

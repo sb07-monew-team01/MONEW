@@ -7,6 +7,8 @@ import com.codeit.monew.domain.notification.dto.request.NotificationUpdateAllReq
 import com.codeit.monew.domain.notification.dto.request.NotificationUpdateRequest;
 import com.codeit.monew.domain.notification.dto.response.NotificationDto;
 import com.codeit.monew.domain.notification.service.NotificationService;
+import com.codeit.monew.global.aop.annotation.LogExecution;
+import com.codeit.monew.global.aop.annotation.LogTag;
 import com.codeit.monew.global.dto.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/notifications")
+@LogExecution(tag = LogTag.NOTIFICATION)
 public class NotificationController implements NotificationDocs {
 
     private final NotificationService notificationService;
