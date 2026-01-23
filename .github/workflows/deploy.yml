@@ -99,7 +99,14 @@ jobs:
           .enableFaultInjection
           )' task-definition.json > task-definition-clean.json
           
-          mv task-definition-clean.json task-definition.json      
+          mv task-definition-clean.json task-definition.json  
+
+      # 8-1. Debug: 실제 containerDefinitions.name 확인
+      - name: Debug container name
+        run: |
+          echo "=== containerDefinitions names ==="
+          cat task-definition.json | jq '.containerDefinitions[].name'
+          echo "==============================="
       
       # 9. Task Definition에 새 이미지 반영
       - name: Fill in the new image ID in task definition
