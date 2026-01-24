@@ -1,7 +1,9 @@
 package com.codeit.monew.domain.userActivity.entity;
 
 import com.codeit.monew.domain.user.entity.User;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -12,6 +14,8 @@ import java.util.UUID;
 
 @Getter
 @Document(collection = "user_activities")
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserActivity {
     @Id
     private String id;

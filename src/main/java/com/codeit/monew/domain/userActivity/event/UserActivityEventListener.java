@@ -1,5 +1,6 @@
 package com.codeit.monew.domain.userActivity.event;
 
+import com.codeit.monew.domain.userActivity.event.dto.*;
 import com.codeit.monew.domain.userActivity.service.UserActivityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -40,6 +41,15 @@ public class UserActivityEventListener {
         userActivityService.addArticleView(
                 event.userId(),
                 event.articleView()
+        );
+    }
+
+    @EventListener
+    public void handleInterestSubscribed(InterestSubscribedEvent event) {
+        userActivityService.addSubscription(
+                event.userId(),
+                event.interest(),
+                event.interestUser()
         );
     }
 

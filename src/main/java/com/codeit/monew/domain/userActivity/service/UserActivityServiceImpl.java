@@ -5,6 +5,7 @@ import com.codeit.monew.domain.articleView.entity.ArticleView;
 import com.codeit.monew.domain.comment.entity.Comment;
 import com.codeit.monew.domain.commentuserlike.entity.CommentUserLike;
 import com.codeit.monew.domain.interest.entity.Interest;
+import com.codeit.monew.domain.interestkeyword.entity.InterestKeyword;
 import com.codeit.monew.domain.interestuser.entity.InterestUser;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
@@ -36,12 +37,6 @@ public class UserActivityServiceImpl implements UserActivityService {
         return Query.query(Criteria.where("userId").is(userId));
     }
 
-    public UserActivityDto createUserActivity(User user) {
-        UserActivity userActivity = new UserActivity(user);
-        userActivityRepository.save(userActivity);
-        return userActivityMapper.toDto(userActivity);
-    }
-
     public UserActivityDto getByUserId(UUID userId) {
         UserActivity activity = userActivityRepository.getByUserId(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
@@ -50,7 +45,12 @@ public class UserActivityServiceImpl implements UserActivityService {
         return userActivityMapper.toDto(activity);
     }
 
-    public UserActivityDto addComment(UUID userId, Comment comment, Article article, Long commentUserLikeCount) {
+    public void createUserActivity(User user) {
+        UserActivity userActivity = new UserActivity(user);
+        userActivityRepository.save(userActivity);
+    }
+
+    public void addComment(UUID userId, Comment comment, Article article, Long commentUserLikeCount) {
         UserActivityComment newComment = new UserActivityComment(
                 comment.getId(),
                 article.getId(),
@@ -74,10 +74,9 @@ public class UserActivityServiceImpl implements UserActivityService {
                 UserActivity.class);
         if (userActivity == null)
             throw new UserNotFoundException(userId);
-        return userActivityMapper.toDto(userActivity);
     }
 
-    public UserActivityDto addCommentLike(UUID userId, CommentUserLike commentLike, Long commentLikeCount) {
+    public void addCommentLike(UUID userId, CommentUserLike commentLike, Long commentLikeCount) {
         Comment comment = commentLike.getComment();
         Article article = comment.getArticle();
         User commentUser = comment.getUser();
@@ -105,10 +104,9 @@ public class UserActivityServiceImpl implements UserActivityService {
         );
         if(userActivity == null)
             throw new UserNotFoundException(userId);
-        return userActivityMapper.toDto(userActivity);
     }
 
-    public UserActivityDto addArticleView(UUID userId, ArticleView articleView) {
+    public void addArticleView(UUID userId, ArticleView articleView) {
         Article article = articleView.getArticle();
         UserActivityArticleView newArticleView = new UserActivityArticleView(
                 articleView.getId(),
@@ -136,16 +134,15 @@ public class UserActivityServiceImpl implements UserActivityService {
                 UserActivity.class);
         if (userActivity == null)
             throw new UserNotFoundException(userId);
-        return userActivityMapper.toDto(userActivity);
     }
 
-    public UserActivityDto addSubscription(UUID userId, Interest interest, InterestUser interestUser) {
+    public void addSubscription(UUID userId, Interest interest, InterestUser interestUser) {
         UserActivityInterestSubscription newSubscription = new UserActivityInterestSubscription(
                 interestUser.getId(),
                 interest.getId(),
                 interest.getName(),
                 interest.getKeywords().stream()
-                        .map(Object::toString)
+                        .map(InterestKeyword::getKeyword)
                         .toList(),
                 interest.getSubscriberCount(),
                 interestUser.getCreatedAt()
@@ -153,7 +150,6 @@ public class UserActivityServiceImpl implements UserActivityService {
         Update update = new Update()
                 .push("subscriptions")
                 .atPosition(Update.Position.FIRST)
-                .slice(10)
                 .value(newSubscription);
         UserActivity userActivity = mongoTemplate.findAndModify(
                 queryByUserId(userId),
@@ -162,7 +158,6 @@ public class UserActivityServiceImpl implements UserActivityService {
                 UserActivity.class);
         if (userActivity == null)
             throw new UserNotFoundException(userId);
-        return userActivityMapper.toDto(userActivity);
     }
 
     public void removeSubscription(UUID userId, UUID interestId) {

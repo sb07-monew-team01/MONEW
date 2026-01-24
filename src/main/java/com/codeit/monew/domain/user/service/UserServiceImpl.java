@@ -1,12 +1,17 @@
 package com.codeit.monew.domain.user.service;
 
 import com.codeit.monew.domain.user.dto.UserDto;
-import com.codeit.monew.domain.user.dto.request.*;
+import com.codeit.monew.domain.user.dto.request.UserLoginRequest;
+import com.codeit.monew.domain.user.dto.request.UserSignUpRequest;
+import com.codeit.monew.domain.user.dto.request.UserUpdateRequest;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.*;
 import com.codeit.monew.domain.user.repository.UserRepository;
 import com.codeit.monew.domain.user.util.UserMapper;
+import com.codeit.monew.domain.userActivity.event.dto.UserCreatedEvent;
+import com.codeit.monew.domain.userActivity.event.dto.UserDeletedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,8 +24,8 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
     private final UserMapper userMapper;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional
     @Override
@@ -29,6 +34,9 @@ public class UserServiceImpl implements UserService {
         if (byEmail.isEmpty()) {
             User user = new User(request.email(), request.nickname(), request.password());
             User saved = userRepository.save(user);
+
+            publisher.publishEvent(new UserCreatedEvent(saved));
+
             return userMapper.toDto(saved);
         }
 
@@ -69,6 +77,7 @@ public class UserServiceImpl implements UserService {
             throw new UserNotAuthorizedException(loginId, deleteId);
         User user = userRepository.findById(deleteId)
                 .orElseThrow(() -> new UserNotFoundException(deleteId));
+        publisher.publishEvent(new UserDeletedEvent(deleteId));
         userRepository.delete(user);
     }
 
