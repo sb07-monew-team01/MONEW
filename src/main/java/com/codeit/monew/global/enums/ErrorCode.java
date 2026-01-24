@@ -1,0 +1,57 @@
+package com.codeit.monew.global.enums;
+
+import org.springframework.http.HttpStatus;
+
+public enum ErrorCode {
+    // 400 Bad Request
+    // User
+    USER_LOGIN_FAILED("아이디와 비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED),
+    EMAIL_RECENTLY_DELETED("해당 이메일은 최근 삭제된 계정으로 재가입이 제한됩니다.", HttpStatus.CONFLICT),
+    EMAIL_ALREADY_EXISTS("이미 가입된 이메일입니다.", HttpStatus.CONFLICT),
+    USER_NOT_FOUND("존재하지 않는 유저입니다.", HttpStatus.NOT_FOUND),
+    USER_ALREADY_DELETED("이미 삭제된 유저입니다.", HttpStatus.BAD_REQUEST),
+    USER_NOT_AUTHORIZED("사용자 권한이 없습니다.", HttpStatus.FORBIDDEN),
+
+    // Interest
+    INTEREST_NOT_FOUND("해당 관심사를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    INTEREST_NAME_TOO_SIMILAR("이미 유사한 이름의 관심사가 존재합니다.", HttpStatus.CONFLICT),
+    INTEREST_KEYWORD_DUPLICATE("같은 관심사 내에 중복 키워드가 존재합니다.", HttpStatus.CONFLICT),
+    INTEREST_EMPTY_KEYWORD("관심사에 등록된 키워드가 없습니다.", HttpStatus.BAD_REQUEST),
+    INTEREST_NULL_KEYWORD("키워드가 null일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    TOO_MANY_KEYWORD("키워드가 10개를 초과합니다.", HttpStatus.BAD_REQUEST),
+
+    // InterestUser
+    INTERESTUSER_NOT_FOUND("해당 구독을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    ALREADY_SUBSCRIBED("이미 구독 상태입니다.", HttpStatus.CONFLICT),
+
+    // Comment
+    COMMENT_EMPTY_CONTENT("댓글 내용이 null일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    COMMENT_TOO_LONG("댓글 내용은 500자 이하여야 합니다.", HttpStatus.BAD_REQUEST),
+    COMMENT_ALREADY_DELETE("이미 삭제된 댓글입니다.", HttpStatus.CONFLICT),
+    COMMENT_NOT_FOUND("해당 댓글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    // Comment Like
+    COMMENT_ALREADY_LIKED("이미 좋아요를 누른 댓글입니다.", HttpStatus.CONFLICT),
+    COMMENT_USER_LIKE_NOT_FOUND("취소할 좋아요가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+
+    //Notification
+    NOTIFICATION_NOT_FOUND("해당 알림을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
+
+    // Article
+    ARTICLE_NOT_FOUND("해당 기사를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    ARTICLE_ALREADY_DELETED("이미 삭제된 기사입니다.", HttpStatus.NOT_FOUND),
+
+    // Global
+    INVALID_ARGUMENT("입력값이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
+
+    // 500
+    // Global
+    INTERNAL_SERVER_ERROR("서버 내부 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+
+    public final String description;
+    public final HttpStatus httpStatus;
+
+    ErrorCode(String description, HttpStatus httpStatus) {
+        this.description = description;
+        this.httpStatus = httpStatus;
+    }
+}

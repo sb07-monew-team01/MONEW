@@ -1,0 +1,74 @@
+package com.codeit.monew.domain.article.fixture;
+
+import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
+import com.codeit.monew.domain.article.entity.ArticleSource;
+
+import java.time.LocalDateTime;
+import java.util.Random;
+import java.util.UUID;
+
+public class ArticleCreateRequestFixture {
+    public static ArticleCreateRequest createDefault() {
+        return new ArticleCreateRequest(
+                ArticleSource.NAVER,
+                "http://target.com",
+                "test-title",
+                LocalDateTime.now(),
+                "test summary",
+                UUID.randomUUID()
+        );
+    }
+
+    public static ArticleCreateRequest createWithTitleAndSummary(String title, String summary) {
+        return new ArticleCreateRequest(
+                ArticleSource.NAVER,
+                "http//target.com",
+                title,
+                LocalDateTime.now(),
+                summary,
+                UUID.randomUUID());
+    }
+
+    public static ArticleCreateRequest createDummy(int s, int d) {
+
+        ArticleSource source = switch (s) {
+            case 0 -> ArticleSource.NAVER;
+            case 1 -> ArticleSource.HANKYUNG;
+            case 2 -> ArticleSource.CHOSUN;
+            default -> ArticleSource.YEONHAP;
+        };
+
+        Random random = new Random();
+
+        return new ArticleCreateRequest(
+                source,
+                "http://" + random.nextInt(1000) + source + ".com",
+                source.name() + " 뉴스_" + random.nextInt(1000),
+                LocalDateTime.now().plusDays(d),
+                "test summary",
+                UUID.randomUUID()
+        );
+    }
+
+    public static ArticleCreateRequest createWithTitleAndSummaryAndSource(String title, String summary, ArticleSource articleSource) {
+        return new ArticleCreateRequest(
+                articleSource,
+                "http//target.com",
+                title,
+                LocalDateTime.now(),
+                summary,
+                UUID.randomUUID()
+        );
+    }
+
+    public static ArticleCreateRequest createWithTitleAndSummaryWithURL(String title, String summary, String sourceUrl) {
+        return new ArticleCreateRequest(
+                ArticleSource.NAVER,
+                sourceUrl,
+                title,
+                LocalDateTime.now(),
+                summary,
+                UUID.randomUUID()
+        );
+    }
+}

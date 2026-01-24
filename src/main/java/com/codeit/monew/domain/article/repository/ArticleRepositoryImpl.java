@@ -1,0 +1,211 @@
+package com.codeit.monew.domain.article.repository;
+
+import com.codeit.monew.domain.article.dto.request.ArticleSearchCondition;
+import com.codeit.monew.domain.article.entity.Article;
+import com.codeit.monew.domain.article.entity.ArticleSource;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
+import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
+import static com.codeit.monew.domain.article.entity.QArticle.article;
+
+@Repository
+@RequiredArgsConstructor
+@Slf4j
+public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
+
+    private final JPAQueryFactory queryFactory;
+
+    @Override
+    public Slice<Article> findByKeywordsAndSources(ArticleSearchCondition searchCondition) {
+
+        int pageSize = searchCondition.limit();
+        Pageable pageable = PageRequest.of(0, pageSize);
+
+        Predicate cursorCondition = cursorCondition(
+                searchCondition.orderBy(),
+                searchCondition.direction(),
+                searchCondition.cursor(),
+                searchCondition.after()
+        );
+
+
+        List<Article> contents = queryFactory
+                .selectFrom(article)
+                .where(
+                        keywordsContains(searchCondition.keywords()),
+                        sourceIn(searchCondition.sourceIn()),
+                        startDate(searchCondition.publishDateFrom()),
+                        endDate(searchCondition.publishDateTo()),
+                        cursorCondition
+                )
+                .orderBy(
+                        articleSorts(searchCondition.orderBy(), searchCondition.direction())
+                )
+                .limit(pageSize + 1)
+                .fetch();
+
+        boolean hasNext = false;
+        if (contents.size() > pageSize) {
+            contents.remove(pageSize);
+            hasNext = true;
+        }
+
+        return new SliceImpl<>(contents, pageable, hasNext);
+    }
+
+    // 키워드를 포함하는 기사 제목, 요약 조회
+    BooleanExpression keywordsContains(List<String> keywords) {
+        if (keywords == null || keywords.isEmpty()) return null;
+
+        return keywords.stream()
+                .map(keyword -> article.title.contains(keyword)
+                        .or(article.summary.contains(keyword)))
+                .reduce(BooleanExpression::and)
+                .orElse(null);
+    }
+
+    // 해당하는 출처의 기사 조회
+    BooleanExpression sourceIn(List<ArticleSource> sources) {
+        if (sources == null || sources.isEmpty())
+            return article.source.eq(ArticleSource.NAVER);
+        return article.source.in(sources);
+    }
+
+    // 날짜 시작 범위 (기본: 7일전)
+    BooleanExpression startDate(LocalDateTime date) {
+        LocalDateTime from = date != null ? date : LocalDate.now().minusDays(7).atStartOfDay();
+        return article.publishDate.goe(from);
+    }
+
+    // 날짜 끝 범위 (기본: 오늘)
+    BooleanExpression endDate(LocalDateTime date) {
+        LocalDateTime to = date != null ? date : LocalDate.now().plusDays(1).atStartOfDay();
+        return article.publishDate.lt(to);
+    }
+
+    // 커서 페이징 (기본: 게시일, 내림차순)
+    Predicate cursorCondition(String orderBy,
+                              String direction,
+                              String cursor,
+                              LocalDateTime after) {
+
+        if (cursor == null || after == null) return null;
+        String[] parts = cursor.split("_");
+        if (parts.length != 2) return Expressions.FALSE;
+
+        String cursorPart = parts[0];
+        UUID cursorId = UUID.fromString(parts[1]);
+
+        boolean isDesc = "DESC".equalsIgnoreCase(direction);
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        // 게시일 정렬
+        if ("publishDate".equalsIgnoreCase(orderBy)) {
+            try {
+                LocalDateTime date = LocalDateTime.parse(cursorPart);
+                if (isDesc) {
+                    builder.or(article.publishDate.lt(date));
+                    builder.or(article.publishDate.eq(date).and(article.createdAt.lt(after)));
+                    builder.or(article.publishDate.eq(date).and(article.createdAt.eq(after)).and(article.id.lt(cursorId)));
+                } else {
+                    builder.or(article.publishDate.gt(date));
+                    builder.or(article.publishDate.eq(date).and(article.createdAt.gt(after)));
+                    builder.or(article.publishDate.eq(date).and(article.createdAt.eq(after)).and(article.id.gt(cursorId)));
+                }
+            } catch (Exception e) {
+                log.warn("커서 형식이 잘못됨: {}", cursorPart);
+                return Expressions.FALSE;
+            }
+        }
+        // 조회수 정렬
+        else if ("viewCount".equalsIgnoreCase(orderBy)) {
+            try {
+                long count = Long.parseLong(cursorPart);
+                if (isDesc) {
+                    builder.or(article.viewCount.lt(count));
+                    builder.or(article.viewCount.eq(count).and(article.createdAt.lt(after)));
+                    builder.or(article.viewCount.eq(count).and(article.createdAt.eq(after)).and(article.id.lt(cursorId)));
+                } else {
+                    builder.or(article.viewCount.gt(count));
+                    builder.or(article.viewCount.eq(count).and(article.createdAt.gt(after)));
+                    builder.or(article.viewCount.eq(count).and(article.createdAt.eq(after)).and(article.id.gt(cursorId)));
+                }
+            } catch (NumberFormatException e) {
+                log.warn("커서 형식이 잘못됨: {}", cursorPart);
+                return Expressions.FALSE;
+            }
+        }
+        // 댓글수 정렬
+        else {
+            try {
+                long count = Long.parseLong(cursorPart);
+                if (isDesc) {
+                    builder.or(article.commentCount.lt(count));
+                    builder.or(article.commentCount.eq(count).and(article.createdAt.lt(after)));
+                    builder.or(article.commentCount.eq(count).and(article.createdAt.eq(after)).and(article.id.lt(cursorId)));
+                } else {
+                    builder.or(article.commentCount.gt(count));
+                    builder.or(article.commentCount.eq(count).and(article.createdAt.gt(after)));
+                    builder.or(article.commentCount.eq(count).and(article.createdAt.eq(after)).and(article.id.gt(cursorId)));
+                }
+            } catch (NumberFormatException e) {
+                log.warn("커서 형식이 잘못됨: {}", cursorPart);
+                return Expressions.FALSE;
+            }
+        }
+        return builder;
+    }
+
+    private OrderSpecifier<?>[] articleSorts(String orderBy, String direction) {
+
+        String safeOrderBy = orderBy == null ? "publishDate" : orderBy;
+        Order safeDirection = "DESC".equalsIgnoreCase(direction) ? Order.DESC : Order.ASC;
+
+        OrderSpecifier<?> mainSort = switch (safeOrderBy) {
+            case "viewCount" -> new OrderSpecifier<>(safeDirection, article.viewCount);
+            case "commentCount" -> new OrderSpecifier<>(safeDirection, article.commentCount);
+            default -> new OrderSpecifier<>(safeDirection, article.publishDate);
+        };
+
+        OrderSpecifier<?> subSort = new OrderSpecifier<>(safeDirection, article.createdAt);
+        OrderSpecifier<?> tieBreaker = new OrderSpecifier<>(safeDirection, article.id);
+
+        return new OrderSpecifier[]{mainSort, subSort, tieBreaker};
+    }
+
+    @Override
+    public long countTotalElements(ArticleSearchCondition searchCondition) {
+
+        Long total = queryFactory
+                .select(article.count())
+                .from(article)
+                .where(
+                        keywordsContains(searchCondition.keywords()),
+                        sourceIn(searchCondition.sourceIn()),
+                        startDate(searchCondition.publishDateFrom()),
+                        endDate(searchCondition.publishDateTo())
+                )
+                .fetchOne();
+
+        return Objects.requireNonNullElse(total, 0L);
+    }
+}

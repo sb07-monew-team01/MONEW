@@ -7,6 +7,12 @@ spring:
     username: monew_user                          # DB 사용자 이름
     password: monew1234                           # DB 비밀번호 (운영에선 환경변수 권장)
     driver-class-name: org.postgresql.Driver      # PostgreSQL JDBC 드라이버
+  batch:
+    jdbc:
+      initialize-schema: always
+      table-prefix: batch.BATCH_
+    job:
+      enabled: false
 
   jpa:
     hibernate:
@@ -19,7 +25,7 @@ spring:
 logging:
   level:
     root: info                                   # 전체 로그 기본 레벨
-    com.sprint.mission.discodeit: debug          # 프로젝트 패키지 로그를 상세히 출력
+    com.sprint.mission.monew: debug          # 프로젝트 패키지 로그를 상세히 출력
     org.hibernate.SQL: debug                     # Hibernate 실행 SQL 출력
     org.hibernate.orm.jdbc.bind: trace           # SQL 바인딩 파라미터까지 출력
     #  실제 실행된 쿼리에 ? 에 바인딩된 값까지 확인 가능 (개발용으로 매우 유용)
@@ -31,3 +37,16 @@ management:
   info:
     env:
       enabled: true          # /actuator/info 에 환경변수 정보 포함
+
+naver:
+  api:
+    client-id:
+    client-secret:
+
+aws:
+  s3:
+    bucket:
+      access-key: asd
+      secret-key: asd
+      region: ap-northeast-2
+      name: bucket-name

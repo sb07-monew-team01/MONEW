@@ -11,11 +11,11 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 public abstract class BaseUpdatableEntity extends BaseEntity {
 
-  @LastModifiedDate
-  @Column(nullable = false)
-  private LocalDateTime updatedAt;
+    @LastModifiedDate
+    @Column(nullable = true)
+    private LocalDateTime updatedAt;
 
-  protected void update() {
-    this.updatedAt = LocalDateTime.now();
-  }
+    protected void touch(){
+        this.updatedAt = LocalDateTime.now();
+    }
 }

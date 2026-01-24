@@ -52,4 +52,8 @@ $RECYCLE.BIN/
 # 환경변수
 .env
 
-/.github/
+# 개발 환경
+application-dev.yml
+
+# 로그 파일
+.logs
