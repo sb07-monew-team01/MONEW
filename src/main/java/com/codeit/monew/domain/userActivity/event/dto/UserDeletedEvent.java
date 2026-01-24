@@ -1,4 +1,4 @@
-package com.codeit.monew.domain.userActivity.event;
+package com.codeit.monew.domain.userActivity.event.dto;
 
 import java.util.UUID;
 
