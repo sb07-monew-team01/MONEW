@@ -37,7 +37,7 @@ MONEW는 여러 뉴스 API를 통합해 사용자의 관심사에 맞는 뉴스�
 
 ---
 
-## 프로젝트 기간
+## 🗓️ 프로젝트 기간
 - 2026.01.05 ~ 2026.01.26
 
 ---
@@ -96,10 +96,16 @@ MONEW는 여러 뉴스 API를 통합해 사용자의 관심사에 맞는 뉴스�
 - **NoSQL** : MongoDB (로그 및 비정형 데이터 처리)
 
 ### Infrastructure
-- **infra** : Docker
+- **Containerization** : Docker  
+- **CI / CD** : GitHub Actions
 
 ### AWS
-- **Backend Infrastructure** : AWS S3, AWS EC2
+- **Compute** : EC2 (Elastic IP, SSH 터널링)  
+- **Container Registry** : ECR  
+- **Container Orchestration** : ECS  
+- **Load Balancing** : ALB  
+- **Storage** : S3  
+- **Database** : RDS (PostgreSQL)
 
 ---
 
@@ -113,7 +119,7 @@ MONEW는 여러 뉴스 API를 통합해 사용자의 관심사에 맞는 뉴스�
 
 | 역할 | 이름 | 담당 |
 |------|------|------|
-| Backend | 김지예 | 사용자 / 활동 내역 / Mongo DB |
+| Backend | 김지예 | 사용자 / 활동 내역 / Mongo DB / 예외 처리 |
 | Backend | 박도겸 | 댓글 / 좋아요 |
 | Backend | 박재완 | 뉴스 기사 수집 / 큐레이션 |
 | Backend | 신제원 | 알림 / Spring MDC로 로그 S3 적재 |
