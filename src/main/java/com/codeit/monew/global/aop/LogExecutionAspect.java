@@ -1,6 +1,6 @@
-package com.codeit.monew.global.config;
+package com.codeit.monew.global.aop;
 
-import com.codeit.monew.global.annotation.LogExecution;
+import com.codeit.monew.global.aop.annotation.LogExecution;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -9,8 +9,8 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 import java.lang.reflect.Method;
 
-import static com.codeit.monew.global.config.LogExecutionUtils.resolveAnnotation;
-import static com.codeit.monew.global.config.LogExecutionUtils.*;
+import static com.codeit.monew.global.aop.LogExecutionUtils.resolveAnnotation;
+import static com.codeit.monew.global.aop.LogExecutionUtils.*;
 
 
 @Aspect
@@ -18,8 +18,8 @@ import static com.codeit.monew.global.config.LogExecutionUtils.*;
 @Slf4j
 public class LogExecutionAspect {
 
-    @Around("@annotation(com.codeit.monew.global.annotation.LogExecution)" +
-            " || @within(com.codeit.monew.global.annotation.LogExecution)")
+    @Around("@annotation(com.codeit.monew.global.aop.annotation.LogExecution)" +
+            " || @within(com.codeit.monew.global.aop.annotation.LogExecution)")
     public Object logExecution22(ProceedingJoinPoint joinPoint) throws Throwable {
 
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
@@ -41,15 +41,10 @@ public class LogExecutionAspect {
                 log.info("[SUCCESS] {}{}", tagPrefix, methodName);
                 return result;
             } catch (Exception e) {
-                String argLog = buildArgLog(joinPoint);
-                String detailTag = resolveDetail(e);
                 log.warn(
-                        "[FAIL] {}{} args=[{}]{}",
+                        "[FAIL] {}{}",
                         tagPrefix,
-                        methodName,
-                        argLog,
-                        detailTag,
-                        e
+                        methodName
                 );
                 throw e;
             }
@@ -64,14 +59,10 @@ public class LogExecutionAspect {
             return result;
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - start;
-            String argLog = buildArgLog(joinPoint);
-            String detailTag = resolveDetail(e);
             log.warn(
-                    "[FAIL] {}{} args=[{}]{} ({} ms)",
+                    "[FAIL] {}{}  ({} ms)",
                     tagPrefix,
                     methodName,
-                    argLog,
-                    detailTag,
                     duration
             );
             throw e;

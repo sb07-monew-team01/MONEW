@@ -3,6 +3,7 @@ package com.codeit.monew.domain.article.infrastructure.service;
 import com.codeit.monew.domain.article.dto.request.ArticleCreateRequest;
 import com.codeit.monew.domain.article.entity.Article;
 import com.codeit.monew.domain.article.infrastructure.ArticleCollector;
+import com.codeit.monew.domain.article.infrastructure.CollectReport;
 import com.codeit.monew.domain.article.infrastructure.CollectedArticleMapper;
 import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.interest.entity.Interest;
@@ -15,7 +16,6 @@ import com.codeit.monew.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,14 +34,13 @@ public class ArticleCollectServiceImpl implements ArticleCollectService {
     private final InterestUserRepository interestUserRepository;
 
 
-    @Transactional
     @Override
-    public void collectAndSave() {
+    public CollectReport collectAndSave() {
         List<Interest> interests = interestRepository.findAll();
 
         // 관심사가 없다면 종료
         if (interests.isEmpty()) {
-            return;
+            return new CollectReport(0, 0);
         }
 
         // 수집된 기사들 중, 중복이 있다면, 중복을 제거하고 리스트로 생성
@@ -62,7 +61,7 @@ public class ArticleCollectServiceImpl implements ArticleCollectService {
 
         // 수집된 기사가 없다면 종료
         if (collectedUrls.isEmpty()) {
-            return;
+            return new CollectReport(0, 0);
         }
 
         // 1000개씩 끊어서 존재하는 데이터인지 판단.
@@ -92,6 +91,8 @@ public class ArticleCollectServiceImpl implements ArticleCollectService {
         if (!newRequests.isEmpty()) {
             createdNotifications(interests, newRequests);
         }
+
+        return new CollectReport(collectedArticles.size(), newArticles.size());
     }
 
     public void createdNotifications(List<Interest> interests, List<ArticleCreateRequest> newRequests) {

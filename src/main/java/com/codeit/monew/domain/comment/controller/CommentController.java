@@ -3,17 +3,18 @@ package com.codeit.monew.domain.comment.controller;
 import com.codeit.monew.domain.comment.controller.docs.CommentControllerDocs;
 import com.codeit.monew.domain.comment.dto.request.*;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
-import com.codeit.monew.domain.comment.dto.response.CommentPageResponse;
 import com.codeit.monew.domain.comment.service.CommentService;
+import com.codeit.monew.global.dto.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
+@Slf4j
 @RequestMapping("/api/comments")
 @RequiredArgsConstructor
 @RestController
@@ -21,7 +22,8 @@ public class CommentController implements CommentControllerDocs {
     private final CommentService commentService;
 
     @GetMapping
-    public ResponseEntity<CommentPageResponse> getComments(
+    public ResponseEntity<PageResponse<CommentDto>> getComments(
+
             @RequestParam UUID articleId,
             @RequestHeader(value = "Monew-Request-User-ID", required = false) UUID userId,
             @RequestParam(defaultValue = "createdAt") CommentOrderBy orderBy,
@@ -30,6 +32,10 @@ public class CommentController implements CommentControllerDocs {
             @RequestParam(required = false) String after,
             @RequestParam(defaultValue = "50") int limit
     ) {
+        log.info(
+                "[COMMENT API] articleId={}, cursor={}, after={}, limit={}",
+                articleId, cursor, after, limit
+        );
         LocalDateTime afterDateTime =
                 after != null ? LocalDateTime.parse(after) : null;
 
@@ -43,7 +49,7 @@ public class CommentController implements CommentControllerDocs {
                         afterDateTime,
                         limit
                 );
-        return ResponseEntity.ok(commentService.getComments(request));
+        return ResponseEntity.status(HttpStatus.OK).body(commentService.getComments(request));
     }
 
     @PostMapping
