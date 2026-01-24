@@ -1,6 +1,6 @@
 package com.codeit.monew.domain.userActivity.controller;
 
-import com.codeit.monew.domain.userActivity.entity.UserActivity;
+import com.codeit.monew.domain.userActivity.dto.UserActivityDto;
 import com.codeit.monew.domain.userActivity.service.UserActivityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ public class UserActivityController {
     private final UserActivityService userActivityService;
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserActivity> getUserActivity(@PathVariable UUID userId){
+    public ResponseEntity<UserActivityDto> getUserActivity(@PathVariable UUID userId){
         return ResponseEntity.ok(userActivityService.getByUserId(userId));
     }
 }

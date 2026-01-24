@@ -9,6 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface UserActivityRepository extends MongoRepository<UserActivity, String> {
-    Optional<UserActivity> getByUser_id(UUID userId);
-    void deleteByUser_id(UUID userId);
+    Optional<UserActivity> getByUserId(UUID userId);
+    void deleteByUserId(UUID userId);
 }
