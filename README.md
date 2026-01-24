@@ -121,7 +121,7 @@ MONEW는 여러 뉴스 API를 통합해 사용자의 관심사에 맞는 뉴스�
 |------|------|------|
 | Backend | 김지예 | 사용자 / 활동 내역 / Mongo DB / 예외 처리 |
 | Backend | 박도겸 | 댓글 / 좋아요 |
-| Backend | 박재완 | 뉴스 기사 수집 / 큐레이션 |
+| Backend | 박재완 | 뉴스 기사 백업 및 복구 / 기사 조회 |
 | Backend | 신제원 | 알림 / Spring MDC로 로그 S3 적재 |
 | Backend | 이정훈 | 기사 수집 / Spring actuator 배치 모니터링 |
 | Backend | 최지혜 | 관심사 / git Action CI/CD / AWS 배포 |
