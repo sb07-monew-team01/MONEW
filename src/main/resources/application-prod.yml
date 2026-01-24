@@ -11,6 +11,12 @@ spring:
         show_sql: false    # SQL을 콘솔에 출력하지 않음 (보안 + 성능)
         format_sql: false  # SQL 포맷팅 비활성화 (로그 오버헤드 최소화)
 
+    datasource:
+      url: ${SPRING_DATASOURCE_URL}   # PostgreSQL DB 접속 URL
+      username: ${SPRING_DATASOURCE_USERNAME}                          # DB 사용자 이름
+      password: ${SPRING_DATASOURCE_PASSWORD}                           # DB 비밀번호 (운영에선 환경변수 권장)
+      driver-class-name: org.postgresql.Driver      # PostgreSQL JDBC 드라이버
+
     sql:
       init:
         mode: never        # data.sql / schema.sql 자동 실행 비활성화
@@ -28,7 +34,22 @@ management:
     health:
       show-details: never              # /actuator/health 상세 정보 미노출
       show-components: when_authorized # 인증된 사용자에게만 컴포넌트 정보 제공
+      probes:
+        enabled: true
   info:
     env:
       enabled: false                   # /actuator/info 에 환경변수 노출 안 함
       # → 운영 환경 보안 강화
+
+naver:
+  api:
+    client-id: ${NAVER_CLIENT_ID}
+    client-secret: ${NAVER_CLIENT_SECRET}
+
+aws:
+  s3:
+    bucket:
+      access-key: ${AWS_ACCESS_KEY_ID}
+      secret-key: ${AWS_SECRET_ACCESS_KEY}
+      region: ${AWS_REGION}
+      name: ${AWS_S3_BUCKET}
