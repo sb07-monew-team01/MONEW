@@ -16,17 +16,17 @@ public class UserActivity {
     @Id
     private String id;
 
-    private UUID user_id;
+    private UUID userId;
     private String email;
     private String nickname;
     private LocalDateTime createdAt;
     private List<UserActivityInterestSubscription> subscriptions;
     private List<UserActivityComment> comments;
     private List<UserActivityCommentLike> commentLikes;
-    private List<UserActivityArticle> articleViews;
+    private List<UserActivityArticleView> articleViews;
 
     public UserActivity(User user) {
-        this.user_id = user.getId();
+        this.userId = user.getId();
         this.email = user.getEmail();
         this.nickname = user.getNickname();
         this.createdAt = user.getCreatedAt();
