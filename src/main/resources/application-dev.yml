@@ -41,4 +41,12 @@ management:
 naver:
   api:
     client-id:
-    client-secret: 
+    client-secret:
+
+aws:
+  s3:
+    bucket:
+      access-key: asd
+      secret-key: asd
+      region: ap-northeast-2
+      name: bucket-name

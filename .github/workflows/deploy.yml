@@ -1,0 +1,140 @@
+name: Deploy to AWS ECS
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+  ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
+  ECS_SERVICE: ${{ secrets.ECS_SERVICE }}
+  TASK_DEFINITION: ${{ secrets.TASK_DEFINITION }}
+  CONTAINER_NAME: ${{secrets.CONTAINER_NAME}}
+
+jobs:
+  deploy:
+    if: github.head_ref == 'dev'   # dev에서 PR 보낼 때만
+    name: Deploy
+    runs-on: ubuntu-22.04
+    
+    steps:
+      # 1. code checkout : github 코드를 actions 작업 환경으로 가져오겠다는 뜻
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      # 2. java 설치
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 3. Gradle 캐싱 (빌드 속도 향상)
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # 4. Gradle Build
+      - name: Build with Gradle
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build -x test
+
+      # 5. AWS 자격 증명 설정
+      - name: Authenticate to Amazon ECR
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+
+      # 6. ECR 로그인
+      - name: Login to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # 7. Docker 이미지 빌드 & ECR push
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}  # Git commit hash를 이미지 태그로 사용
+        run: |
+          # Docker 이미지 빌드
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          
+          # ECR에 푸시
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          
+          # 다음 스텝에서 사용할 수 있도록 단순 출력
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      # 8. 현재 Task 정의를 다운로드
+      - name: Download current task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ env.TASK_DEFINITION }} \
+            --query taskDefinition > task-definition.json
+          
+          sudo apt-get update && sudo apt-get install -y jq
+          
+          jq 'del(
+          .taskDefinitionArn,
+          .revision,
+          .status,
+          .requiresAttributes,
+          .compatibilities,
+          .registeredAt,
+          .registeredBy,
+          .enableFaultInjection
+          )' task-definition.json > task-definition-clean.json
+          
+          mv task-definition-clean.json task-definition.json  
+
+      # 8-1. Debug: 실제 containerDefinitions.name 확인
+      - name: Debug container name
+        run: |
+          echo "=== containerDefinitions names ==="
+          cat task-definition.json | jq '.containerDefinitions[].name'
+          echo "==============================="
+      
+      # 9. Task Definition에 새 이미지 반영
+      - name: Fill in the new image ID in task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build-image.outputs.image }}
+
+      # 10. ECS Service에 새 Task Definition 배포
+      - name: Deploy to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
+      # 11. 배포 완료 메시지 출력
+      - name: Deployment result
+        run: |
+          echo "Deployment completed successfully!"
+          echo "Image: ${{ steps.build-image.outputs.image }}"
+          echo "Service: ${{ env.ECS_SERVICE }}"
+          echo "Cluster: ${{ env.ECS_CLUSTER }}"
