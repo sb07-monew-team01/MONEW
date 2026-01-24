@@ -13,19 +13,28 @@ import com.codeit.monew.domain.userActivity.entity.*;
 import com.codeit.monew.domain.userActivity.mapper.UserActivityDtoMapper;
 import com.codeit.monew.domain.userActivity.repository.UserActivityRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class UserActivityServiceImpl {
+public class UserActivityServiceImpl implements UserActivityService {
 
     private final UserActivityRepository userActivityRepository;
     private final UserActivityDtoMapper userActivityMapper;
+    private final MongoTemplate mongoTemplate;
+
+    private Query queryByUserId(UUID userId) {
+        return Query.query(Criteria.where("userId").is(userId));
+    }
 
     public UserActivityDto createUserActivity(User user) {
         UserActivity userActivity = new UserActivity(user);
@@ -34,7 +43,7 @@ public class UserActivityServiceImpl {
     }
 
     public UserActivityDto getByUserId(UUID userId) {
-        UserActivity activity = userActivityRepository.getByUser_id(userId)
+        UserActivity activity = userActivityRepository.getByUserId(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
         if (activity == null)
             throw new UserNotFoundException(userId);
@@ -42,34 +51,37 @@ public class UserActivityServiceImpl {
     }
 
     public UserActivityDto addComment(UUID userId, Comment comment, Article article, Long commentUserLikeCount) {
-        UserActivity activity = userActivityRepository.getByUser_id(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-        if (activity.getComments().size() > 10) {
-            activity.getComments().remove(0);
-        }
-        activity.getComments().add(new UserActivityComment(
+        UserActivityComment newComment = new UserActivityComment(
                 comment.getId(),
                 article.getId(),
                 article.getTitle(),
-                activity.getUser_id(),
-                activity.getNickname(),
+                userId,
+                comment.getUser().getNickname(),
                 comment.getContent(),
                 commentUserLikeCount,
                 comment.getCreatedAt()
-        ));
-        return userActivityMapper.toDto(activity);
+        );
+
+        Update update = new Update()
+                .push("comments")
+                .atPosition(Update.Position.FIRST)
+                .slice(10)
+                .value(newComment);
+        UserActivity userActivity = mongoTemplate.findAndModify(
+                queryByUserId(userId),
+                update,
+                FindAndModifyOptions.options().returnNew(true),
+                UserActivity.class);
+        if (userActivity == null)
+            throw new UserNotFoundException(userId);
+        return userActivityMapper.toDto(userActivity);
     }
 
     public UserActivityDto addCommentLike(UUID userId, CommentUserLike commentLike, Long commentLikeCount) {
-        UserActivity activity = userActivityRepository.getByUser_id(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-        if (activity.getCommentLikes().size() > 10) {
-            activity.getCommentLikes().remove(0);
-        }
         Comment comment = commentLike.getComment();
         Article article = comment.getArticle();
         User commentUser = comment.getUser();
-        activity.getCommentLikes().add(new UserActivityCommentLike(
+        UserActivityCommentLike newCommentLike = new UserActivityCommentLike(
                 commentLike.getId(),
                 commentLike.getCreatedAt(),
                 comment.getId(),
@@ -79,20 +91,26 @@ public class UserActivityServiceImpl {
                 commentUser.getNickname(),
                 comment.getContent(),
                 commentLikeCount,
-                comment.getCreatedAt()));
-        return userActivityMapper.toDto(activity);
+                comment.getCreatedAt());
+        Update update = new Update()
+                .push("commentLikes")
+                .atPosition(Update.Position.FIRST)
+                .slice(10)
+                .value(newCommentLike);
+        UserActivity userActivity = mongoTemplate.findAndModify(
+                queryByUserId(userId),
+                update,
+                FindAndModifyOptions.options().returnNew(true), // 변경 후 Document 반환
+                UserActivity.class
+        );
+        if(userActivity == null)
+            throw new UserNotFoundException(userId);
+        return userActivityMapper.toDto(userActivity);
     }
 
     public UserActivityDto addArticleView(UUID userId, ArticleView articleView) {
-        UserActivity userActivity = userActivityRepository.getByUser_id(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-        List<UserActivityArticle> articleViews = userActivity.getArticleViews();
-        if (articleViews.size() > 10) {
-            articleViews.remove(0);
-        }
-
         Article article = articleView.getArticle();
-        articleViews.add(new UserActivityArticle(
+        UserActivityArticleView newArticleView = new UserActivityArticleView(
                 articleView.getId(),
                 articleView.getUser().getId(),
                 articleView.getCreatedAt(),
@@ -104,14 +122,25 @@ public class UserActivityServiceImpl {
                 article.getSummary(),
                 article.getCommentCount(),
                 article.getViewCount()
-        ));
+        );
+        Update update = new Update()
+                .push("articleViews")
+                .atPosition(Update.Position.FIRST)
+                .slice(10)
+                .value(newArticleView);
+
+        UserActivity userActivity = mongoTemplate.findAndModify(
+                queryByUserId(userId),
+                update,
+                FindAndModifyOptions.options().returnNew(true),
+                UserActivity.class);
+        if (userActivity == null)
+            throw new UserNotFoundException(userId);
         return userActivityMapper.toDto(userActivity);
     }
 
     public UserActivityDto addSubscription(UUID userId, Interest interest, InterestUser interestUser) {
-        UserActivity userActivity = userActivityRepository.getByUser_id(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-        userActivity.getSubscriptions().add(new UserActivityInterestSubscription(
+        UserActivityInterestSubscription newSubscription = new UserActivityInterestSubscription(
                 interestUser.getId(),
                 interest.getId(),
                 interest.getName(),
@@ -120,11 +149,29 @@ public class UserActivityServiceImpl {
                         .toList(),
                 interest.getSubscriberCount(),
                 interestUser.getCreatedAt()
-        ));
+        );
+        Update update = new Update()
+                .push("subscriptions")
+                .atPosition(Update.Position.FIRST)
+                .slice(10)
+                .value(newSubscription);
+        UserActivity userActivity = mongoTemplate.findAndModify(
+                queryByUserId(userId),
+                update,
+                FindAndModifyOptions.options().returnNew(true),
+                UserActivity.class);
+        if (userActivity == null)
+            throw new UserNotFoundException(userId);
         return userActivityMapper.toDto(userActivity);
     }
 
+    public void removeSubscription(UUID userId, UUID interestId) {
+        Update update = new Update()
+                .pull("subscriptions", Query.query(Criteria.where("interestId").is(interestId)));
+        mongoTemplate.updateFirst(queryByUserId(userId), update, UserActivity.class);
+    }
+
     public void remove(UUID userId) {
-        userActivityRepository.deleteByUser_id(userId);
+        userActivityRepository.deleteByUserId(userId);
     }
 }
