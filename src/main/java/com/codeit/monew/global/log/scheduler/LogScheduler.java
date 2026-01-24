@@ -40,7 +40,7 @@ public class LogScheduler {
     @Value("${app.log-upload.prefix:monew/prod}")
     private String prefix;
 
-    @Value("${app.log-upload.zone:Asia/Seoul}")
+    @Value("${name.aws-region:Asia/Seoul}")
     private String zone;
 
     // logback 설정 그대로 따라가도록 디폴트
