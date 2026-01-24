@@ -9,6 +9,7 @@ import com.codeit.monew.domain.interest.dto.response.InterestSubscriptionRespons
 import com.codeit.monew.domain.interest.service.InterestService;
 import com.codeit.monew.domain.interestuser.service.InterestUserService;
 import com.codeit.monew.global.aop.annotation.LogExecution;
+import com.codeit.monew.global.aop.annotation.LogTag;
 import com.codeit.monew.global.dto.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/interests")
-@LogExecution
+@LogExecution(tag= LogTag.INTEREST)
 public class InterestController implements InterestControllerDocs {
     private final InterestService interestService;
     private final InterestUserService interestUserService;
