@@ -5,8 +5,8 @@ import com.codeit.monew.domain.comment.dto.request.CommentRegisterRequest;
 import com.codeit.monew.domain.comment.dto.request.CommentUpdateRequest;
 import com.codeit.monew.domain.comment.dto.request.SortDirection;
 import com.codeit.monew.domain.comment.dto.response.CommentDto;
-import com.codeit.monew.domain.comment.dto.response.CommentPageResponse;
 import com.codeit.monew.global.dto.ErrorResponse;
+import com.codeit.monew.global.dto.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,7 +33,7 @@ public interface CommentControllerDocs {
                     @ApiResponse(
                             responseCode = "200",
                             description = "조회 성공",
-                            content = @Content(schema = @Schema(implementation = CommentPageResponse.class))
+                            content = @Content(schema = @Schema(implementation = PageResponse.class))
                     ),
                     @ApiResponse(
                             responseCode = "400",
@@ -48,25 +48,25 @@ public interface CommentControllerDocs {
             }
     )
     @GetMapping
-    ResponseEntity<CommentPageResponse> getComments(@Parameter(description = "기사 ID(UUID)", required = true, example = "d1c17835-6325-40ba-8d72-5e6f5f23a8fc")
+    ResponseEntity<PageResponse<CommentDto>> getComments(@Parameter(description = "기사 ID(UUID)", required = true, example = "d1c17835-6325-40ba-8d72-5e6f5f23a8fc")
             @RequestParam UUID articleId,
 
-            @Parameter(description = "요청 사용자 ID(UUID)", required = true, example = "b285abcc-8e72-4bb4-9b8d-d1ddc93242ff")
+                                                         @Parameter(description = "요청 사용자 ID(UUID)", required = true, example = "b285abcc-8e72-4bb4-9b8d-d1ddc93242ff")
             @RequestHeader("Monew-Request-User-ID") UUID userId,
 
-            @Parameter(description = "정렬 기준", example = "createdAt")
+                                                         @Parameter(description = "정렬 기준", example = "createdAt")
             @RequestParam CommentOrderBy orderBy,
 
-            @Parameter(description = "정렬 방향", example = "DESC")
+                                                         @Parameter(description = "정렬 방향", example = "DESC")
             @RequestParam SortDirection direction,
 
-            @Parameter(description = "커서 값", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+                                                         @Parameter(description = "커서 값", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
             @RequestParam(required = false) String cursor,
 
-            @Parameter(description = "이전 기준 시각(ISO-8601)", example = "2026-01-20T10:15:30")
+                                                         @Parameter(description = "이전 기준 시각(ISO-8601)", example = "2026-01-20T10:15:30")
             @RequestParam(required = false) String after,
 
-            @Parameter(description = "페이지 크기", example = "50")
+                                                         @Parameter(description = "페이지 크기", example = "50")
             @RequestParam(defaultValue = "50") int limit
     );
 

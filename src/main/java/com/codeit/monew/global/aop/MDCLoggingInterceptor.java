@@ -1,10 +1,9 @@
-package com.codeit.monew.global.config;
+package com.codeit.monew.global.aop;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 
@@ -33,6 +32,7 @@ public class MDCLoggingInterceptor extends OncePerRequestFilter {
         String requestId = resolveRequestId(request);
         String clientIp = resolveClientIp(request);
 
+
         MDC.put(MDC_REQUEST_ID, requestId);
         MDC.put(MDC_CLIENT_IP, clientIp);
 
@@ -53,13 +53,13 @@ public class MDCLoggingInterceptor extends OncePerRequestFilter {
     }
 
     private String resolveRequestId(HttpServletRequest request) {
-        // 클라이언트가 이미 X-Request-Id 를 보내오면 그걸 유지 (트레이싱 연동에 좋음)
+
         String incoming = request.getHeader(HEADER_REQUEST_ID);
         if (incoming != null && !incoming.isBlank()) return incoming.trim();
         return UUID.randomUUID().toString();
     }
 
-    //오케 다물어봐 수퍼똑똑이다
+
     private String resolveClientIp(HttpServletRequest request) {
         // 프록시/ALB 환경 고려: X-Forwarded-For 첫 번째 값이 보통 원 IP
         String xff = request.getHeader("X-Forwarded-For");

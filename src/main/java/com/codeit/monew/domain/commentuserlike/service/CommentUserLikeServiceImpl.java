@@ -41,11 +41,9 @@ public class CommentUserLikeServiceImpl implements CommentUserLikeService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException(ErrorCode.COMMENT_NOT_FOUND));
 
-        commentUserLikeRepository
-                .findByUserIdAndCommentId(userId, commentId)
-                .ifPresent(like -> {
-                    throw new CommentAlreadyLikedException(ErrorCode.COMMENT_ALREADY_LIKED);
-                });
+        if (commentUserLikeRepository.existsByUserIdAndCommentId(userId, commentId)) {
+            throw new CommentAlreadyLikedException(ErrorCode.COMMENT_ALREADY_LIKED);
+        }
 
         CommentUserLike like = CommentUserLike.create(user, comment);
         commentUserLikeRepository.save(like);
@@ -71,18 +69,7 @@ public class CommentUserLikeServiceImpl implements CommentUserLikeService {
     @Transactional
     @Override
     public void unlike(UUID userId, UUID commentId) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-
-        CommentUserLike unlike = commentUserLikeRepository
-                .findByUserIdAndCommentId(userId, commentId)
-                .orElseThrow(() ->
-                        new CommentUserLikeNotFoundException(ErrorCode.COMMENT_USER_LIKE_NOT_FOUND)
-                );
-
-        commentUserLikeRepository.delete(unlike);
+        commentUserLikeRepository.deleteByUserIdAndCommentId(userId, commentId);
     }
-
 
 }

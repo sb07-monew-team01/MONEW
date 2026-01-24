@@ -13,22 +13,27 @@ public class InterestQueryMapper {
     public InterestCursorQuery toQuery(InterestCursorPageRequest request) {
         InterestOrderBy orderBy = InterestOrderBy.fromString(request.orderBy()).orElse(InterestOrderBy.NAME);
         SortDirection direction = SortDirection.fromString(request.direction()).orElse(SortDirection.ASC);
+
         String nameCursor = null;
         Long subscriberCountCursor = null;
+        String cursorParsing;
+        LocalDateTime afterParsing = request.cursor() == null ?
+                null : LocalDateTime.parse(request.cursor().split("_")[1]);
 
-        switch (orderBy) {
-            case NAME -> nameCursor = request.cursor();
-            case SUBSCRIBERCOUNT -> subscriberCountCursor =
-                    request.cursor() == null
-                    ? null
-                    : Long.parseLong(request.cursor().split("_")[0]);
+        if(request.cursor() != null){
+            cursorParsing = request.cursor().split("_")[0];
+            switch (orderBy) {
+                case NAME -> nameCursor = cursorParsing;
+                case SUBSCRIBERCOUNT -> subscriberCountCursor = Long.parseLong(cursorParsing);
+            };
         }
+
         return new InterestCursorQuery(
                 orderBy,
                 direction,
                 nameCursor,
                 subscriberCountCursor,
-                request.cursor()==null? null:LocalDateTime.parse(request.cursor().split("_")[1]),
+                afterParsing,
                 request.limit(),
                 request.keywordValue()
         );
