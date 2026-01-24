@@ -3,7 +3,7 @@ package com.codeit.monew.domain.userActivity.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record UserActivityArticle (
+public record UserActivityArticleView(
         UUID id,
         UUID viewedBy,
         LocalDateTime createdAt,
