@@ -12,6 +12,7 @@ import com.codeit.monew.domain.articleView.service.ArticleViewService;
 import com.codeit.monew.global.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -67,8 +68,8 @@ public class ArticleController implements ArticleControllerDocs {
 
     @GetMapping("/restore")
     public ResponseEntity<List<ArticleRestoreResultDto>> articleRestoreList(
-            @RequestParam LocalDate from,
-            @RequestParam LocalDate to
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate to
     ) {
         return ResponseEntity.ok(articleBackupService.restoredArticles(from, to));
     }
