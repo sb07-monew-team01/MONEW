@@ -14,8 +14,8 @@ import org.springframework.context.annotation.Configuration;
         ),
         servers = {
                 @Server(
-                        url = "http://localhost:8081",
-                        description = "로컬 서버"
+                        url = "monew-lb-1384195067.ap-northeast-2.elb.amazonaws.com",
+                        description = "aws server"
                 )
         }
 )
