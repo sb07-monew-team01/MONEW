@@ -1,5 +1,6 @@
 package com.codeit.monew.domain.userActivity.controller;
 
+import com.codeit.monew.domain.userActivity.controller.docs.UserActivityControllerDocs;
 import com.codeit.monew.domain.userActivity.dto.UserActivityDto;
 import com.codeit.monew.domain.userActivity.service.UserActivityService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user-activities")
-public class UserActivityController {
+public class UserActivityController implements UserActivityControllerDocs {
 
     private final UserActivityService userActivityService;
 
