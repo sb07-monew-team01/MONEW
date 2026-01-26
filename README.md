@@ -44,7 +44,7 @@ MONEW는 여러 뉴스 API를 통합해 사용자의 관심사에 맞는 뉴스�
 
 ## 🎞 DEMO
 - 모뉴(MONEW) 서비스 배포 링크: http://monew-lb-1384195067.ap-northeast-2.elb.amazonaws.com/
-- 모뉴(MONEW) 서비스 시연 영상: (추가 예정)
+- 모뉴(MONEW) 서비스 시연 영상: youtube.com/watch?v=1GmfAoMpdG4&feature=youtu.be
 
 ---
 
