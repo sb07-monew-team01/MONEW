@@ -22,6 +22,8 @@ services:
       - JAVA_OPTS="-Xmx512m -Xms512"
       - NAVER_CLIENT_ID=${NAVER_CLIENT_ID}
       - NAVER_CLIENT_SECRET=${NAVER_CLIENT_SECRET}
+      - spring.data.mongodb.url=${spring.data.mongodb.url}
+      - spring.data.mongodb.password=${}
     networks:
       - app-network
 

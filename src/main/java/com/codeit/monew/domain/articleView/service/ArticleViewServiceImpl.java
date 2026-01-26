@@ -10,7 +10,9 @@ import com.codeit.monew.domain.articleView.repository.ArticleViewRepository;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
+import com.codeit.monew.domain.userActivity.event.dto.ArticleViewedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,7 @@ public class ArticleViewServiceImpl implements ArticleViewService {
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
     private final ArticleViewMapper articleViewMapper;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional
     @Override
@@ -41,6 +44,12 @@ public class ArticleViewServiceImpl implements ArticleViewService {
         ArticleView articleView = new ArticleView(user, article);
         article.increaseViewCount();
         articleViewRepository.save(articleView);
+
+        // 이벤트 발행
+        publisher.publishEvent(new ArticleViewedEvent(
+                userId,
+                articleView
+        ));
 
         return articleViewMapper.toDto(articleView);
     }

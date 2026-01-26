@@ -14,9 +14,11 @@ import com.codeit.monew.domain.commentuserlike.repository.CommentUserLikeReposit
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
+import com.codeit.monew.domain.userActivity.event.dto.CommentCreatedEvent;
 import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +37,7 @@ public class CommentServiceImpl implements CommentService {
     private final UserRepository userRepository;
     private final CommentUserLikeRepository commentUserLikeRepository;
     private final ArticleRepository articleRepository;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     @Transactional
@@ -53,6 +56,15 @@ public class CommentServiceImpl implements CommentService {
         Comment saved = commentRepository.save(comment);
 
         article.increaseCommentCount();
+
+        // 이벤트 발행
+        publisher.publishEvent(new CommentCreatedEvent(
+                request.userId(),
+                comment,
+                article,
+                0L
+        ));
+
         return CommentMapper.toDto(saved);
     }
 

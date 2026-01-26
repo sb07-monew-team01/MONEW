@@ -13,8 +13,10 @@ import com.codeit.monew.domain.notification.service.NotificationService;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
+import com.codeit.monew.domain.userActivity.event.dto.CommentLikeCreatedEvent;
 import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ public class CommentUserLikeServiceImpl implements CommentUserLikeService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional
     @Override
@@ -52,6 +55,14 @@ public class CommentUserLikeServiceImpl implements CommentUserLikeService {
         );
 
         long likeCount = commentUserLikeRepository.countByCommentId(commentId);
+
+        // 이벤트 발행
+        publisher.publishEvent(new CommentLikeCreatedEvent(
+                userId,
+                like,
+                likeCount
+        ));
+
         return CommentUserLikeMapper.toDto(like, likeCount);
     }
 

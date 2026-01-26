@@ -21,6 +21,7 @@ import com.codeit.monew.global.dto.PageResponse;
 import com.codeit.monew.global.enums.ErrorCode;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,6 +71,7 @@ public class InterestServiceImpl implements InterestService{
     @Transactional
     public InterestCommonResponse create(InterestCreatedRequest request){
         interestNamePolicy.apply(request.name(), interestRepository.findAll());
+
         return interestMapper.toDto(
                 interestRepository.save(new Interest(request.name(), request.keywords())),
                 false
@@ -93,7 +95,7 @@ public class InterestServiceImpl implements InterestService{
     @Override
     @Transactional
     public void delete(UUID id){
-        findById(id);
+        Interest interest = findById(id);
         interestRepository.deleteById(id);
     }
 

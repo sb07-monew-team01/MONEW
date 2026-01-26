@@ -1,22 +1,22 @@
 package com.codeit.monew.domain.userActivity.dto;
 
-import com.codeit.monew.domain.articleView.dto.response.ArticleViewDto;
-import com.codeit.monew.domain.interest.dto.response.InterestSubscriptionResponse;
+import com.codeit.monew.domain.userActivity.entity.UserActivityArticleView;
+import com.codeit.monew.domain.userActivity.entity.UserActivityComment;
+import com.codeit.monew.domain.userActivity.entity.UserActivityCommentLike;
+import com.codeit.monew.domain.userActivity.entity.UserActivityInterestSubscription;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 public record UserActivityDto(
-        UUID id,
+        UUID userId,
         String email,
         String nickname,
-        String createdAt,
-        List<InterestSubscriptionResponse> subscriptions,
-        List<UserActivityCommentDto> comments,
-        List<UserActivityCommentLikeDto> commentLikes,
-        List<ArticleViewDto> articleViews
+        LocalDateTime createdAt,
+        List<UserActivityInterestSubscription>subscriptions,
+        List<UserActivityComment> comments,
+        List<UserActivityCommentLike> commentLikes,
+        List<UserActivityArticleView> articleViews
 ) {
-
-
-
 }

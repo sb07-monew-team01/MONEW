@@ -12,8 +12,11 @@ import com.codeit.monew.domain.interestuser.repository.InterestUserRepository;
 import com.codeit.monew.domain.user.entity.User;
 import com.codeit.monew.domain.user.exception.UserNotFoundException;
 import com.codeit.monew.domain.user.repository.UserRepository;
+import com.codeit.monew.domain.userActivity.event.dto.InterestSubscribedEvent;
+import com.codeit.monew.domain.userActivity.event.dto.InterestUnsubscribedEvent;
 import com.codeit.monew.global.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +29,7 @@ public class InterestUserServiceImpl implements InterestUserService{
     private final InterestRepository interestRepository;
     private final InterestUserRepository interestUserRepository;
     private final InterestSubscriptionMapper interestSubScriptionMapper;
+    private final ApplicationEventPublisher publisher;
 
 
     @Override
@@ -41,6 +45,13 @@ public class InterestUserServiceImpl implements InterestUserService{
         }
         InterestUser saved = interestUserRepository.save(new InterestUser(user, interest));
         interest.increaseSubscriberCount();
+
+        // 이벤트 발행
+        publisher.publishEvent(new InterestSubscribedEvent(
+                userId,
+                interest,
+                saved
+        ));
 
         return interestSubScriptionMapper.toDto(interest, saved);
     }
@@ -58,6 +69,13 @@ public class InterestUserServiceImpl implements InterestUserService{
                 () -> new InterestUserNotFoundException(ErrorCode.INTERESTUSER_NOT_FOUND)
         );
         interestUserRepository.delete(interestUser);
+
         interest.decreaseSubscriberCount();
+
+        // 이벤트 발행
+        publisher.publishEvent(new InterestUnsubscribedEvent(
+                userId,
+                interestId
+        ));
     }
 }
