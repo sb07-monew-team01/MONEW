@@ -14,7 +14,6 @@ import software.amazon.awssdk.services.s3.S3Client;
 @Configuration
 public class AwsS3Config {
 
-    // 설정은 변경해주세요
     @Value("${aws.s3.bucket.access-key}")
     private String accessKey;
 

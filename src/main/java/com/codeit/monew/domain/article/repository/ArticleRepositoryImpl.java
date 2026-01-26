@@ -91,13 +91,13 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
     // 날짜 시작 범위 (기본: 7일전)
     BooleanExpression startDate(LocalDateTime date) {
-        LocalDateTime from = date != null ? date : LocalDate.now().minusDays(7).atStartOfDay();
+        LocalDateTime from = Objects.requireNonNullElse(date, LocalDate.now().minusDays(7).atStartOfDay());
         return article.publishDate.goe(from);
     }
 
     // 날짜 끝 범위 (기본: 오늘)
     BooleanExpression endDate(LocalDateTime date) {
-        LocalDateTime to = date != null ? date : LocalDate.now().plusDays(1).atStartOfDay();
+        LocalDateTime to = Objects.requireNonNullElse(date, LocalDate.now().plusDays(1).atStartOfDay());
         return article.publishDate.lt(to);
     }
 
@@ -177,7 +177,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
     private OrderSpecifier<?>[] articleSorts(String orderBy, String direction) {
 
-        String safeOrderBy = orderBy == null ? "publishDate" : orderBy;
+        String safeOrderBy = Objects.requireNonNullElse(orderBy, "publishDate");
         Order safeDirection = "DESC".equalsIgnoreCase(direction) ? Order.DESC : Order.ASC;
 
         OrderSpecifier<?> mainSort = switch (safeOrderBy) {
