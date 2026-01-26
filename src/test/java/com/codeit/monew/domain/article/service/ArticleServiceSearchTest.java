@@ -19,6 +19,7 @@ import com.codeit.monew.domain.article.repository.ArticleRepository;
 import com.codeit.monew.domain.interest.entity.Interest;
 import com.codeit.monew.domain.interest.repository.InterestRepository;
 import com.codeit.monew.global.enums.ErrorCode;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -59,8 +60,14 @@ public class ArticleServiceSearchTest {
     @InjectMocks
     private ArticleServiceImpl articleService;
 
-    UUID userId = UUID.randomUUID();
-    User user = new User("email@a.a", "nickname", "password");
+    private UUID userId;
+    private User user;
+
+    @BeforeEach
+    void setUp() {
+        userId = UUID.randomUUID();
+        user = new User("email@a.a", "nickname", "password");
+    }
 
     @Nested
     @DisplayName("검색 조건을 통해 기사 목록을 조회한다.")
