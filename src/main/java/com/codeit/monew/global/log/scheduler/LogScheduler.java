@@ -52,8 +52,8 @@ public class LogScheduler {
 
     private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-   //@Scheduled(cron = "0 */2 * * * *", zone = "Asia/Seoul")
-    @Scheduled(cron = "0 5 0 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 */2 * * * *", zone = "Asia/Seoul")
+    //@Scheduled(cron = "0 5 0 * * *", zone = "Asia/Seoul")
     public void uploadYesterday() {
         //업로드 키고 끄기
         if (!enabled) return;
