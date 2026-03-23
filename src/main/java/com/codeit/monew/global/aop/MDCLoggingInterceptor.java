@@ -39,6 +39,7 @@ public class MDCLoggingInterceptor extends OncePerRequestFilter {
         response.setHeader(HEADER_REQUEST_ID, requestId);
         response.setHeader(HEADER_CLIENT_IP, clientIp);
 
+
         long start = System.currentTimeMillis();
         String method = request.getMethod();
         String uri = request.getRequestURI();
