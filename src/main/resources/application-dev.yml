@@ -40,8 +40,8 @@ management:
 
 naver:
   api:
-    client-id:
-    client-secret:
+    client-id: ibOwf3stoFIGTZrlVXqr
+    client-secret: eTVElEVfLZ
 
 aws:
   s3:
